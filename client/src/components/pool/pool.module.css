@@ -1,0 +1,74 @@
+.Pool {
+  margin: 0 4rem;
+}
+
+.Table {
+  display: flex;
+  flex-direction: column;
+}
+
+.TableRow {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr 1fr 1fr;
+  column-gap: 5px;
+  padding: 1rem;
+  height: auto;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+.Selected {
+  background-color: black;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+}
+
+.TableRowHeader {
+  border-bottom: 1px solid black;
+  font-size: 1rem;
+}
+
+.TableRowAsset {
+  margin-right: 0.5rem;
+  margin-top: 0.11rem;
+  text-align: left;
+}
+
+.TableRowCell {
+}
+
+.PoolItem {
+  display: flex;
+  align-items: center;
+}
+
+.PoolItem h4 {
+  margin: 0;
+}
+
+.PoolItem p {
+  margin: 0;
+  font-size: 0.6rem;
+}
+
+.SwitchWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  font-size: 0.8rem;
+}
+
+.SwitchWrapper .Text {
+  padding: 1rem;
+}
+
+.ArrowDown {
+  border: 0.2rem solid white;
+  border-width: 0 3px 3px 0;
+  display: inline-block;
+  padding: 3px;
+  transform: rotate(45deg);
+  -webkit-transform: rotate(45deg);
+}
