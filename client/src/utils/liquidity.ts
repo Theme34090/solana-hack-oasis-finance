@@ -1,14 +1,14 @@
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { Connection, PublicKey, Transaction, TransactionInstruction } from '@solana/web3.js'
-import { WalletAdapter } from "../store/wallet";
 import { LiquidityPoolInfo } from "./pools";
 import { TokenAmount } from './safe-math';
 import { NATIVE_SOL, TokenInfo, TOKENS } from "./tokens";
 // @ts-ignore
 import { closeAccount } from '@project-serum/serum/lib/token-instructions'
 import { createTokenAccountIfNotExist, sendTransaction } from './web3';
-// @ts-ignore
-import { nu64, struct, u8 } from 'buffer-layout'
+import { SOL_HACK_PROGRAM_ID } from './ids';
+import { serializeProvideLP } from '../models/borsh';
+
 
 export const addLiquidity = async (
     connection: Connection | undefined | null,
@@ -90,7 +90,8 @@ export const addLiquidity = async (
 
     transaction.add(
         addLiquidityInstructionV4(
-            new PublicKey(poolInfo.programId),
+            // new PublicKey(poolInfo.programId),
+            new PublicKey(SOL_HACK_PROGRAM_ID),
 
             new PublicKey(poolInfo.ammId),
             new PublicKey(poolInfo.ammAuthority),
@@ -134,66 +135,6 @@ export const addLiquidity = async (
     return await sendTransaction(connection, wallet, transaction, signers)
 }
 
-export function addLiquidityInstruction(
-    programId: PublicKey,
-    // tokenProgramId: PublicKey,
-    // amm
-    ammId: PublicKey,
-    ammAuthority: PublicKey,
-    ammOpenOrders: PublicKey,
-    ammQuantities: PublicKey,
-    lpMintAddress: PublicKey,
-    poolCoinTokenAccount: PublicKey,
-    poolPcTokenAccount: PublicKey,
-    // serum
-    serumMarket: PublicKey,
-    // user
-    userCoinTokenAccount: PublicKey,
-    userPcTokenAccount: PublicKey,
-    userLpTokenAccount: PublicKey,
-    userOwner: PublicKey,
-
-    maxCoinAmount: number,
-    maxPcAmount: number,
-    fixedFromCoin: number
-): TransactionInstruction {
-    const dataLayout = struct([u8('instruction'), nu64('maxCoinAmount'), nu64('maxPcAmount'), nu64('fixedFromCoin')])
-
-    const keys = [
-        { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: true },
-        { pubkey: ammId, isSigner: false, isWritable: true },
-        { pubkey: ammAuthority, isSigner: false, isWritable: true },
-        { pubkey: ammOpenOrders, isSigner: false, isWritable: true },
-        // { pubkey: ammQuantities, isSigner: false, isWritable: true },
-        { pubkey: lpMintAddress, isSigner: false, isWritable: true },
-        { pubkey: poolCoinTokenAccount, isSigner: false, isWritable: true },
-        { pubkey: poolPcTokenAccount, isSigner: false, isWritable: true },
-        { pubkey: serumMarket, isSigner: false, isWritable: true },
-        { pubkey: userCoinTokenAccount, isSigner: false, isWritable: true },
-        { pubkey: userPcTokenAccount, isSigner: false, isWritable: true },
-        { pubkey: userLpTokenAccount, isSigner: false, isWritable: true },
-        { pubkey: userOwner, isSigner: true, isWritable: true }
-    ]
-
-    const data = Buffer.alloc(dataLayout.span)
-    dataLayout.encode(
-        {
-            instruction: 3,
-            maxCoinAmount,
-            maxPcAmount,
-            fixedFromCoin
-        },
-        data
-    )
-
-    return new TransactionInstruction({
-        keys,
-        programId,
-        data
-    })
-}
-
-
 export function addLiquidityInstructionV4(
     programId: PublicKey,
     // tokenProgramId: PublicKey,
@@ -217,7 +158,6 @@ export function addLiquidityInstructionV4(
     maxPcAmount: number,
     fixedFromCoin: number
 ): TransactionInstruction {
-    const dataLayout = struct([u8('instruction'), nu64('maxCoinAmount'), nu64('maxPcAmount'), nu64('fixedFromCoin')])
 
     const keys = [
         { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: true },
@@ -235,16 +175,13 @@ export function addLiquidityInstructionV4(
         { pubkey: userOwner, isSigner: true, isWritable: true }
     ]
 
-    const data = Buffer.alloc(dataLayout.span)
-    dataLayout.encode(
-        {
-            instruction: 3,
-            maxCoinAmount,
-            maxPcAmount,
-            fixedFromCoin
-        },
-        data
+    const data = serializeProvideLP(
+        3,
+        maxCoinAmount,
+        maxPcAmount,
+        fixedFromCoin,
     )
+
 
     return new TransactionInstruction({
         keys,
