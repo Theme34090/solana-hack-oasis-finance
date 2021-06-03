@@ -72,7 +72,7 @@ impl Processor {
 
     fn process_provide_lp(
         accounts: &[AccountInfo],
-        _instruction: u8,
+        instruction: u8,
         max_coin_amount: u64,
         max_pc_amount: u64,
         fixed_from_coin: u64,
@@ -83,53 +83,57 @@ impl Processor {
         // let token_program_account = next_account_info(account_info_iter)?;
         // let amm_account = next_account_info(account_info_iter)?;
         // let amm_authority_account = next_account_info(account_info_iter)?;
-        // let _amm_open_orders_account = next_account_info(account_info_iter)?;
-        // let _lp_mint_account = next_account_info(account_info_iter)?;
-        // let _pool_coin_token_account =  next_account_info(account_info_iter)?;
-        // let _pool_pc_token_account =  next_account_info(account_info_iter)?;
-        // let _user_coin_token_account =  next_account_info(account_info_iter)?;
-        // let _user_pc_token_account =  next_account_info(account_info_iter)?;
-        // let _user_lp_token_account =  next_account_info(account_info_iter)?;
-        // let _initializer = next_account_info(account_info_iter)?;
+        // let amm_open_orders_account = next_account_info(account_info_iter)?;
+        // let lp_mint_account = next_account_info(account_info_iter)?;
+        // let pool_coin_token_account =  next_account_info(account_info_iter)?;
+        // let pool_pc_token_account =  next_account_info(account_info_iter)?;
+        // let user_coin_token_account =  next_account_info(account_info_iter)?;
+        // let user_pc_token_account =  next_account_info(account_info_iter)?;
+        // let user_lp_token_account =  next_account_info(account_info_iter)?;
+        // let initializer = next_account_info(account_info_iter)?;
 
-        // let account_metas = vec![
-        //     // token program
-        //     AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
-        //     // amm program
-        //     AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
-        //     // amm open orders
-        //     AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
-        //     // amm target orders
-        //     AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
-        //     // lp mint address
-        //     AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
-        //     // pool coin token account
-        //     AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
-        //     // pool pc token account
-        //     AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
-        //     // user coin token account
-        //     AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
-        //     // user pc token account
-        //     AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
-        //     // user lp token account
-        //     AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
-        //     // user owner 
-        //     AccountMeta::new(*next_account_info(account_info_iter)?.key, true),
-
-        // ];
+        let account_metas = vec![
+            // token program
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // amm program
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // amm authority 
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // amm open orders
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // amm target orders
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // lp mint address
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // pool coin token account
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // pool pc token account
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // serum market 
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // user coin token account
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // user pc token account
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // user lp token account
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // user owner 
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, true),
+        ];
         // invoke(instruction: &Instruction, account_infos: &[AccountInfo]);
-        let new_instruction: u8 = 2;
-        let ix = Instruction::new(
-            program_id.clone(),
+
+        let ray_program = next_account_info(account_info_iter)?;
+        let ix = Instruction::new_with_bincode(
+            *ray_program.key, 
             &ProvideLPData {
-                instruction: new_instruction,
+                instruction,
                 max_coin_amount,
                 max_pc_amount,
                 fixed_from_coin,
             },
-            vec![],
+            account_metas.to_vec()
         );
-
+    
         msg!("prepared cross program invocation");
         invoke(&ix, accounts)?;
         msg!("Received all accounts......");

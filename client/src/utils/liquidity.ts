@@ -6,7 +6,7 @@ import { NATIVE_SOL, TokenInfo, TOKENS } from "./tokens";
 // @ts-ignore
 import { closeAccount } from '@project-serum/serum/lib/token-instructions'
 import { createTokenAccountIfNotExist, sendTransaction } from './web3';
-import { SOL_HACK_PROGRAM_ID } from './ids';
+import { RAY_HACK_PROGRAM_ID, SOL_HACK_PROGRAM_ID } from './ids';
 import { serializeProvideLP } from '../models/borsh';
 
 
@@ -103,6 +103,7 @@ export const addLiquidity = async (
 
             new PublicKey(poolInfo.serumMarket),
 
+
             wrappedCoinSolAccount ? wrappedCoinSolAccount : userCoinTokenAccount,
             wrappedSolAccount ? wrappedSolAccount : userPcTokenAccount,
             userLpTokenAccount,
@@ -110,7 +111,8 @@ export const addLiquidity = async (
 
             coinAmount,
             pcAmount,
-            fixedCoin === poolInfo.coin.mintAddress ? 0 : 1
+            fixedCoin === poolInfo.coin.mintAddress ? 0 : 1,
+            new PublicKey(poolInfo.programId),
         ))
 
     if (wrappedCoinSolAccount) {
@@ -156,7 +158,9 @@ export function addLiquidityInstructionV4(
 
     maxCoinAmount: number,
     maxPcAmount: number,
-    fixedFromCoin: number
+    fixedFromCoin: number,
+
+    poolProgramId: PublicKey,
 ): TransactionInstruction {
 
     const keys = [
@@ -172,7 +176,8 @@ export function addLiquidityInstructionV4(
         { pubkey: userCoinTokenAccount, isSigner: false, isWritable: true },
         { pubkey: userPcTokenAccount, isSigner: false, isWritable: true },
         { pubkey: userLpTokenAccount, isSigner: false, isWritable: true },
-        { pubkey: userOwner, isSigner: true, isWritable: true }
+        { pubkey: userOwner, isSigner: true, isWritable: true },
+        { pubkey: poolProgramId, isSigner: false, isWritable: true }
     ]
 
     const data = serializeProvideLP(

@@ -7,6 +7,11 @@ export const WRAPPED_SOL_MINT = new PublicKey(
 
 export const SOL_HACK_PROGRAM_ID = "6YigQ7cU6ubLt9sh7MG3KTguU4BrwqbxsWS5UrUuGNYy";
 
+/**
+ * mock raydium program id, 
+ */
+export const RAY_HACK_PROGRAM_ID = "8oQLhRt9UsZD1589KkjGvHPUNCsRpP6oZC1xABVLqNhH"
+
 
 export const SYSTEM_PROGRAM_ID = new PublicKey('11111111111111111111111111111111')
 export const TOKEN_PROGRAM_ID = new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA')
