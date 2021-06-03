@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@project-serum/anchor": "^0.7.0",
+    "@solana/spl-token": "^0.1.5",
+    "mocha": "^8.4.0"
+  }
+}
