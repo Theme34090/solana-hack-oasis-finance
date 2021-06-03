@@ -452,6 +452,17 @@ export const TOKENS: Tokens = {
 }
 
 export const LP_TOKENS: Tokens = {
+    'TEST_LPTOKEN': {
+        'TEST': {
+            symbol: 'RAY-SOL',
+            name: 'RAY-SOL LP',
+            coin: { ...TOKENS.TEST1 },
+            pc: { ...TOKENS.TEST2 },
+
+            mintAddress: '14Wp3dxYTQpRMMz3AW7f2XGBTdaBrf1qb2NKjAN3Tb13',
+            decimals: 0
+        }
+    },
     'RAY-WUSDT': {
         symbol: 'RAY-WUSDT',
         name: 'RAY-WUSDT V2 LP',

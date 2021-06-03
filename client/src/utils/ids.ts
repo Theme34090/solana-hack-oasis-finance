@@ -5,7 +5,9 @@ export const WRAPPED_SOL_MINT = new PublicKey(
 );
 
 
-export const SOL_HACK_PROGRAM_ID = "6YigQ7cU6ubLt9sh7MG3KTguU4BrwqbxsWS5UrUuGNYy";
+// export const SOL_HACK_PROGRAM_ID = "6YigQ7cU6ubLt9sh7MG3KTguU4BrwqbxsWS5UrUuGNYy";
+
+export const SOL_HACK_PROGRAM_ID = "88LBeryRsS2HpywWCB3bAKZR1BVih8vQSR2ihrUtTy7B";
 
 /**
  * mock raydium program id, 
