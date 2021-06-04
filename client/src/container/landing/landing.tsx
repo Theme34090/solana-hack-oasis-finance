@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import classes from "./landing.module.css";
 
 import Header from "../../components/ui/header/header";
-import Pool from "../../components/pool/pool";
 import Liquidity from "../liquidity/liquidity";
 import Swap from "../swap/swap";
 import Farm from "../farm/farm";
@@ -61,19 +60,20 @@ export const LandingView = (props: {}) => {
   ));
 
   return (
+    // <main>
+    //   <main className={classes.MainContent}>
+    //     {/* <Pool /> */}
+    //     <Liquidity />
+    //     <hr />
+    //     <Swap />
+    //     <hr />
+    //     <Farm tokenAccounts={tokenAccounts} />
+    //     <hr />
+    //   </main>
+    // </main>
     <main>
       <Header />
-      <main className={classes.MainContent}>
-        {/* <Pool /> */}
-        <Liquidity />
-        <hr />
-        <Swap />
-        <hr />
-        <Farm tokenAccounts={tokenAccounts} />
-        <hr />
-        <button onClick={getTokenAccountHandler}> display token account</button>
-        {tk}
-      </main>
+      <Farm />
     </main>
   );
 };

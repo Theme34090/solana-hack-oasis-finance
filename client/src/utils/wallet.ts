@@ -4,12 +4,19 @@ import { WalletAdapter } from "../store/wallet";
 import { lt, TokenAmount } from "./safe-math";
 import { NATIVE_SOL } from "./tokens";
 
+export interface TokenAccounts {
+    [key: string]: {
+        balance: TokenAmount;
+        tokenAccountAddress: string;
+    }
+}
+
 export const getTokenAccounts = async (
     connection: Connection | null | undefined,
     wallet: any | undefined | null,
-) => {
+): Promise<TokenAccounts> => {
     if (!connection || !wallet) {
-        return;
+        return {};
     }
 
     const parsedTokenAccounts: any =
@@ -52,8 +59,6 @@ export const getTokenAccounts = async (
         balance: new TokenAmount(solBalance, NATIVE_SOL.decimals)
     };
 
-    console.log(tokenAccounts[NATIVE_SOL.mintAddress].balance.fixed())
-    console.log(tokenAccounts);
     return tokenAccounts;
 }
 

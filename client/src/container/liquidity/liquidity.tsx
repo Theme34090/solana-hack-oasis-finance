@@ -9,19 +9,11 @@ import {
   sendTransaction,
 } from "../../utils/web3";
 import { addLiquidity } from "../../utils/liquidity";
-import {
-  getPoolByLpMintAddress,
-  TEST_POOL,
-  TEST_LPTOKEN,
-} from "../../utils/pools";
+import { TEST_POOL, TEST_LPTOKEN } from "../../utils/pools";
 import { confirmTransaction } from "../../utils/transaction";
 import { get } from "lodash-es";
-import { Transaction, TransactionInstruction } from "@solana/web3.js";
+import { Transaction } from "@solana/web3.js";
 import { TokenAmount } from "../../utils/safe-math";
-import { sign } from "crypto";
-//@ts-ignore
-import { nu64, struct, u8 } from "buffer-layout";
-import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 
 // https://github.com/solana-labs/token-list
 import {
@@ -35,10 +27,12 @@ const Liquidity: React.FC = () => {
 
   const [tokenAccounts, setTokenAccounts] = useState<any>({});
 
-  const [fromCoin, setFromCoin] = useState<TokenInfo>(TOKENS.RAY as TokenInfo);
+  const [fromCoin, setFromCoin] = useState<TokenInfo>(
+    TOKENS.TEST1 as TokenInfo
+  );
   const [fromAmount, setFromAmount] = useState<string>("");
 
-  const [toCoin, setToCoin] = useState<TokenInfo>(NATIVE_SOL);
+  const [toCoin, setToCoin] = useState<TokenInfo>(TOKENS.TEST2);
   const [toAmount, setToAmount] = useState<string>("");
 
   // useEffect(() => {
@@ -67,7 +61,7 @@ const Liquidity: React.FC = () => {
   };
 
   const addTokenHandler = () => {
-    const lp = TEST_LPTOKEN["TEST"];
+    const lp = LP_TOKENS["TEST_LPTOKEN"];
 
     const userAmounts = [fromAmount, toAmount];
     const coinAmount = new TokenAmount(
@@ -110,30 +104,33 @@ const Liquidity: React.FC = () => {
 
     // console.log("pool info: ", lp);
 
-    const fromCoinAccount = "8fG6vE1Lg2Dcj9X2k4LHvZWDkWQWMjkk3djwRMUPmqNH";
-    const toCoinAccount = "8Uv5BX3bfnqPbwcucxi3PsbVMHNZ3jsvf8r3jektw3U6";
+    // const fromCoinAccount = "8fG6vE1Lg2Dcj9X2k4LHvZWDkWQWMjkk3djwRMUPmqNH";
+    // const toCoinAccount = "8Uv5BX3bfnqPbwcucxi3PsbVMHNZ3jsvf8r3jektw3U6";
 
-    // const fromCoinAccount = get(
-    //   tokenAccounts,
-    //   `${fromCoin.mintAddress}.tokenAccountAddress`
-    // );
-    // console.log(
-    //   "🚀 ~ file: liquidity.tsx ~ line 47 ~ addLiquidityHandler ~ fromCoinAccount",
-    //   fromCoinAccount
-    // );
-    // const toCoinAccount = get(
-    //   tokenAccounts,
-    //   `${toCoin.mintAddress}.tokenAccountAddress`
-    // );
-    // console.log(
-    //   "🚀 ~ file: liquidity.tsx ~ line 49 ~ addLiquidityHandler ~ toCoinAccount",
-    //   toCoinAccount
-    // );
-    // const lpAccount = get(tokenAccounts, `${lp}.tokenAccountAddress`);
-    // console.log(
-    //   "🚀 ~ file: liquidity.tsx ~ line 50 ~ addLiquidityHandler ~ lpAccount",
-    //   lpAccount
-    // );
+    const fromCoinAccount = get(
+      tokenAccounts,
+      `${fromCoin.mintAddress}.tokenAccountAddress`
+    );
+    console.log(
+      "🚀 ~ file: liquidity.tsx ~ line 47 ~ addLiquidityHandler ~ fromCoinAccount",
+      fromCoinAccount
+    );
+    const toCoinAccount = get(
+      tokenAccounts,
+      `${toCoin.mintAddress}.tokenAccountAddress`
+    );
+    console.log(
+      "🚀 ~ file: liquidity.tsx ~ line 49 ~ addLiquidityHandler ~ toCoinAccount",
+      toCoinAccount
+    );
+    const lpAccount = get(
+      tokenAccounts,
+      `${lp.mintAddress}.tokenAccountAddress`
+    );
+    console.log(
+      "🚀 ~ file: liquidity.tsx ~ line 50 ~ addLiquidityHandler ~ lpAccount",
+      lpAccount
+    );
 
     // const userAmounts = [fromAmount, toAmount];
     // const coinAmount = new TokenAmount(
@@ -151,7 +148,7 @@ const Liquidity: React.FC = () => {
       TEST_POOL,
       fromCoinAccount,
       toCoinAccount,
-      null,
+      lpAccount,
       fromCoin,
       toCoin,
       fromAmount,
@@ -167,8 +164,6 @@ const Liquidity: React.FC = () => {
         alert("add liquidity failed");
       });
   };
-
-  const createTokenAcc = async () => {};
 
   useEffect(() => {
     for (let key in tokenAccounts) {

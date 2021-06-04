@@ -1,5 +1,5 @@
 import { LIQUIDITY_POOL_PROGRAM_ID_V2, LIQUIDITY_POOL_PROGRAM_ID_V3, LIQUIDITY_POOL_PROGRAM_ID_V4, SERUM_PROGRAM_ID_V2, SERUM_PROGRAM_ID_V3 } from './ids';
-import { LP_TOKENS, NATIVE_SOL, TokenInfo, Tokens, TOKENS } from './tokens';
+import { LPTokens, LP_TOKENS, NATIVE_SOL, TokenInfo, Tokens, TOKENS } from './tokens';
 import { cloneDeep } from 'lodash-es';
 
 export interface LiquidityPoolInfo {
@@ -64,7 +64,7 @@ export const TEST2: TokenInfo = {
     showDefault: true
 }
 
-export const TEST_LPTOKEN: Tokens = {
+export const TEST_LPTOKEN: LPTokens = {
     'TEST': {
         symbol: 'RAY-SOL',
         name: 'RAY-SOL LP',

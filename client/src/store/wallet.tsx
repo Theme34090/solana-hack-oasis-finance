@@ -5,6 +5,7 @@ import { Transaction, PublicKey } from "@solana/web3.js";
 import EventEmitter from "eventemitter3";
 import { useConnection, useConnectionConfig } from "./connection";
 import { Provider } from "../models";
+import { getTokenAccounts, TokenAccounts } from "../utils/wallet";
 
 export interface WalletAdapter extends EventEmitter {
   publicKey: PublicKey;
@@ -34,6 +35,7 @@ const WalletContext = React.createContext<any>(null);
 export const WalletProvider = ({ children = null as any }) => {
   const connection = useConnection();
   const { endpoint } = useConnectionConfig();
+  const [tokenAccounts, setTokenAccounts] = useState<TokenAccounts>({});
 
   const [providerUrl, setProviderUrl] = useState<string>(DEFAULT_PROVIDER.url);
   const [displayKey, setDisplayKey] = useState<string>("");
@@ -71,7 +73,7 @@ export const WalletProvider = ({ children = null as any }) => {
 
   useEffect(() => {
     console.log("trying to connect");
-    wallet.on("connect", () => {
+    wallet.on("connect", async () => {
       setConnected(true);
       let walletPublicKey = wallet.publicKey.toBase58();
       let keyToDisplay =
@@ -82,6 +84,12 @@ export const WalletProvider = ({ children = null as any }) => {
             )}`
           : walletPublicKey;
       setDisplayKey(keyToDisplay);
+      try {
+        const tokenAcc = await getTokenAccounts(connection, wallet);
+        setTokenAccounts(tokenAcc);
+      } catch (err) {
+        console.error(err);
+      }
       // notification
       alert(`Connect to wallet ${keyToDisplay}`);
     });
@@ -89,6 +97,7 @@ export const WalletProvider = ({ children = null as any }) => {
     wallet.on("disconnect", () => {
       setConnected(false);
       setDisplayKey("");
+      setTokenAccounts({});
       alert("Disconnected from wallet");
     });
   }, [wallet]);
@@ -108,6 +117,7 @@ export const WalletProvider = ({ children = null as any }) => {
         wallet,
         connected,
         providerUrl,
+        tokenAccounts,
         setProviderUrl,
         connectWallet,
         displayKey,
@@ -128,6 +138,7 @@ export function useWallet() {
     wallet: context.wallet,
     providerUrl: context.providerUrl,
     connectWallet: context.connectWallet,
+    tokenAccounts: context.tokenAccounts,
     displayKey: context.displayKey,
     setProvider: context.setProviderUrl,
     providerName: context.providerName,

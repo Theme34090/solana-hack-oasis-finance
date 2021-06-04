@@ -7,13 +7,21 @@ import PoolIcon from "./pool-icon/pool-icon";
 import Exchange from "./exchange/exchange";
 
 import classes from "./pool.module.css";
+import { FARMS } from "../../utils/farms";
 
 type PoolItemProps = {
+  symbol: string;
   mintA: string;
   mintB: string;
+  walletBalance: string;
 };
 
-const PoolItem: React.FC<PoolItemProps> = ({ mintA, mintB }) => {
+export const PoolItem: React.FC<PoolItemProps> = ({
+  walletBalance,
+  symbol,
+  mintA,
+  mintB,
+}) => {
   const { env } = useConnectionConfig();
 
   const [symbolA, _setSymbolA] = useState<string>(
@@ -38,12 +46,12 @@ const PoolItem: React.FC<PoolItemProps> = ({ mintA, mintB }) => {
           <div className={classes.PoolItem}>
             <PoolIcon mintA={mintA} mintB={mintB} />
             <h4>
-              {symbolA} - {symbolB}
+              {symbol}
               <p>TVL :</p>
             </h4>
           </div>
         </div>
-        <div className={classes.TableRolCell}>0.000000</div>
+        <div className={classes.TableRolCell}>{walletBalance}</div>
         <div className={classes.TableRolCell}>0.000000</div>
         <div className={classes.TableRolCell}>0.10%</div>
         <div className={classes.TableRolCell}>0.68%</div>
@@ -57,7 +65,7 @@ const PoolItem: React.FC<PoolItemProps> = ({ mintA, mintB }) => {
   );
 };
 
-const PoolHeader: React.FC = () => {
+export const PoolHeader: React.FC = () => {
   return (
     <div className={`${classes.TableRow} ${classes.TableRowHeader}`}>
       <div className={classes.TableRowAsset}>Asset</div>
@@ -70,48 +78,63 @@ const PoolHeader: React.FC = () => {
   );
 };
 
-const Pool: React.FC = () => {
-  const [switchView, setSwitchView] = useState<boolean>(false);
+// interface PoolProps {
+//   select: () => any;
+// }
 
-  const switchHandler = () => {
-    setSwitchView((prevState) => !prevState);
-  };
+// const Pool: React.FC = () => {
+//   const [switchView, setSwitchView] = useState<boolean>(false);
 
-  // TODO: remove dummy data
-  let dummyPool: JSX.Element[] = [];
+//   const switchHandler = () => {
+//     setSwitchView((prevState) => !prevState);
+//   };
 
-  if (!switchView) {
-    for (let i = 0; i < 10; i++) {
-      dummyPool.push(
-        <PoolItem
-          mintA="So11111111111111111111111111111111111111112"
-          mintB="D4fdoY5d2Bn1Cmjqy6J6shRHjcs7QNuBPzwEzTLrf7jm"
-        />
-      );
-    }
-  } else {
-    for (let i = 0; i < 5; i++) {
-      dummyPool.push(
-        <PoolItem
-          mintA="So11111111111111111111111111111111111111112"
-          mintB="D4fdoY5d2Bn1Cmjqy6J6shRHjcs7QNuBPzwEzTLrf7jm"
-        />
-      );
-    }
-  }
+//   // TODO: remove dummy data
+//   let dummyPool: JSX.Element[] = [];
 
-  return (
-    <div className={classes.Pool}>
-      <div className={classes.SwitchWrapper}>
-        <Switch clicked={switchHandler} />
-        <span className={classes.Text}>Show Staked</span>
-      </div>
-      <div className={classes.Table}>
-        <PoolHeader />
-        {dummyPool}
-      </div>
-    </div>
-  );
-};
+//   if (!switchView) {
+//     // for (let i = 0; i < 10; i++) {
+//     //   dummyPool.push(
+//     //     <PoolItem
+//     //       mintA="So11111111111111111111111111111111111111112"
+//     //       mintB="D4fdoY5d2Bn1Cmjqy6J6shRHjcs7QNuBPzwEzTLrf7jm"
+//     //     />
+//     //   );
+//     // }
+//     dummyPool = FARMS.map((farm) => {
+//       console.log(farm.lp.coin.mintAddress, farm.lp.pc.mintAddress);
+//       return (
+//         <PoolItem
+//           symbol={farm.name}
+//           mintA={farm.lp.coin.mintAddress}
+//           mintB={farm.lp.pc.mintAddress}
+//         />
+//       );
+//     });
+//   } else {
+//     for (let i = 0; i < 5; i++) {
+//       dummyPool.push(
+//         <PoolItem
+//           symbol="RAY-SOL"
+//           mintA="So11111111111111111111111111111111111111112"
+//           mintB="D4fdoY5d2Bn1Cmjqy6J6shRHjcs7QNuBPzwEzTLrf7jm"
+//         />
+//       );
+//     }
+//   }
 
-export default Pool;
+//   return (
+//     <div className={classes.Pool}>
+//       <div className={classes.SwitchWrapper}>
+//         <Switch clicked={switchHandler} />
+//         <span className={classes.Text}>Show Staked</span>
+//       </div>
+//       <div className={classes.Table}>
+//         <PoolHeader />
+//         {dummyPool}
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Pool;

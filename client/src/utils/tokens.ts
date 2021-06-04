@@ -23,10 +23,10 @@ export interface TokenInfo {
     showDefault?: boolean
 }
 
-export interface Tokens {
-    [key: string]: any
-    [index: number]: any
-}
+// export interface Tokens {
+//     [key: string]: any
+//     [index: number]: any
+// }
 
 export function getTokenByMintAddress(mintAddress: string): TokenInfo | null {
     if (mintAddress === NATIVE_SOL.mintAddress) {
@@ -44,6 +44,11 @@ export const NATIVE_SOL: TokenInfo = {
     official: true,
     showDefault: true
 }
+
+export interface Tokens {
+    [key: string]: TokenInfo
+}
+
 
 export const TOKENS: Tokens = {
     TEST1: {
@@ -451,17 +456,41 @@ export const TOKENS: Tokens = {
     }
 }
 
-export const LP_TOKENS: Tokens = {
-    'TEST_LPTOKEN': {
-        'TEST': {
-            symbol: 'RAY-SOL',
-            name: 'RAY-SOL LP',
-            coin: { ...TOKENS.TEST1 },
-            pc: { ...TOKENS.TEST2 },
 
-            mintAddress: '14Wp3dxYTQpRMMz3AW7f2XGBTdaBrf1qb2NKjAN3Tb13',
-            decimals: 0
-        }
+// export interface Tokens {
+//     [key: string]: {
+//         symbol: string;
+//         name: string;
+//         coin: TokenInfo;
+//         pc: TokenInfo;
+
+//     }
+//     [index: number]: any
+// }
+
+export interface LPTokensInfo {
+    symbol: string;
+    name: string;
+    coin: TokenInfo;
+    pc: TokenInfo;
+
+    mintAddress: string;
+    decimals: number;
+}
+
+export interface LPTokens {
+    [key: string]: LPTokensInfo
+}
+
+export const LP_TOKENS: LPTokens = {
+    'TEST_LPTOKEN': {
+        symbol: 'RAY-SOL',
+        name: 'RAY-SOL LP',
+        coin: { ...TOKENS.TEST1 },
+        pc: { ...TOKENS.TEST2 },
+
+        mintAddress: '14Wp3dxYTQpRMMz3AW7f2XGBTdaBrf1qb2NKjAN3Tb13',
+        decimals: 0
     },
     'RAY-WUSDT': {
         symbol: 'RAY-WUSDT',

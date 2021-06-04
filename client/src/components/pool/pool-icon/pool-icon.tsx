@@ -8,7 +8,7 @@ type TokenIconProps = {
 
 const TokenIcon: React.FC<TokenIconProps> = ({ mintAddress, style }) => {
   const { env } = useConnectionConfig();
-  const icon = getTokenIcon(env, mintAddress);
+  const icon = getTokenIcon("mainnet-beta", mintAddress);
 
   if (icon) {
     return (
