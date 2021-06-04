@@ -7,19 +7,18 @@ pub mod vault {
     use super::*;
     pub fn initialize(ctx: Context<InitializeVault>, nonce: u8) -> ProgramResult {
         let vault_account = &mut ctx.accounts.vault_account;
-        vault_account.vault_mint = *ctx.accounts.vault_mint.to_account_info().key;
+        vault_account.vault_token_mint = *ctx.accounts.vault_token_mint.to_account_info().key;
         vault_account.vault_farm_lp = *ctx.accounts.vault_farm_lp.to_account_info().key;
         vault_account.farm_lp_mint = *ctx.accounts.farm_lp_mint.to_account_info().key;
         vault_account.nonce = nonce;
         Ok(())
     }
 
-    pub fn deposit(ctx: Context<Deposit>, amount: u64) -> ProgramResult {
+    pub fn deposit(ctx: Context<Deposit>, amount: u64) -> Result<()> {
         if ctx.accounts.user_farm_lp.amount < amount {
-            return Err(ErrorCode::InsufficientLP.into());
+            return Err(ErrorCode::InsufficientLPTokens.into());
         }
-        
-        // transfer target LP to vault
+        // transfer user's farm LP to vault
         let cpi_accounts = Transfer {
             from: ctx.accounts.user_farm_lp.to_account_info(),
             to: ctx.accounts.vault_farm_lp.to_account_info(),
@@ -36,13 +35,45 @@ pub mod vault {
         ];
         let signer = &[&seeds[..]];
         let cpi_accounts = MintTo {
-            mint: ctx.accounts.vault_mint.to_account_info(),
+            mint: ctx.accounts.vault_token_mint.to_account_info(),
             to: ctx.accounts.user_vault_token.to_account_info(),
             authority: ctx.accounts.vault_signer.clone(),
         };
         let cpi_program = ctx.accounts.token_program.clone();
         let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
         token::mint_to(cpi_ctx, amount)?;
+
+        Ok(())
+    }
+
+    pub fn withdraw(ctx: Context<Withdraw>, amount: u64) -> Result<()> {
+        if ctx.accounts.user_vault_token.amount < amount {
+            return Err(ErrorCode::InsufficientVaultTokens.into());
+        }
+        // Burn the user's redeemable tokens.
+        let cpi_accounts = Burn {
+            mint: ctx.accounts.vault_token_mint.to_account_info(),
+            to: ctx.accounts.user_vault_token.to_account_info(),
+            authority: ctx.accounts.user_authority.to_account_info(),
+        };
+        let cpi_program = ctx.accounts.token_program.clone();
+        let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
+        token::burn(cpi_ctx, amount)?;
+
+        // Transfer USDC from pool account to user.
+        let seeds = &[
+            ctx.accounts.vault_account.to_account_info().key.as_ref(),
+            &[ctx.accounts.vault_account.nonce],
+        ];
+        let signer = &[&seeds[..]];
+        let cpi_accounts = Transfer {
+            from: ctx.accounts.vault_farm_lp.to_account_info(),
+            to: ctx.accounts.user_farm_lp.to_account_info(),
+            authority: ctx.accounts.vault_signer.to_account_info(),
+        };
+        let cpi_program = ctx.accounts.token_program.clone();
+        let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
+        token::transfer(cpi_ctx, amount)?;
 
         Ok(())
     }
@@ -60,10 +91,10 @@ pub struct InitializeVault<'info> {
     */
     pub vault_signer: AccountInfo<'info>,
     #[account(
-        "vault_mint.mint_authority == COption::Some(*vault_signer.key)",
-        "vault_mint.supply == 0"
+        "vault_token_mint.mint_authority == COption::Some(*vault_signer.key)",
+        "vault_token_mint.supply == 0"
     )]
-    pub vault_mint: CpiAccount<'info, Mint>,
+    pub vault_token_mint: CpiAccount<'info, Mint>,
     #[account(mut, "vault_farm_lp.owner == *vault_signer.key")]
     pub vault_farm_lp: CpiAccount<'info, TokenAccount>,
     pub farm_lp_mint: CpiAccount<'info, Mint>,
@@ -75,15 +106,15 @@ pub struct InitializeVault<'info> {
 
 #[derive(Accounts)]
 pub struct Deposit<'info> {
-    #[account(has_one = vault_mint, has_one = vault_farm_lp)]
+    #[account(has_one = vault_token_mint, has_one = vault_farm_lp)]
     pub vault_account: ProgramAccount<'info, VaultAccount>,
     #[account(seeds = [vault_account.to_account_info().key.as_ref(), &[vault_account.nonce]])]
     vault_signer: AccountInfo<'info>,
     #[account(
         mut,
-        "vault_mint.mint_authority == COption::Some(*vault_signer.key)"
+        "vault_token_mint.mint_authority == COption::Some(*vault_signer.key)"
     )]
-    pub vault_mint: CpiAccount<'info, Mint>,
+    pub vault_token_mint: CpiAccount<'info, Mint>,
     #[account(mut, "vault_farm_lp.owner == *vault_signer.key")]
     pub vault_farm_lp: CpiAccount<'info, TokenAccount>,
     #[account(signer)]
@@ -94,12 +125,33 @@ pub struct Deposit<'info> {
     pub user_vault_token: CpiAccount<'info, TokenAccount>,
     #[account("token_program.key == &token::ID")]
     pub token_program: AccountInfo<'info>,
-    pub clock: Sysvar<'info, Clock>,
 }
 
+#[derive(Accounts)]
+pub struct Withdraw<'info> {
+    #[account(has_one = vault_token_mint, has_one = vault_farm_lp)]
+    pub vault_account: ProgramAccount<'info, VaultAccount>,
+    #[account(seeds = [vault_account.to_account_info().key.as_ref(), &[vault_account.nonce]])]
+    vault_signer: AccountInfo<'info>,
+    #[account(
+        mut,
+        "vault_token_mint.mint_authority == COption::Some(*vault_signer.key)"
+    )]
+    pub vault_token_mint: CpiAccount<'info, Mint>,
+    #[account(mut, "vault_farm_lp.owner == *vault_signer.key")]
+    pub vault_farm_lp: CpiAccount<'info, TokenAccount>,
+    #[account(signer)]
+    pub user_authority: AccountInfo<'info>,
+    #[account(mut, "user_farm_lp.owner == *user_authority.key")]
+    pub user_farm_lp: CpiAccount<'info, TokenAccount>,
+    #[account(mut, "user_vault_token.owner == *user_authority.key")]
+    pub user_vault_token: CpiAccount<'info, TokenAccount>,
+    #[account("token_program.key == &token::ID")]
+    pub token_program: AccountInfo<'info>,
+}
 #[account]
 pub struct VaultAccount {
-    pub vault_mint: Pubkey,
+    pub vault_token_mint: Pubkey,
     pub vault_farm_lp: Pubkey,
     pub farm_lp_mint: Pubkey,
     pub nonce: u8,
@@ -108,7 +160,9 @@ pub struct VaultAccount {
 #[error]
 pub enum ErrorCode {
     #[msg("Insufficient LP tokens")]
-    InsufficientLP,
+    InsufficientLPTokens,
+    #[msg("Insufficient vault tokens")]
+    InsufficientVaultTokens,
 }
 
 // #[associated]
