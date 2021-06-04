@@ -2,6 +2,7 @@
 
 import { TokenAmount } from './safe-math';
 import { cloneDeep } from 'lodash-es';
+import { Token } from '@solana/spl-token';
 
 export interface TokenInfo {
     symbol: string
@@ -476,6 +477,8 @@ export interface LPTokensInfo {
 
     mintAddress: string;
     decimals: number;
+
+    balance?: TokenAmount;
 }
 
 export interface LPTokens {

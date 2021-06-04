@@ -23,7 +23,12 @@ import {
 import { ACCOUNT_LAYOUT } from './layouts'
 import { TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, SYSTEM_PROGRAM_ID, RENT_PROGRAM_ID } from './ids'
 // eslint-disable-next-line
+import assert from 'assert'
 import { initializeAccount } from '@project-serum/serum/lib/token-instructions'
+// @ts-ignore
+import { struct } from 'buffer-layout';
+import * as borsh from 'borsh';
+import { useCallback } from 'react'
 
 export const commitment: Commitment = 'confirmed'
 
@@ -271,4 +276,177 @@ export async function createAmmId(infoId: PublicKey, marketAddress: PublicKey) {
         infoId
     )
     return publicKey
+}
+
+// function jsonRpcResult(resultDescription: any) {
+//     const jsonRpcVersion = struct.literal('2.0')
+//     return struct.union([
+//         struct({
+//             jsonrpc: jsonRpcVersion,
+//             id: 'string',
+//             error: 'any'
+//         }),
+//         struct({
+//             jsonrpc: jsonRpcVersion,
+//             id: 'string',
+//             error: 'null?',
+//             result: resultDescription
+//         })
+//     ])
+// }
+
+// function jsonRpcResultAndContext(resultDescription: any) {
+//     return jsonRpcResult({
+//         context: struct({
+//             slot: 'number'
+//         }),
+//         value: resultDescription
+//     })
+// }
+
+// const AccountInfoResult = struct({
+//     executable: 'boolean',
+//     owner: 'string',
+//     lamports: 'number',
+//     data: 'any',
+//     rentEpoch: 'number?'
+// })
+
+
+// const GetMultipleAccountsAndContextRpcResult = jsonRpcResultAndContext(
+//     struct.array([struct.union(['null', AccountInfoResult])])
+// )
+
+
+class AccountInfoResult {
+    executable: boolean = false;
+    owner: string = '';
+    lamports: number = 0;
+    // data: any;
+    rentEpoch: number = 0;
+
+    constructor(
+        fields: {
+            executable: boolean;
+            owner: string;
+            lamports: number;
+            // data: any;
+            rentEpoch: number;
+        } |
+            undefined = undefined
+    ) {
+        if (fields) {
+            this.executable = fields.executable;
+            this.owner = fields.owner;
+            this.lamports = fields.lamports;
+            // this.data = fields.data;
+            this.rentEpoch = fields.rentEpoch;
+        }
+    }
+}
+
+const AccountInfoResultSchema = new Map([
+    [
+        AccountInfoResult,
+        {
+            kind: 'struct',
+            fields: [
+                ['executable', 'bool'],
+                ['owner', 'string'],
+                ['lamports', 'u64'],
+                // ['data', 'any'],
+                ['rentEpoch', 'u64']
+            ]
+        }
+    ],
+]);
+
+
+
+
+// getMultipleAccounts
+export async function getMultipleAccounts(
+    connection: Connection,
+    publicKeys: PublicKey[],
+    commitment?: Commitment
+): Promise<Array<null | { publicKey: PublicKey; account: AccountInfo<Buffer> }>> {
+
+    const keys: string[][] = []
+    let tempKeys: string[] = []
+
+    publicKeys.forEach((k) => {
+        if (tempKeys.length >= 100) {
+            keys.push(tempKeys)
+            tempKeys = []
+        }
+        tempKeys.push(k.toBase58())
+    })
+    if (tempKeys.length > 0) {
+        keys.push(tempKeys)
+    }
+
+    const accounts: Array<null | {
+        executable: any
+        owner: PublicKey
+        lamports: any
+        data: Buffer
+    }> = []
+
+    for (const key of keys) {
+        const args = [key, { commitment }]
+
+        // @ts-ignore
+        const res = await connection._rpcRequest('getMultipleAccounts', args)
+
+        if (res.error) {
+            throw new Error(
+                'failed to get info about accounts ' + publicKeys.map((k) => k.toBase58()).join(', ') + ': ' + res.error.message
+            )
+        }
+
+        for (const account of res.result.value) {
+            let value: {
+                executable: any
+                owner: PublicKey
+                lamports: any
+                data: Buffer
+            } | null = null
+
+            if (!account) {
+                accounts.push(null);
+                continue;
+            }
+
+            if (res.result.value) {
+                const { executable, owner, lamports, data } = account
+                assert(data[1] === 'base64')
+                value = {
+                    executable,
+                    owner: new PublicKey(owner),
+                    lamports,
+                    data: Buffer.from(data[0], 'base64')
+                }
+            }
+
+
+            if (value === null) {
+                throw new Error('Invalid response')
+            }
+
+            accounts.push(value);
+
+
+        }
+
+    }
+
+    return accounts.map((account, idx) => {
+        if (account === null) {
+            return null
+        }
+        return {
+            publicKey: publicKeys[idx],
+            account
+        }
+    })
 }
