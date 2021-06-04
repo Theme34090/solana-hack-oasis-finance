@@ -1,24 +1,34 @@
 const anchor = require("@project-serum/anchor");
+const { createMint, createTokenAccount } = require("@project-serum/common");
 const spl = require("@solana/spl-token");
 const assert = require("assert");
+const { mintToAccount } = require("./utils");
 
 describe("test vault", () => {
-    // Configure the client to use the local cluster.
     const provider = anchor.Provider.local();
     const wallet = anchor.Wallet.local();
     anchor.setProvider(provider);
-
     const program = anchor.workspace.Vault;
 
-    it("is initialized", async () => {
-        const vaultAccount = anchor.web3.Keypair.generate();
+    let vaultAccount;
+    let vaultSigner;
+    let vaultMint;
+    let vaultFarmLp;
 
-        const [vaultSigner, nonce] =
+    let farmSigner = wallet.publicKey;
+    let farmLpMint;
+    let userFarmLp;
+    let userVaultToken;
+
+    it("initialize", async () => {
+        vaultAccount = anchor.web3.Keypair.generate();
+        const [_vaultSigner, nonce] =
             await anchor.web3.PublicKey.findProgramAddress(
-                [wallet.publicKey.toBuffer()],
+                [vaultAccount.publicKey.toBuffer()],
                 program.programId
             );
-        const vaultMint = await spl.Token.createMint(
+        vaultSigner = _vaultSigner;
+        vaultMint = await spl.Token.createMint(
             provider.connection,
             wallet.payer,
             vaultSigner,
@@ -26,12 +36,23 @@ describe("test vault", () => {
             6,
             spl.TOKEN_PROGRAM_ID
         );
-        console.log("here");
+        farmLpMint = await spl.Token.createMint(
+            provider.connection,
+            wallet.payer,
+            farmSigner,
+            provider.wallet.publicKey,
+            6,
+            spl.TOKEN_PROGRAM_ID
+        );
+        vaultFarmLp = await farmLpMint.createAccount(vaultSigner);
+
         await program.rpc.initialize(nonce, {
             accounts: {
                 vaultAccount: vaultAccount.publicKey,
                 vaultSigner,
                 vaultMint: vaultMint.publicKey,
+                vaultFarmLp: vaultFarmLp,
+                farmLpMint: farmLpMint.publicKey,
                 rent: anchor.web3.SYSVAR_RENT_PUBKEY,
             },
             signers: [vaultAccount],
@@ -42,22 +63,43 @@ describe("test vault", () => {
             ],
         });
 
-        // const acc = await program.account.vaultAccount.fetch(
-        //     vaultAccount.publicKey
-        // );
-        // assert.ok(acc.data.eq(data));
+        const acc = await program.account.vaultAccount.fetch(
+            vaultAccount.publicKey
+        );
+        assert.strictEqual(acc.nonce, nonce, "nonce not equal");
     });
 
-    // it("create mint", async () => {
-    //     const program = anchor.workspace.Vault;
-    //     console.log(`program id: ${program.programId}`);
-    //     const mint = await spl.Token.createMint(
-    //         provider.connection,
-    //         wallet.payer,
-    //         program.programId,
-    //         provider.wallet.publicKey,
-    //         5,
-    //         spl.TOKEN_PROGRAM_ID
-    //     );
-    // });
+    it("deposit", async () => {
+        userFarmLp = await farmLpMint.createAccount(wallet.publicKey);
+        userVaultToken = await vaultMint.createAccount(wallet.publicKey);
+        await farmLpMint.mintTo(userFarmLp, farmSigner, [], 100);
+        const amount = new anchor.BN(100);
+        // userFarmLp = await createTokenAccount(
+        //     provider,
+        //     farmLpMint.publicKey,
+        //     wallet.publicKey
+        // );
+        // await mintToAccount(
+        //     provider,
+        //     farmLpMint.publicKey,
+        //     userFarmLp,
+        //     100,
+        //     farmSigner
+        // );
+
+        await program.rpc.deposit(amount, {
+            accounts: {
+                vaultAccount: vaultAccount.publicKey,
+                vaultSigner,
+                vaultMint: vaultMint.publicKey,
+                vaultFarmLp: vaultFarmLp,
+                userAuthority: wallet.publicKey,
+                userFarmLp,
+                userVaultToken,
+                tokenProgram: spl.TOKEN_PROGRAM_ID,
+                rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+                clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
+            },
+        });
+    });
 });
