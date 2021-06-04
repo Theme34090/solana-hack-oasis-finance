@@ -1,5 +1,5 @@
 .BaseTable {
-  display: flex;
+  display: none;
   height: auto;
   font-family: inherit;
   font-size: 0.8rem;
@@ -7,6 +7,10 @@
   text-align: center;
   height: 10rem;
   margin-bottom: 1rem;
+}
+
+.Open {
+  display: flex;
 }
 .Fee {
   flex: 2 1;

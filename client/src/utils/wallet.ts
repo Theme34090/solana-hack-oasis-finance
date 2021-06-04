@@ -1,6 +1,5 @@
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { AccountInfo, Connection, ParsedAccountData, PublicKey } from "@solana/web3.js";
-import { WalletAdapter } from "../store/wallet";
 import { lt, TokenAmount } from "./safe-math";
 import { NATIVE_SOL } from "./tokens";
 

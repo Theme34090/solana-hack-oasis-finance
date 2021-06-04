@@ -1,19 +1,18 @@
 import { useState } from "react";
-import { useConnectionConfig } from "../../store/connection";
-import { getTokenSymbol } from "../../utils/utils";
+// import { useConnectionConfig } from "../../store/connection";
+// import { getTokenSymbol } from "../../utils/utils";
 
-import Switch from "../ui/switch/switch";
 import PoolIcon from "./pool-icon/pool-icon";
 import Exchange from "./exchange/exchange";
 
 import classes from "./pool.module.css";
-import { FARMS } from "../../utils/farms";
 
 type PoolItemProps = {
   symbol: string;
   mintA: string;
   mintB: string;
   walletBalance: string;
+  deposit: (amount: string) => any;
 };
 
 export const PoolItem: React.FC<PoolItemProps> = ({
@@ -21,22 +20,12 @@ export const PoolItem: React.FC<PoolItemProps> = ({
   symbol,
   mintA,
   mintB,
+  deposit,
 }) => {
-  const { env } = useConnectionConfig();
-
-  const [symbolA, _setSymbolA] = useState<string>(
-    getTokenSymbol(env, mintA) || "unknown"
-  );
-
-  const [symbolB, _setSymbolB] = useState<string>(
-    getTokenSymbol(env, mintB) || "unknown"
-  );
-
   const [selected, setSelected] = useState(false);
 
   const toggleDropdownHandler = () => {
     setSelected((prevState) => !prevState);
-    console.log("toggle ");
   };
 
   return (
@@ -60,7 +49,7 @@ export const PoolItem: React.FC<PoolItemProps> = ({
           <i className={classes.ArrowDown}></i>
         </div>
       </div>
-      {selected ? <Exchange /> : null}
+      <Exchange deposit={deposit} show={selected} />
     </div>
   );
 };

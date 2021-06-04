@@ -40,7 +40,7 @@ const inputReducer = (
 };
 
 type ViewProps = {
-  clicked: (value: number) => any;
+  clicked: (value: string) => any;
 };
 
 const View: React.FC<ViewProps> = ({ clicked, children }) => {
@@ -69,7 +69,7 @@ const View: React.FC<ViewProps> = ({ clicked, children }) => {
         onBlur={validateInputHandler}
       />
       <Button
-        clicked={() => clicked(+inputState.value)}
+        clicked={() => clicked(inputState.value)}
         disabled={!isValid || !connected}
       >
         {children}
@@ -78,19 +78,25 @@ const View: React.FC<ViewProps> = ({ clicked, children }) => {
   );
 };
 
-const Exchange: React.FC = () => {
-  const depositHandler = (amount: number) => {
-    console.log("deposit: ", amount);
-  };
+interface ExchangeProps {
+  show: boolean;
+  deposit: (amount: string) => any;
+}
 
-  const withdrawnHandler = (amount: number) => {
+const Exchange: React.FC<ExchangeProps> = ({ deposit, show }) => {
+  const withdrawnHandler = (amount: string) => {
     console.log("withdrawn: ", amount);
   };
 
+  const baseTableClasses = [classes.BaseTable];
+  if (show) {
+    baseTableClasses.push(classes.Open);
+  }
+
   return (
-    <div className={classes.BaseTable}>
+    <div className={baseTableClasses.join(" ")}>
       <p className={classes.Fee}>Fees</p>
-      <View clicked={depositHandler}>Deposit</View>
+      <View clicked={deposit}>Deposit</View>
       <View clicked={withdrawnHandler}>Withdrawn</View>
     </div>
   );

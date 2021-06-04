@@ -53,17 +53,6 @@
   font-size: 0.6rem;
 }
 
-.SwitchWrapper {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  font-size: 0.8rem;
-}
-
-.SwitchWrapper .Text {
-  padding: 1rem;
-}
-
 .ArrowDown {
   border: 0.2rem solid white;
   border-width: 0 3px 3px 0;

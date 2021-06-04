@@ -62,7 +62,7 @@ export const WalletProvider = ({ children = null as any }) => {
         setConnected(true);
       });
     },
-    [endpoint]
+    [endpoint, providerUrl]
   );
 
   const [connected, setConnected] = useState(false);
