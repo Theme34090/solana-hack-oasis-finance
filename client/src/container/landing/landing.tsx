@@ -35,8 +35,8 @@ export const LandingView = (props: {}) => {
     // </main>
     <main>
       <Header />
-      {/* <Liquidity /> */}
-      {/* {tk} */}
+      <Liquidity />
+      <hr />
       <Farm />
     </main>
   );
