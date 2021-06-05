@@ -14,6 +14,10 @@ import { PoolItem, PoolHeader } from "../../components/pool/pool";
 import Switch from "../../components/ui/switch/switch";
 import { TokenAmount } from "../../utils/safe-math";
 import { useConnection } from "../../store/connection";
+import { getPrices } from "../../store/price";
+import { requestInfos } from "../../store/liquidity";
+import { updateFarms } from "./user";
+import { getStakeAccounts } from "../../store/farm";
 
 interface FarmProps {}
 
@@ -21,7 +25,7 @@ interface FarmProps {}
 // const DEFAULT_LP = cloneDeep(FARMS[0].lp)
 const Farm: React.FC<FarmProps> = () => {
   const connection = useConnection();
-  const { tokenAccounts } = useWallet();
+  const { tokenAccounts, wallet, connected } = useWallet();
 
   const [isStakedMode, setIsStakedMode] = useState<boolean>(false);
 
@@ -67,8 +71,20 @@ const Farm: React.FC<FarmProps> = () => {
     // console.log(">> reward account :", rewardAccount);
   };
 
-  const updateFarm = () => {
-    getFarmRewardAccount(connection);
+  const updateFarm = async () => {
+    // getFarmRewardAccount(connection);
+    // const liquidity = await requestInfos(connection);
+
+    const farms = await getFarmRewardAccount(connection);
+
+    // console.log("farm ", farms);
+    // const stakeAcc = await getStakeAccounts(connection, wallet, connected);
+
+    // const price = await getPrices();
+
+    // const result = await updateFarms(farms, stakeAcc, liquidity, price);
+
+    // console.log(result);
   };
 
   let farm = cloneDeep(FARMS);

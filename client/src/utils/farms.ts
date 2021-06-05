@@ -7,8 +7,10 @@ import { TokenAmount } from './safe-math';
 import { getMultipleAccounts } from '../utils/web3';
 import { commitment } from './web3';
 //@ts-ignore
-import { publicKey, struct, u128, u64, u8, blob } from 'buffer-layout';
+import { nu64, struct, u8, blob } from 'buffer-layout'
+import { publicKey, u128, u64 } from '@project-serum/borsh'
 import { ACCOUNT_LAYOUT } from './layouts';
+import { pool } from '../store/pool';
 
 export interface FarmInfo {
     name: string
@@ -137,49 +139,50 @@ export async function getFarmRewardAccount(connection: Connection) {
 
     const multipleInfo = await getMultipleAccounts(connection, publicKeys, commitment);
 
-    console.log(multipleInfo);
+
+
 
     multipleInfo.forEach((info) => {
         if (info) {
             const address = info.publicKey.toBase58()
             const data = Buffer.from(info.account.data)
-
             const { key, poolId } = getAddressForWhat(address)
+            // if (key && poolId) {
+            //     const farmInfo = farms[poolId]
 
-            if (key && poolId) {
-                const farmInfo = farms[poolId]
+            //     switch (key) {
+            //         // pool info
+            //         case 'poolId': {
+            //             let parsed
 
-                switch (key) {
-                    // pool info
-                    case 'poolId': {
-                        let parsed
+            //             // TODO: discuss farm layout
+            //             if ([4, 5].includes(farmInfo.version)) {
+            //                 parsed = STAKE_INFO_LAYOUT_V4.decode(data)
+            //             } else {
+            //                 parsed = STAKE_INFO_LAYOUT.decode(data)
+            //             }
 
-                        // TODO: discuss farm layout
-                        if ([4, 5].includes(farmInfo.version)) {
-                            parsed = STAKE_INFO_LAYOUT_V4.decode(data)
-                        } else {
-                            parsed = STAKE_INFO_LAYOUT.decode(data)
-                        }
 
-                        farmInfo.poolInfo = parsed
+            //             farmInfo.poolInfo = parsed
 
-                        break
-                    }
-                    // staked balance
-                    case 'poolLpTokenAccount': {
-                        // TODO: discuss farm layout เลือกฟาร์มไหนบ้าง
-                        const parsed = ACCOUNT_LAYOUT.decode(data)
+            //             break
+            //         }
+            //         // staked balance
+            //         case 'poolLpTokenAccount': {
+            //             // TODO: discuss farm layout เลือกฟาร์มไหนบ้าง
+            //             const parsed = ACCOUNT_LAYOUT.decode(data)
 
-                        farmInfo.lp.balance.wei = farmInfo.lp.balance.wei.plus(parsed.amount.toNumber())
+            //             farmInfo.lp.balance.wei = farmInfo.lp.balance.wei.plus(parsed.amount.toNumber())
+            //             farmInfo.lp.balance.wei = farmInfo.lp.balance.wei.plus(0)
 
-                        break
-                    }
-                }
-            }
+            //             break
+            //         }
+            //     }
+            // }
         }
-        console.log(farms);
-        return farms;
     })
+
+    return farms;
 }
 
 export const MOCK_FARM: FarmInfo = {
