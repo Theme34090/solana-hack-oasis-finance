@@ -76,18 +76,7 @@ describe("test vault", () => {
         userFarmLp = await farmLpMint.createAccount(userSigner);
         userVaultToken = await vaultTokenMint.createAccount(userSigner);
         await farmLpMint.mintTo(userFarmLp, farmSigner, [], amount.toNumber());
-        // userFarmLp = await createTokenAccount(
-        //     provider,
-        //     farmLpMint.publicKey,
-        //     wallet.publicKey
-        // );
-        // await mintToAccount(
-        //     provider,
-        //     farmLpMint.publicKey,
-        //     userFarmLp,
-        //     100,
-        //     farmSigner
-        // );
+
         await program.rpc.deposit(amount, {
             accounts: {
                 vaultAccount: vaultAccount.publicKey,
