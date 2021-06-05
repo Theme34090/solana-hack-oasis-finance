@@ -54,8 +54,8 @@ export const WalletProvider = ({ children = null as any }) => {
 
   const connectWallet = useCallback(
     (providerURL: string) => {
-      // const wall = new Wallet(providerURL, endpoint);
-      const wall = new Wallet((window as any).sollet || providerUrl, endpoint);
+      const wall = new Wallet(providerURL, endpoint);
+      // const wall = new Wallet((window as any).sollet || providerUrl, endpoint);
       wall.connect().then(() => {
         setProviderUrl(providerURL);
         setWallet(wall);
