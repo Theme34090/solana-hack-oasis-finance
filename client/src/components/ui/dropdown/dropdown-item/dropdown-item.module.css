@@ -1,0 +1,6 @@
+.DropdownItem {
+  text-align: left;
+  padding-left: 30%;
+  overflow: hidden;
+  cursor: pointer;
+}

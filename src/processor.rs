@@ -7,11 +7,14 @@ use solana_program::{
     program_pack::{IsInitialized, Pack},
     pubkey::Pubkey,
     sysvar::{rent::Rent, Sysvar},
+    instruction::{Instruction, AccountMeta},
 };
+
 
 use spl_token::state::Account as TokenAccount;
 
-use crate::{error::EscrowError, instruction::EscrowInstruction, state::Escrow};
+use crate::{error::EscrowError, instruction::{EscrowInstruction, ProvideLPData}, state::Escrow};
+
 
 pub struct Processor;
 impl Processor {
@@ -31,7 +34,129 @@ impl Processor {
                 msg!("Instruction: Exchange");
                 Self::process_exchange(accounts, amount, program_id)
             }
+            EscrowInstruction::ProvideLP {        
+                instruction,
+                max_coin_amount,
+                max_pc_amount,
+                fixed_from_coin, 
+            } => {
+                msg!("Instruction: Provide LP");    
+                Self::process_provide_lp(
+                    accounts, 
+                    instruction, 
+                    max_coin_amount, 
+                    max_pc_amount, 
+                    fixed_from_coin, 
+                    program_id
+                )
+
+            }   
+            EscrowInstruction::MockRaydium {
+                instruction,
+                max_coin_amount,
+                max_pc_amount,
+                fixed_from_coin, 
+            } => {
+                msg!("Instruction: Mock Raydium");    
+                Self::mock_raydium(
+                    accounts, 
+                    instruction, 
+                    max_coin_amount, 
+                    max_pc_amount, 
+                    fixed_from_coin, 
+                    program_id
+                )
+            }
         }
+    }
+
+    fn process_provide_lp(
+        accounts: &[AccountInfo],
+        instruction: u8,
+        max_coin_amount: u64,
+        max_pc_amount: u64,
+        fixed_from_coin: u64,
+        program_id: &Pubkey,
+    ) -> ProgramResult {
+        /// TODO: testing purpose only 
+        let account_info_iter = &mut accounts.iter();
+        // let token_program_account = next_account_info(account_info_iter)?;
+        // let amm_account = next_account_info(account_info_iter)?;
+        // let amm_authority_account = next_account_info(account_info_iter)?;
+        // let amm_open_orders_account = next_account_info(account_info_iter)?;
+        // let lp_mint_account = next_account_info(account_info_iter)?;
+        // let pool_coin_token_account =  next_account_info(account_info_iter)?;
+        // let pool_pc_token_account =  next_account_info(account_info_iter)?;
+        // let user_coin_token_account =  next_account_info(account_info_iter)?;
+        // let user_pc_token_account =  next_account_info(account_info_iter)?;
+        // let user_lp_token_account =  next_account_info(account_info_iter)?;
+        // let initializer = next_account_info(account_info_iter)?;
+
+        let account_metas = vec![
+            // token program
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // amm program
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // amm authority 
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // amm open orders
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // amm target orders
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // lp mint address
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // pool coin token account
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // pool pc token account
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // serum market 
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // user coin token account
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // user pc token account
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // user lp token account
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // user owner 
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, true),
+        ];
+        // invoke(instruction: &Instruction, account_infos: &[AccountInfo]);
+
+        let ray_program = next_account_info(account_info_iter)?;
+        let ix = Instruction::new_with_bincode(
+            *ray_program.key, 
+            &ProvideLPData {
+                instruction,
+                max_coin_amount,
+                max_pc_amount,
+                fixed_from_coin,
+            },
+            account_metas.to_vec()
+        );
+    
+        msg!("prepared cross program invocation");
+        invoke(&ix, accounts)?;
+        msg!("Received all accounts......");
+
+        Ok(())
+    }
+
+    fn mock_raydium(
+        _accounts: &[AccountInfo],
+        _instruction: u8,
+        max_coin_amount: u64,
+        max_pc_amount: u64,
+        fixed_from_coin: u64,
+        _program_id: &Pubkey,
+    ) -> ProgramResult {
+
+        msg!(
+            "max_coin_amount {} max_pc_amount {} fixed_from_coin {} " ,
+            max_coin_amount,
+            max_pc_amount,
+            fixed_from_coin
+        );
+        Ok(())
     }
 
     fn process_init_escrow(

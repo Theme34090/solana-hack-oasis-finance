@@ -1,0 +1,19 @@
+.Pool {
+  margin: 0 4rem;
+}
+
+.Table {
+  display: flex;
+  flex-direction: column;
+}
+
+.SwitchWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  font-size: 0.8rem;
+}
+
+.SwitchWrapper .Text {
+  padding: 1rem;
+}

@@ -1,7 +1,18 @@
-use solana_program::program_error::ProgramError;
+use solana_program::program_error::{ProgramError};
+use solana_program::{ msg };
 use std::convert::TryInto;
+use borsh::{BorshDeserialize,BorshSerialize};
+use serde::{Serialize,Deserialize};
 
 use crate::error::EscrowError::InvalidInstruction;
+
+#[derive(BorshDeserialize,BorshSerialize, Debug, Serialize)]
+pub struct ProvideLPData  {
+    pub instruction: u8,
+    pub max_coin_amount: u64,
+    pub max_pc_amount: u64,
+    pub fixed_from_coin: u64,
+}
 
 pub enum EscrowInstruction {
     /// Starts the trade by creating and populating an escrow account and transferring ownership of the given temp token account to the PDA
@@ -37,30 +48,73 @@ pub enum EscrowInstruction {
         /// the amount the taker expects to be paid in the other token, as a u64 because that's the max possible supply of a token
         amount: u64,
     },
+        /// Accepts a trade
+    ///
+    ///
+    /// Provide LP:
+    ///
+    /// 0. `[writable]` token program id
+    /// 1. `[writable]` amm id
+    /// 2. `[writable]` amm authority
+    /// 3. `[writable]` amm open orders
+    /// 4. `[writable]` amm target orders
+    /// 5. `[writable]` lp mint address
+    /// 6. `[writable]` pool coin token account
+    /// 7. `[writable]` pool pc token account
+    /// 8. `[writable]` user coin token account
+    /// 9. `[writable]` user pc token account
+    /// 10.`[writable]` user lp token account
+    /// 11.`[signer]` user owner 
+    ProvideLP {
+        instruction: u8,
+        max_coin_amount: u64,
+        max_pc_amount: u64,
+        fixed_from_coin: u64,
+    },
+
+    MockRaydium {
+        instruction: u8,
+        max_coin_amount: u64,
+        max_pc_amount: u64,
+        fixed_from_coin: u64,
+    }
 }
 
 impl EscrowInstruction {
     /// Unpacks a byte buffer into a [EscrowInstruction](enum.EscrowInstruction.html).
     pub fn unpack(input: &[u8]) -> Result<Self, ProgramError> {
-        let (tag, rest) = input.split_first().ok_or(InvalidInstruction)?;
-
-        Ok(match tag {
-            0 => Self::InitEscrow {
-                amount: Self::unpack_amount(rest)?,
+        let (tag, _rest) = input.split_first().ok_or(InvalidInstruction)?;
+        
+        match tag {
+            2 => {
+                let data = ProvideLPData::try_from_slice(input)?;
+                // TODO: remove mock invoke radium
+                return Ok(Self::MockRaydium{
+                    instruction: data.instruction,
+                    max_coin_amount: data.max_coin_amount,
+                    max_pc_amount: data.max_pc_amount,
+                    fixed_from_coin: data.fixed_from_coin,
+                })
             },
-            1 => Self::Exchange {
-                amount: Self::unpack_amount(rest)?,
+            3 => {
+                let data = ProvideLPData::try_from_slice(input)?;
+                return Ok(Self::ProvideLP {
+                    instruction: data.instruction,
+                    max_coin_amount: data.max_coin_amount,
+                    max_pc_amount: data.max_pc_amount,
+                    fixed_from_coin: data.fixed_from_coin,
+                })
             },
-            _ => return Err(InvalidInstruction.into()),
-        })
+            _ => return Err(InvalidInstruction.into())
+        }
     }
 
-    fn unpack_amount(input: &[u8]) -> Result<u64, ProgramError> {
-        let amount = input
-            .get(..8)
-            .and_then(|slice| slice.try_into().ok())
-            .map(u64::from_le_bytes)
-            .ok_or(InvalidInstruction)?;
-        Ok(amount)
-    }
+    // fn unpack_amount(input: &[u8]) -> Result<u64, ProgramError> {
+    //     let amount = input
+    //         .get(..8)
+    //         .and_then(|slice| slice.try_into().ok())
+    //         .map(u64::from_le_bytes)
+    //         .ok_or(InvalidInstruction)?;
+    //     Ok(amount)
+    // }
 }
