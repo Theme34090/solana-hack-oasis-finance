@@ -18,6 +18,14 @@ pub mod vault {
         if ctx.accounts.user_farm_lp.amount < amount {
             return Err(ErrorCode::InsufficientLPTokens.into());
         }
+        let vault_account = &mut ctx.accounts.vault_account;
+        if ctx.accounts.user_farm_lp.mint != vault_account.farm_lp_mint {
+            return Err(ErrorCode::MismatchFarmLP.into());
+        }
+        if *ctx.accounts.vault_token_mint.to_account_info().key != vault_account.vault_token_mint {
+            return Err(ErrorCode::MismatchVaultTokens.into());
+        }
+
         // transfer user's farm LP to vault
         let cpi_accounts = Transfer {
             from: ctx.accounts.user_farm_lp.to_account_info(),
@@ -28,7 +36,14 @@ pub mod vault {
         let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
         token::transfer(cpi_ctx, amount)?;
 
-        // mint vault tokens to user's vault account.
+        // calculate mint amount
+        let mint_amount = if ctx.accounts.vault_farm_lp.amount == 0 {
+            amount
+        } else {
+            amount * ctx.accounts.vault_token_mint.supply / ctx.accounts.vault_farm_lp.amount
+        };
+
+        // mint vault tokens to user's vault account
         let seeds = &[
             ctx.accounts.vault_account.to_account_info().key.as_ref(),
             &[ctx.accounts.vault_account.nonce],
@@ -41,7 +56,7 @@ pub mod vault {
         };
         let cpi_program = ctx.accounts.token_program.clone();
         let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
-        token::mint_to(cpi_ctx, amount)?;
+        token::mint_to(cpi_ctx, mint_amount)?;
 
         Ok(())
     }
@@ -50,7 +65,19 @@ pub mod vault {
         if ctx.accounts.user_vault_token.amount < amount {
             return Err(ErrorCode::InsufficientVaultTokens.into());
         }
-        // Burn the user's redeemable tokens.
+        let vault_account = &mut ctx.accounts.vault_account;
+        if ctx.accounts.user_farm_lp.mint != vault_account.farm_lp_mint {
+            return Err(ErrorCode::MismatchFarmLP.into());
+        }
+        if *ctx.accounts.vault_token_mint.to_account_info().key != vault_account.vault_token_mint {
+            return Err(ErrorCode::MismatchVaultTokens.into());
+        }
+
+        // calculate share amount
+        // let amount_in_farm =
+        // let share_amount = amount * amount_in_farm / ctx.accounts.vault_farm_lp.amount;
+
+        // burn the user's vault tokens
         let cpi_accounts = Burn {
             mint: ctx.accounts.vault_token_mint.to_account_info(),
             to: ctx.accounts.user_vault_token.to_account_info(),
@@ -60,7 +87,7 @@ pub mod vault {
         let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
         token::burn(cpi_ctx, amount)?;
 
-        // Transfer USDC from pool account to user.
+        // transfer farm LP from vault's farm LP account to user
         let seeds = &[
             ctx.accounts.vault_account.to_account_info().key.as_ref(),
             &[ctx.accounts.vault_account.nonce],
@@ -98,10 +125,7 @@ pub struct InitializeVault<'info> {
     #[account(mut, "vault_farm_lp.owner == *vault_signer.key")]
     pub vault_farm_lp: CpiAccount<'info, TokenAccount>,
     pub farm_lp_mint: CpiAccount<'info, Mint>,
-    // #[account("token_program.key == &token::ID")]
-    // pub token_program: AccountInfo<'info>,
     pub rent: Sysvar<'info, Rent>,
-    // pub clock: Sysvar<'info, Clock>,
 }
 
 #[derive(Accounts)]
@@ -157,17 +181,23 @@ pub struct VaultAccount {
     pub nonce: u8,
 }
 
+#[account]
+pub struct RaydiumUserInfoAccount {
+    pub state: u64,
+    pub pool_id: Pubkey,
+    pub staker_owner: Pubkey,
+    pub deposit_balance: u64,
+    pub reward_debt: u64,
+}
+
 #[error]
 pub enum ErrorCode {
     #[msg("Insufficient LP tokens")]
     InsufficientLPTokens,
     #[msg("Insufficient vault tokens")]
     InsufficientVaultTokens,
+    #[msg("Mismatch Farm LP")]
+    MismatchFarmLP,
+    #[msg("Mismatch vault tokens")]
+    MismatchVaultTokens,
 }
-
-// #[associated]
-// pub struct Token {
-//     pub amount: u32,
-//     pub authority: Pubkey,
-//     pub mint: Pubkey,
-// }
