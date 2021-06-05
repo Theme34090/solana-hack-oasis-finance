@@ -45,6 +45,22 @@ export function getPoolByLpMintAddress(lpMintAddress: string): LiquidityPoolInfo
     return pool
 }
 
+export function getAddressForWhat(address: string) {
+    for (const pool of LIQUIDITY_POOLS) {
+        for (const [key, value] of Object.entries(pool)) {
+            if (key === 'lp') {
+                if (value.mintAddress === address) {
+                    return { key: 'lpMintAddress', lpMintAddress: pool.lp.mintAddress, version: pool.version }
+                }
+            } else if (value === address) {
+                return { key, lpMintAddress: pool.lp.mintAddress, version: pool.version }
+            }
+        }
+    }
+
+    return {}
+}
+
 
 export const TEST1: TokenInfo = {
     symbol: 'TEST1',

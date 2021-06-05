@@ -8,6 +8,7 @@
 // import { get } from "lodash-es";
 // import { ASSOCIATED_TOKEN_PROGRAM_ID, RENT_PROGRAM_ID, SYSTEM_PROGRAM_ID } from "./ids";
 
+
 import {
     Account,
     AccountInfo,
@@ -25,10 +26,12 @@ import { TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, SYSTEM_PROGRAM_ID, RENT_
 // eslint-disable-next-line
 import assert from 'assert'
 import { initializeAccount } from '@project-serum/serum/lib/token-instructions'
-// @ts-ignore
-import { struct } from 'buffer-layout';
-import * as borsh from 'borsh';
-import { useCallback } from 'react'
+import * as borsh from "borsh";
+
+
+
+
+
 
 export const commitment: Commitment = 'confirmed'
 
@@ -304,7 +307,7 @@ export async function createAmmId(infoId: PublicKey, marketAddress: PublicKey) {
 //     })
 // }
 
-// const AccountInfoResult = struct({
+// const AccountInfoResult = new Struct({
 //     executable: 'boolean',
 //     owner: 'string',
 //     lamports: 'number',
@@ -364,6 +367,8 @@ const AccountInfoResultSchema = new Map([
 
 
 
+
+
 // getMultipleAccounts
 export async function getMultipleAccounts(
     connection: Connection,
@@ -397,12 +402,12 @@ export async function getMultipleAccounts(
 
         // @ts-ignore
         const res = await connection._rpcRequest('getMultipleAccounts', args)
-
         if (res.error) {
             throw new Error(
                 'failed to get info about accounts ' + publicKeys.map((k) => k.toBase58()).join(', ') + ': ' + res.error.message
             )
         }
+
 
         for (const account of res.result.value) {
             let value: {
@@ -449,4 +454,35 @@ export async function getMultipleAccounts(
             account
         }
     })
+}
+
+export async function getFilterProgramAccounts(
+    connection: Connection,
+    programId: PublicKey,
+    filters: any,
+): Promise<{ publicKey: PublicKey; accountInfo: AccountInfo<Buffer> }[]> {
+
+    //@ts-ignore
+    const resp = await connection._rpcRequest('getProgramAccounts', [
+        programId.toBase58(),
+        {
+            commitment: connection.commitment,
+            filters,
+            encoding: 'base64'
+        }
+    ]);
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+    //@ts-ignore
+    return resp.result.map(({ pubkey, account: { data, executable, owner, lamports } }) => ({
+        publicKey: new PublicKey(pubkey),
+        accountInfo: {
+            data: Buffer.from(data[0], 'base64'),
+            executable,
+            owner: new PublicKey(owner),
+            lamports
+        }
+    }))
+
 }

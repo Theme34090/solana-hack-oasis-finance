@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { cloneDeep, get } from "lodash-es";
 
 import classes from "./farm.module.css";
@@ -14,6 +14,12 @@ import { PoolItem, PoolHeader } from "../../components/pool/pool";
 import Switch from "../../components/ui/switch/switch";
 import { TokenAmount } from "../../utils/safe-math";
 import { useConnection } from "../../store/connection";
+import { getPrices } from "../../store/price";
+import { requestInfos } from "../../store/liquidity";
+import { updateFarms } from "./user";
+import { getStakeAccounts } from "../../store/farm";
+import { depositV4, withdrawV4 } from "../../utils/stake";
+import { confirmTransaction } from "../../utils/transaction";
 
 interface FarmProps {}
 
@@ -21,7 +27,7 @@ interface FarmProps {}
 // const DEFAULT_LP = cloneDeep(FARMS[0].lp)
 const Farm: React.FC<FarmProps> = () => {
   const connection = useConnection();
-  const { tokenAccounts } = useWallet();
+  const { tokenAccounts, wallet, connected } = useWallet();
 
   const [isStakedMode, setIsStakedMode] = useState<boolean>(false);
 
@@ -34,41 +40,100 @@ const Farm: React.FC<FarmProps> = () => {
     return balance ? balance.fixed() : "dummy balance";
   };
 
-  const getPendingRewards = (farmInfo: FarmInfo) => {
-    if ([4, 5].includes(farmInfo.version)) {
-      let userInfo = {}; // get(this.farm.stakeAccounts, poolId)
-    }
-  };
-
-  // const updateCurrentLp = (tokenAccounts: any) => {
-  //   if (lp) {
-  //     const coin = cloneDeep(lp);
-  //     const lpBalance = get(tokenAccounts, `${lp.mintAddress}.balance`);
-  //     coin.balance = lpBalance;
-
-  //     setLp(coin);
-  //   }
   // };
 
   // stake lp
-  const stakeLP = (coinAddress: string, pcAddress: string, amount: string) => {
-    console.log(coinAddress, pcAddress, amount);
-    // const lpAccount = get(
-    //   tokenAccounts,
-    //   `${farm.lp.mintAddress}.tokenAccountAddress`
-    // );
-    // const rewardAccount = get(
-    //   tokenAccounts,
-    //   `${farm.reward.mintAddress}.tokenAccountAddress`
-    // );
+  // const stakeLP = (coinAddress: string, pcAddress: string, amount: string) => {
+  const stakeLP = async () => {
+    const farm = FARMS[0];
+    const lpAccount = get(
+      tokenAccounts,
+      `${farm.lp.mintAddress}.tokenAccountAddress`
+    );
+    const rewardAccount = get(
+      tokenAccounts,
+      `${farm.reward.mintAddress}.tokenAccountAddress`
+    );
+    const rewardAccountB = get(
+      tokenAccounts,
+      `${farm.rewardB!.mintAddress}.tokenAccountAddress`
+    );
     // // TODO:  stake account address
     // const infoAccount = "";
-    // console.log(">> lpAccount : ", lpAccount);
-    // console.log(">> reward account :", rewardAccount);
+    console.log(">> lpAccount : ", lpAccount);
+    console.log(">> reward account :", rewardAccount);
+    console.log(">> reward b account :", rewardAccountB);
+    const infoA = "ABcqFsuBWfHtMmSBrYiVKQwpngMg7GUFaKsWViEKFiup";
+    const infoB = "4Mk9DtUksdhgb7vt3g5ssoUSM76vs36BfagNKC7NdG8i";
+    const infoC = "Q3euXfw74FA9FyowwkRtPniVtqH3UQhrkeKYk9FK6KQ";
+    const tx = await depositV4(
+      connection,
+      wallet,
+      farm,
+      lpAccount,
+      rewardAccount,
+      rewardAccountB,
+      infoA,
+      "1"
+    );
+    console.log("Tx :", tx);
+    confirmTransaction(tx, "hello", connection);
   };
 
-  const updateFarm = () => {
-    getFarmRewardAccount(connection);
+  const withDraw = async () => {
+    const infoA = "ABcqFsuBWfHtMmSBrYiVKQwpngMg7GUFaKsWViEKFiup";
+    const farm = FARMS[0];
+
+    const lpAccount = get(
+      tokenAccounts,
+      `${farm.lp.mintAddress}.tokenAccountAddress`
+    );
+    const rewardAccount = get(
+      tokenAccounts,
+      `${farm.reward.mintAddress}.tokenAccountAddress`
+    );
+    const rewardAccountB = get(
+      tokenAccounts,
+      `${farm.rewardB!.mintAddress}.tokenAccountAddress`
+    );
+
+    const tx = await withdrawV4(
+      connection,
+      wallet,
+      farm,
+      lpAccount,
+      rewardAccount,
+      rewardAccountB,
+      infoA,
+      "1"
+    );
+
+    console.log("Tx :", tx);
+    confirmTransaction(tx, "hello", connection);
+  };
+
+  const updateFarm = async () => {
+    // getFarmRewardAccount(connection);
+    // const liquidity = await requestInfos(connection);
+    // console.log("liquidity", liquidity);
+
+    // const farms = await getFarmRewardAccount(connection);
+    // console.log("farm ", farms);
+
+    const stakeAcc = await getStakeAccounts(connection, wallet, connected);
+    console.log("stake acc: ", stakeAcc);
+
+    // const price = await getPrices();
+
+    // const results = await updateFarms(farms, stakeAcc, liquidity, price);
+    // console.log(results);
+    // for (const res of results) {
+    //   console.log(res.farmInfo.name);
+    //   const pending = (res.userInfo.pendingReward as TokenAmount).fixed();
+    //   console.log("pending reward :", pending);
+    //   const deposit = (res.userInfo.depositBalance as TokenAmount).fixed();
+    //   console.log("deposit :", deposit);
+    // }
   };
 
   let farm = cloneDeep(FARMS);
@@ -109,7 +174,9 @@ const Farm: React.FC<FarmProps> = () => {
         <PoolHeader />
         {pool}
       </div>
-      <button onClick={updateFarm}>Update Farm</button>
+      <button onClick={stakeLP}>STAKE LP</button>
+      <button onClick={withDraw}>WITHDRAW LP</button>
+      <button onClick={updateFarm}>UPDATE FARM</button>
     </div>
   );
 };
