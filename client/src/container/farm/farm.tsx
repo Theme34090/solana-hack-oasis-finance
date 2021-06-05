@@ -43,7 +43,7 @@ const Farm: React.FC<FarmProps> = () => {
   // };
 
   // stake lp
-  const stakeLP = async (farm: FarmInfo) => {
+  const stakeLP = async (farm: FarmInfo, amount: string) => {
     const lpAccount = get(
       tokenAccounts,
       `${farm.lp.mintAddress}.tokenAccountAddress`
@@ -68,7 +68,7 @@ const Farm: React.FC<FarmProps> = () => {
       rewardAccount,
       rewardAccountB,
       null,
-      "1"
+      amount
     );
     console.log("Tx :", tx);
     confirmTransaction(tx, "hello", connection);
