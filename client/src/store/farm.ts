@@ -68,8 +68,6 @@ export async function getStakeAccounts(
                 }
             }
         }
-
-
     });
 
     return stakeAccounts;

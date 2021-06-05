@@ -31,8 +31,8 @@ const Header: React.FC<HeaderProps> = (): JSX.Element => {
     WALLET_PROVIDERS.map((provider) => (
       <DropdownItem
         key={provider.name}
-        // clicked={onSelectProvider.bind(this, provider.url)}
-        clicked={!connected ? wallet.connect : wallet.disconnect}
+        clicked={onSelectProvider.bind(this, provider.url)}
+        // clicked={!connected ? wallet.connect : wallet.disconnect}
       >
         {provider.name}
       </DropdownItem>

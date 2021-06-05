@@ -37,15 +37,13 @@ const Farm: React.FC<FarmProps> = () => {
 
   const getBalance = (mintAddress: string) => {
     const balance = get(tokenAccounts, `${mintAddress}.balance`) as TokenAmount;
-    return balance ? balance.fixed() : "dummy balance";
+    return balance ? balance.fixed() : "0.000000";
   };
 
   // };
 
   // stake lp
-  // const stakeLP = (coinAddress: string, pcAddress: string, amount: string) => {
-  const stakeLP = async () => {
-    const farm = FARMS[0];
+  const stakeLP = async (farm: FarmInfo) => {
     const lpAccount = get(
       tokenAccounts,
       `${farm.lp.mintAddress}.tokenAccountAddress`
@@ -59,13 +57,9 @@ const Farm: React.FC<FarmProps> = () => {
       `${farm.rewardB!.mintAddress}.tokenAccountAddress`
     );
     // // TODO:  stake account address
-    // const infoAccount = "";
-    console.log(">> lpAccount : ", lpAccount);
-    console.log(">> reward account :", rewardAccount);
-    console.log(">> reward b account :", rewardAccountB);
-    const infoA = "ABcqFsuBWfHtMmSBrYiVKQwpngMg7GUFaKsWViEKFiup";
-    const infoB = "4Mk9DtUksdhgb7vt3g5ssoUSM76vs36BfagNKC7NdG8i";
-    const infoC = "Q3euXfw74FA9FyowwkRtPniVtqH3UQhrkeKYk9FK6KQ";
+    // const infoA = "ABcqFsuBWfHtMmSBrYiVKQwpngMg7GUFaKsWViEKFiup";
+    // const infoB = "4Mk9DtUksdhgb7vt3g5ssoUSM76vs36BfagNKC7NdG8i";
+    // const infoC = "Q3euXfw74FA9FyowwkRtPniVtqH3UQhrkeKYk9FK6KQ";
     const tx = await depositV4(
       connection,
       wallet,
@@ -73,7 +67,7 @@ const Farm: React.FC<FarmProps> = () => {
       lpAccount,
       rewardAccount,
       rewardAccountB,
-      infoA,
+      null,
       "1"
     );
     console.log("Tx :", tx);
@@ -156,11 +150,7 @@ const Farm: React.FC<FarmProps> = () => {
       mintA={farm.lp.coin.mintAddress}
       mintB={farm.lp.pc.mintAddress}
       walletBalance={getBalance(farm.lp.mintAddress)}
-      deposit={stakeLP.bind(
-        this,
-        farm.lp.coin.mintAddress,
-        farm.lp.pc.mintAddress
-      )}
+      deposit={stakeLP.bind(this, farm)}
     />
   ));
 
@@ -174,9 +164,9 @@ const Farm: React.FC<FarmProps> = () => {
         <PoolHeader />
         {pool}
       </div>
-      <button onClick={stakeLP}>STAKE LP</button>
-      <button onClick={withDraw}>WITHDRAW LP</button>
-      <button onClick={updateFarm}>UPDATE FARM</button>
+      {/* <button onClick={stakeLP}>STAKE LP</button> */}
+      {/* <button onClick={withDraw}>WITHDRAW LP</button> */}
+      {/* <button onClick={updateFarm}>UPDATE FARM</button> */}
     </div>
   );
 };

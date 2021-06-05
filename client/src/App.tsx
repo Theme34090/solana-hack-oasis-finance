@@ -1,6 +1,5 @@
-import React from "react";
 import "./App.css";
-import { LandingView } from "./container/landing/landing";
+import { LandingView } from "./container";
 
 function App() {
   return (

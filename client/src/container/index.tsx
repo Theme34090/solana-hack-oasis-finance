@@ -1,7 +1,7 @@
-import Header from "../../components/ui/header/header";
-import { useWallet } from "../../store/wallet";
-import Farm from "../farm/farm";
-import Liquidity from "../liquidity/liquidity";
+import Header from "../components/ui/header/header";
+import { useWallet } from "../store/wallet";
+import Farm from "./farm/farm";
+import Liquidity from "./liquidity/liquidity";
 
 export const LandingView = (props: {}) => {
   const { tokenAccounts } = useWallet();
@@ -35,9 +35,9 @@ export const LandingView = (props: {}) => {
     // </main>
     <main>
       <Header />
-      <Liquidity />
-      <hr />
-      {tk}
+      {/* <Liquidity /> */}
+
+      {/* {tk} */}
       <Farm />
     </main>
   );

@@ -22,57 +22,66 @@ export const WALLET_PROVIDERS: Provider[] = [
 
 export const DEFAULT_PROVIDER = WALLET_PROVIDERS[0];
 
-// interface WalletCTX {
-//   connected: boolean;
-//   wallet: WalletAdapter | undefined;
-//   providerUrl: string;
-//   setProvider: React.Dispatch<React.SetStateAction<string>>;
-//   providerName: string;
-// }
-
 const WalletContext = React.createContext<any>(null);
 
 export const WalletProvider = ({ children = null as any }) => {
   const connection = useConnection();
   const { endpoint } = useConnectionConfig();
   const [tokenAccounts, setTokenAccounts] = useState<TokenAccounts>({});
+  const [isWalletSelected, setIsWalletSelected] = useState(false);
 
   const [providerUrl, setProviderUrl] = useState<string>(DEFAULT_PROVIDER.url);
   const [displayKey, setDisplayKey] = useState<string>("");
 
-  console.log("sollet ext", (window as any).sollet);
-
   const [wallet, setWallet] = useState<WalletAdapter>(
-    // new Wallet(providerUrl, endpoint)
-    new Wallet((window as any).sollet || providerUrl, endpoint)
+    new Wallet(providerUrl, endpoint)
+    // new Wallet((window as any).sollet || providerUrl, endpoint)
   );
+
+  const [connected, setConnected] = useState(false);
 
   // const wallet: WalletAdapter = useMemo(() => new Wallet(providerUrl, endpoint),[
   //     providerUrl,
   //     endpoint,
   // ]);
+  const getDisplayWallet = (wallet: WalletAdapter) => {
+    let walletPublicKey = wallet.publicKey.toBase58();
+    let keyToDisplay =
+      walletPublicKey.length > 20
+        ? `${walletPublicKey.substring(0, 7)}.....${walletPublicKey.substring(
+            walletPublicKey.length - 7,
+            walletPublicKey.length
+          )}`
+        : walletPublicKey;
+    return keyToDisplay;
+  };
 
   const connectWallet = useCallback(
-    (providerURL: string) => {
-      const wall = new Wallet(providerURL, endpoint);
+    async (providerURL: string) => {
+      const newWallet = new Wallet(providerURL, endpoint);
       // const wall = new Wallet((window as any).sollet || providerUrl, endpoint);
-      wall.connect().then(() => {
-        setProviderUrl(providerURL);
-        setWallet(wall);
-        setConnected(true);
-      });
+
+      setProviderUrl(providerURL);
+      setWallet(newWallet);
+      setIsWalletSelected(true);
     },
     [endpoint, providerUrl]
   );
 
-  const [connected, setConnected] = useState(false);
-
-  useEffect(() => {
-    setWallet(new Wallet(providerUrl, endpoint));
-  }, [providerUrl, endpoint]);
+  // useEffect(() => {
+  //   setWallet(new Wallet(providerUrl, endpoint));
+  // }, [providerUrl, endpoint]);
 
   useEffect(() => {
     console.log("trying to connect");
+    if (!connected && isWalletSelected) {
+      try {
+        wallet.connect();
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
     wallet.on("connect", async () => {
       setConnected(true);
       let walletPublicKey = wallet.publicKey.toBase58();
@@ -98,18 +107,10 @@ export const WalletProvider = ({ children = null as any }) => {
       setConnected(false);
       setDisplayKey("");
       setTokenAccounts({});
+      setIsWalletSelected(false);
       alert("Disconnected from wallet");
     });
   }, [wallet]);
-
-  // useEffect(() => {
-  //   return () => {
-  //     wallet.disconnect().then(() => {
-  //       alert("cleanup : Disconnected from wallet");
-  //       setConnected(false);
-  //     });
-  //   };
-  // }, []);
 
   return (
     <WalletContext.Provider

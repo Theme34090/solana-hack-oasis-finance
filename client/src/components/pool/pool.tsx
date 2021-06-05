@@ -49,7 +49,12 @@ export const PoolItem: React.FC<PoolItemProps> = ({
           <i className={classes.ArrowDown}></i>
         </div>
       </div>
-      <Exchange deposit={deposit} show={selected} />
+      <Exchange
+        symbol={symbol}
+        maxLp={walletBalance}
+        deposit={deposit}
+        show={selected}
+      />
     </div>
   );
 };
