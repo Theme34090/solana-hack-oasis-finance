@@ -31,8 +31,8 @@ export function updateFarms(
             const newFarmInfo = cloneDeep(farmInfo)
 
             if (reward && lp) {
-                const rewardPerBlockAmount = new TokenAmount(rewardPerBlock.toNumber(), reward.decimals)
-                const liquidityItem = get(liquidity.infos, lp.mintAddress)
+                const rewardPerBlockAmount = new TokenAmount(rewardPerBlock.toNumber(), reward.decimals);
+                const liquidityItem = get(liquidity, lp.mintAddress);
 
                 const rewardPerBlockAmountTotalValue =
                     rewardPerBlockAmount.toEther().toNumber() *
@@ -41,14 +41,14 @@ export function updateFarms(
                     60 *
                     24 *
                     365 *
-                    price.prices[reward.symbol as string]
+                    price[reward.symbol as string]
 
                 const liquidityCoinValue =
                     (liquidityItem?.coin.balance as TokenAmount).toEther().toNumber() *
-                    price.prices[liquidityItem?.coin.symbol as string]
+                    price[liquidityItem?.coin.symbol as string]
                 const liquidityPcValue =
                     (liquidityItem?.pc.balance as TokenAmount).toEther().toNumber() *
-                    price.prices[liquidityItem?.pc.symbol as string]
+                    price[liquidityItem?.pc.symbol as string]
 
                 const liquidityTotalValue = liquidityPcValue + liquidityCoinValue
                 const liquidityTotalSupply = (liquidityItem?.lp.totalSupply as TokenAmount).toEther().toNumber()
@@ -57,11 +57,13 @@ export function updateFarms(
                 const liquidityUsdValue = lp.balance.toEther().toNumber() * liquidityItemValue
                 const apr = ((rewardPerBlockAmountTotalValue / liquidityUsdValue) * 100).toFixed(2)
 
-                // @ts-ignore
+                // // @ts-ignore
                 newFarmInfo.apr = apr
-                // @ts-ignore
+                // // @ts-ignore
                 newFarmInfo.liquidityUsdValue = liquidityUsdValue
             }
+
+
 
             if (userInfo) {
                 userInfo = cloneDeep(userInfo)

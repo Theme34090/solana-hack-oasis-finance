@@ -23,9 +23,7 @@ import {
 
 const Liquidity: React.FC = () => {
   const connection = useConnection();
-  const { wallet } = useWallet();
-
-  const [tokenAccounts, setTokenAccounts] = useState<any>({});
+  const { wallet, tokenAccounts } = useWallet();
 
   const [fromCoin, setFromCoin] = useState<TokenInfo>(
     TOKENS.TEST1 as TokenInfo
@@ -52,12 +50,6 @@ const Liquidity: React.FC = () => {
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     setToAmount(event.target.value);
-  };
-
-  const getTokenAccountsHandler = () => {
-    getTokenAccounts(connection, wallet).then((tkAcc) => {
-      setTokenAccounts(tkAcc);
-    });
   };
 
   const addTokenHandler = () => {
@@ -200,7 +192,6 @@ const Liquidity: React.FC = () => {
           onChange={toAmountChangeHandler}
         />
       </div>
-      <button onClick={getTokenAccountsHandler}>get Token Accounts</button>
       <button onClick={addTokenHandler}>ADD Token Accounts</button>
       <button onClick={addLiquidityHandler}>Add Liquidity</button>
     </>

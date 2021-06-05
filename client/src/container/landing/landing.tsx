@@ -1,21 +1,25 @@
 import Header from "../../components/ui/header/header";
+import { useWallet } from "../../store/wallet";
 import Farm from "../farm/farm";
+import Liquidity from "../liquidity/liquidity";
 
 export const LandingView = (props: {}) => {
-  // const tk = Object.keys(tokenAccounts).map((token) => (
-  //   <Account>
-  //     <Title>
-  //       <Span>TOKEN : </Span> {token}
-  //     </Title>
-  //     <Text>
-  //       <Span>ACCOUNT ADDRESS : </Span>{" "}
-  //       {tokenAccounts[token].tokenAccountAddress}
-  //     </Text>
-  //     <Text>
-  //       <Span>ACCOUNT BALANCE: </Span> {tokenAccounts[token].balance.fixed()}
-  //     </Text>
-  //   </Account>
-  // ));
+  const { tokenAccounts } = useWallet();
+
+  const tk = Object.keys(tokenAccounts).map((token) => (
+    <div>
+      <div>
+        <span>TOKEN : </span> {token}
+      </div>
+      <div>
+        <span>ACCOUNT ADDRESS : </span>{" "}
+        {tokenAccounts[token].tokenAccountAddress}
+      </div>
+      <div>
+        <span>ACCOUNT BALANCE: </span> {tokenAccounts[token].balance.fixed()}
+      </div>
+    </div>
+  ));
 
   return (
     // <main>
@@ -31,6 +35,8 @@ export const LandingView = (props: {}) => {
     // </main>
     <main>
       <Header />
+      {/* <Liquidity /> */}
+      {/* {tk} */}
       <Farm />
     </main>
   );

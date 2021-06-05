@@ -31,7 +31,8 @@ export async function getStakeAccounts(
     const stakeAccountsInfos =
         await getFilterProgramAccounts(
             connection,
-            new PublicKey(STAKE_PROGRAM_ID),
+            // new PublicKey(STAKE_PROGRAM_ID),
+            new PublicKey("EcLzTrNg9V7qhcdyXDe2qjtPkiGzDM2UbdRaeaadU5r2"),
             stakeFilters
         );
 
@@ -39,6 +40,7 @@ export async function getStakeAccounts(
         const stakeAccountAddress = stakeAccountInfo.publicKey.toBase58();
         const { data } = stakeAccountInfo.accountInfo;
 
+        console.log(stakeAccountAddress);
         //@ts-ignore
         const userStakeInfo = USER_STAKE_INFO_ACCOUNT_LAYOUT.decode(data)
 

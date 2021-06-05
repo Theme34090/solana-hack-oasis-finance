@@ -8,6 +8,7 @@
 // import { get } from "lodash-es";
 // import { ASSOCIATED_TOKEN_PROGRAM_ID, RENT_PROGRAM_ID, SYSTEM_PROGRAM_ID } from "./ids";
 
+
 import {
     Account,
     AccountInfo,
@@ -25,8 +26,11 @@ import { TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, SYSTEM_PROGRAM_ID, RENT_
 // eslint-disable-next-line
 import assert from 'assert'
 import { initializeAccount } from '@project-serum/serum/lib/token-instructions'
-// @ts-ignore
-import struct from 'superstruct';
+import * as borsh from "borsh";
+
+
+
+
 
 
 export const commitment: Commitment = 'confirmed'
@@ -303,7 +307,7 @@ export async function createAmmId(infoId: PublicKey, marketAddress: PublicKey) {
 //     })
 // }
 
-// const AccountInfoResult = struct({
+// const AccountInfoResult = new Struct({
 //     executable: 'boolean',
 //     owner: 'string',
 //     lamports: 'number',
@@ -363,6 +367,8 @@ const AccountInfoResultSchema = new Map([
 
 
 
+
+
 // getMultipleAccounts
 export async function getMultipleAccounts(
     connection: Connection,
@@ -401,6 +407,7 @@ export async function getMultipleAccounts(
                 'failed to get info about accounts ' + publicKeys.map((k) => k.toBase58()).join(', ') + ': ' + res.error.message
             )
         }
+
 
         for (const account of res.result.value) {
             let value: {

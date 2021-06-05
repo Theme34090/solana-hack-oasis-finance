@@ -146,64 +146,50 @@ export async function getFarmRewardAccount(connection: Connection) {
         if (info) {
             const address = info.publicKey.toBase58()
             const data = Buffer.from(info.account.data)
+
+            // console.log("data :", data);
+            // console.log("info :", info);
             const { key, poolId } = getAddressForWhat(address)
-            // if (key && poolId) {
-            //     const farmInfo = farms[poolId]
+            if (key && poolId) {
+                const farmInfo = farms[poolId]
 
-            //     switch (key) {
-            //         // pool info
-            //         case 'poolId': {
-            //             let parsed
+                switch (key) {
+                    // pool info
+                    case 'poolId': {
+                        let parsed
 
-            //             // TODO: discuss farm layout
-            //             if ([4, 5].includes(farmInfo.version)) {
-            //                 parsed = STAKE_INFO_LAYOUT_V4.decode(data)
-            //             } else {
-            //                 parsed = STAKE_INFO_LAYOUT.decode(data)
-            //             }
+                        // TODO: discuss farm layout
+                        if ([4, 5].includes(farmInfo.version)) {
+                            parsed = STAKE_INFO_LAYOUT_V4.decode(data)
+                        } else {
+                            parsed = STAKE_INFO_LAYOUT.decode(data)
+                        }
 
 
-            //             farmInfo.poolInfo = parsed
+                        farmInfo.poolInfo = parsed
 
-            //             break
-            //         }
-            //         // staked balance
-            //         case 'poolLpTokenAccount': {
-            //             // TODO: discuss farm layout เลือกฟาร์มไหนบ้าง
-            //             const parsed = ACCOUNT_LAYOUT.decode(data)
+                        break
+                    }
+                    // staked balance
+                    case 'poolLpTokenAccount': {
+                        // TODO: discuss farm layout เลือกฟาร์มไหนบ้าง
+                        const parsed = ACCOUNT_LAYOUT.decode(data)
 
-            //             farmInfo.lp.balance.wei = farmInfo.lp.balance.wei.plus(parsed.amount.toNumber())
-            //             farmInfo.lp.balance.wei = farmInfo.lp.balance.wei.plus(0)
+                        farmInfo.lp.balance.wei = farmInfo.lp.balance.wei.plus(parsed.amount.toNumber())
+                        farmInfo.lp.balance.wei = farmInfo.lp.balance.wei.plus(0)
 
-            //             break
-            //         }
-            //     }
-            // }
+                        break
+                    }
+                }
+            }
         }
     })
 
     return farms;
 }
 
-export const MOCK_FARM: FarmInfo = {
-    name: 'TEST-TEST',
-    lp: { ...LP_TOKENS['TEST_LPTOKEN'] },
-    reward: { ...TOKENS.RAY },
-    isStake: false,
 
-    fusion: false,
-    legacy: true,
-    dual: false,
-    version: 3,
-    programId: STAKE_PROGRAM_ID,
-
-    poolId: '6d3vDYvk6VFVacEAGA1NDyxkQPRiNxXQRkeKpTPMJwe4',
-    poolAuthority: 'EcPc2KUDFMyPNAVPE6PsMkzneBFKNqRjUhfhyM2da9go',
-    poolLpTokenAccount: 'Gx4kLpTirc3Lr3GEYojYt1zUmsCcWajjBZTFVA3tzyDg', // lp vault
-    poolRewardTokenAccount: 'J144vsbPdLa9V6JpvGFH63bQw8QhQckUNe48YjPKwcZo' // reward vault
-}
-
-export const FARMS: FarmInfo[] = [
+export const _FARMS: FarmInfo[] = [
 
     // v3
     {
@@ -630,3 +616,44 @@ export const FARMS: FarmInfo[] = [
     //     poolRewardTokenAccountB: '3sGDa8ir8GrkKbnBH6HP63JaYSs7nskmmVHpF2vuzaZr' // reward vault B
     // }
 ]
+
+
+export const FARMS: FarmInfo[] = [{
+    name: 'TEST-TEST',
+    lp: { ...LP_TOKENS['TEST_LPTOKEN'] },
+    reward: { ...TOKENS.TEST1 },
+    rewardB: { ...TOKENS.TEST2 },
+    isStake: false,
+
+    fusion: false,
+    legacy: true,
+    dual: false,
+    version: 5,
+    programId: "EcLzTrNg9V7qhcdyXDe2qjtPkiGzDM2UbdRaeaadU5r2",
+
+    poolId: '2Bsexc5j6vk4r9RhBYz2ufPrRWhumXQk6efXucqUKsyr',
+    poolAuthority: 'BxAtWJ4g6xguPsR9xNvXTK7EjuzwiKNbmKbhoXDZ3EsY',
+    poolLpTokenAccount: '83BEhzv7eV4HeJuuPtYmHkhTjZEpNpK83mHnHfX5Krwj', // lp vault
+    poolRewardTokenAccount: 'HVtAJ1uRiWJ7tNU9uqAzpPv14B3fN9SVEW9G4PtM77Ci', // reward vault B
+    poolRewardTokenAccountB: '39Ea6rMGGrsNmEsYToqQfEyNSqv7hcUJa646qBYLY4yq'
+}]
+
+// {
+//     name: 'ROPE-USDC',
+//     lp: { ...LP_TOKENS['ROPE-USDC-V4'] },
+//     reward: { ...TOKENS.RAY },
+//     rewardB: { ...TOKENS.ROPE },
+//     isStake: false,
+
+//     fusion: true,
+//     legacy: false,
+//     dual: false,
+//     version: 5,
+//     programId: STAKE_PROGRAM_ID_V5,
+
+//     poolId: 'BLy8KuRck5bcJkQdMDLSZnL1Ka4heAZSGiwTJfEfY727',
+//     poolAuthority: '8xPzoFPHKWZHWmwKaxFUyVBf2V13HMbCrMDgaCZCLjgx',
+//     poolLpTokenAccount: 'DiebAVak6cub1Mn3yhhvgSvGhkAP1JTtyRGoAei4wrWE', // lp vault
+//     poolRewardTokenAccount: '4F9FaFewwsSF8Bsxukyj9NiEdPFQQ38dNKEDpZugYfdi', // reward vault A
+//     poolRewardTokenAccountB: '4tvLbnZEPZLuDf636DHEzrUxW8bDoZ5XyfVwk7ppDhbC' // reward vault B
+// },

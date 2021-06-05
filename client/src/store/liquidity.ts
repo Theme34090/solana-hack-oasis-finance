@@ -245,9 +245,9 @@ export async function requestInfos(
         conn,
         new PublicKey(LIQUIDITY_POOL_PROGRAM_ID_V2),
         [
-            //   {
-            //     dataSize: AMM_INFO_LAYOUT_V4.span
-            //   }
+            {
+                dataSize: AMM_INFO_LAYOUT_V4.span
+            }
         ],
     );
 
@@ -256,9 +256,9 @@ export async function requestInfos(
         conn,
         new PublicKey(SERUM_PROGRAM_ID_V3),
         [
-            // {
-            //     dataSize: _MARKET_STATE_LAYOUT_V2.span
-            // }
+            {
+                dataSize: _MARKET_STATE_LAYOUT_V2.span
+            }
         ]
     );
 
