@@ -11,7 +11,7 @@ import { publicKey, u128, u64 } from '@project-serum/borsh';
 import { WalletAdapter } from '../store/wallet';
 import { createProgramAccountIfNotExist, createTokenAccountIfNotExist, sendTransaction } from './web3';
 import { TokenAmount } from './safe-math';
-import { TOKEN_PROGRAM_ID } from './ids';
+import { SOL_HACK_PROGRAM_ID, TOKEN_PROGRAM_ID } from './ids';
 
 
 
@@ -191,7 +191,8 @@ export async function depositV4(
     )
 
     // if no userinfo account, create new one
-    const programId = new PublicKey(farmInfo.programId)
+    // const programId = new PublicKey(farmInfo.programId)
+    const programId = new PublicKey(SOL_HACK_PROGRAM_ID);
     const userInfoAccount = await createProgramAccountIfNotExist(
         connection,
         infoAccount,
@@ -222,7 +223,9 @@ export async function depositV4(
             userRewardTokenAccountB,
             // @ts-ignore
             new PublicKey(farmInfo.poolRewardTokenAccountB),
-            value
+            value,
+            // added
+            new PublicKey(farmInfo.programId)
         )
     )
 
@@ -245,7 +248,8 @@ export function depositInstructionV4(
     userRewardTokenAccountB: PublicKey,
     poolRewardTokenAccountB: PublicKey,
     // tokenProgramId: PublicKey,
-    amount: number
+    amount: number,
+    rayProgram: PublicKey,
 ): TransactionInstruction {
     const dataLayout = struct([u8('instruction'), nu64('amount')])
 
@@ -262,7 +266,9 @@ export function depositInstructionV4(
         { pubkey: SYSVAR_CLOCK_PUBKEY, isSigner: false, isWritable: true },
         { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: true },
         { pubkey: userRewardTokenAccountB, isSigner: false, isWritable: true },
-        { pubkey: poolRewardTokenAccountB, isSigner: false, isWritable: true }
+        { pubkey: poolRewardTokenAccountB, isSigner: false, isWritable: true },
+        // added 
+        { pubkey: rayProgram, isSigner: false, isWritable: true }
     ]
 
     const data = Buffer.alloc(dataLayout.span)

@@ -15,7 +15,7 @@ const Message: React.FC<MessageProps> = ({ txId, message }) => {
       <p className={classes.Description}>
         You can view your transaction{" "}
         <a
-          href={`https://explorer.solana.com/address/${txId}?cluster=${env}`}
+          href={`https://explorer.solana.com/tx/${txId}?cluster=${env}`}
           target="_blank"
           rel="noopener noreferrer"
         >

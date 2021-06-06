@@ -96,7 +96,7 @@ const Farm: React.FC<FarmProps> = () => {
       amount
     );
     // console.log("Tx :", tx);
-
+    console.log("txId : ", txId);
     notifyInfo(txId);
     confirmTransaction(txId, connection);
   };
@@ -131,7 +131,7 @@ const Farm: React.FC<FarmProps> = () => {
       infoAccount,
       amount
     );
-
+    console.log("txId : ", txId);
     notifyInfo(txId);
     confirmTransaction(txId, connection);
   };

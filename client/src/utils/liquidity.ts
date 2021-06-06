@@ -166,7 +166,7 @@ export const addLiquidityAnchor = async (
     anchor.setProvider(provider);
 
     const programId = new anchor.web3.PublicKey(
-        "CKsD4Wj8579z3spGLqAbVLpcFENUhRicKbwHke3KrS81"
+        "tkdciwEqQ1gSG4LBxpXVHsxcQWd2WPmzfLWSDkm7RvF"
     );
     const program = new anchor.Program(
         idl as anchor.Idl,
@@ -235,7 +235,7 @@ export const addLiquidityAnchor = async (
         3,
         new anchor.BN(coinAmount),
         new anchor.BN(pcAmount),
-        new anchor.BN(1),
+        new anchor.BN(0),
         {
             accounts: {
                 tokenProgram: new anchor.web3.PublicKey(TOKEN_PROGRAM_ID),
