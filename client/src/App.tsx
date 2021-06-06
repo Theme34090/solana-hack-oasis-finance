@@ -1,4 +1,3 @@
-import "./App.css";
 import { Route } from "react-router-dom";
 import Header from "./components/ui/header/header";
 import Liquidity from "./container/liquidity/liquidity";

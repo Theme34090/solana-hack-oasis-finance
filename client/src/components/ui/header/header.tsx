@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NavLink, RouteComponentProps } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 import Button from "../button/button";
 import classes from "./header.module.css";

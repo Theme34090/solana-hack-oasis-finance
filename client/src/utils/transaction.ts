@@ -1,6 +1,5 @@
 
 import { Connection, Context, SignatureResult } from "@solana/web3.js";
-import { toast } from "react-toastify";
 import { notifySuccess, notifyError } from "../components/ui/notification/notification";
 
 export const confirmTransaction = (
@@ -8,10 +7,9 @@ export const confirmTransaction = (
     connection: Connection,
 ) => {
 
-    const listenerID = connection.onSignature(
+    connection.onSignature(
         txid,
-        (signatureResult: SignatureResult, context: Context) => {
-            const { slot } = context;
+        (signatureResult: SignatureResult, _context: Context) => {
 
             if (!signatureResult.err) {
                 // success

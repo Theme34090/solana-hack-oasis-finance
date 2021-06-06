@@ -26,11 +26,6 @@ import { TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, SYSTEM_PROGRAM_ID, RENT_
 // eslint-disable-next-line
 import assert from 'assert'
 import { initializeAccount } from '@project-serum/serum/lib/token-instructions'
-import * as borsh from "borsh";
-
-
-
-
 
 
 export const commitment: Commitment = 'confirmed'

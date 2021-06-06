@@ -6,7 +6,13 @@ import "react-toastify/dist/ReactToastify.css";
 import "./notification.css";
 
 const Notification: React.FC = () => {
-  return <ToastContainer position="bottom-left" autoClose={false} />;
+  return (
+    <ToastContainer
+      position="bottom-left"
+      autoClose={false}
+      newestOnTop={true}
+    />
+  );
 };
 
 export const notifyInfo = (txId: string): void => {

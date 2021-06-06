@@ -6,7 +6,7 @@ import { NATIVE_SOL, TokenInfo, TOKENS } from "./tokens";
 // @ts-ignore
 import { closeAccount } from '@project-serum/serum/lib/token-instructions'
 import { commitment, createTokenAccountIfNotExist, sendTransaction } from './web3';
-import { programIds, RAY_HACK_PROGRAM_ID, SOL_HACK_PROGRAM_ID } from './ids';
+import { SOL_HACK_PROGRAM_ID } from './ids';
 import { serializeProvideLP } from '../models/borsh';
 import * as anchor from "@project-serum/anchor";
 import idl from "./ray.json";

@@ -3,26 +3,18 @@ import { cloneDeep, get } from "lodash-es";
 
 import classes from "./farm.module.css";
 import { useWallet } from "../../store/wallet";
-import {
-  FarmInfo,
-  FARMS,
-  getFarmByLpMintAddress,
-  getFarmRewardAccount,
-} from "../../utils/farms";
+import { FarmInfo, FARMS, getFarmByLpMintAddress } from "../../utils/farms";
 
 import { PoolItem, PoolHeader } from "../../components/pool/pool";
 import Switch from "../../components/ui/switch/switch";
 import { TokenAmount } from "../../utils/safe-math";
 import { useConnection } from "../../store/connection";
-import { getPrices } from "../../store/price";
 import { requestInfos } from "../../store/liquidity";
-import { updateFarms } from "./user";
 import { getStakeAccounts } from "../../store/farm";
 import { depositV4, withdrawV4 } from "../../utils/stake";
 import { confirmTransaction } from "../../utils/transaction";
 import { StakeAccounts } from "../../store/farm";
 import LoadingSpinner from "../../components/ui/loading-spinner/loading-spinner";
-import { toast } from "react-toastify";
 
 import { notifyInfo } from "../../components/ui/notification/notification";
 

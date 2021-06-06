@@ -1,6 +1,4 @@
 import { useState } from "react";
-// import { useConnectionConfig } from "../../store/connection";
-// import { getTokenSymbol } from "../../utils/utils";
 
 import PoolIcon from "./pool-icon/pool-icon";
 import Exchange from "./exchange/exchange";
