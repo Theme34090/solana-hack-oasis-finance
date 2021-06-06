@@ -1,4 +1,5 @@
 /*-dump.txt
 /*.so
+**/.DS_Store
 /target/
 test-ledger
