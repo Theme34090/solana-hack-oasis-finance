@@ -68,7 +68,7 @@ const Liquidity: React.FC = () => {
       `${lp.mintAddress}.tokenAccountAddress`
     );
 
-    const txId = await addLiquidityAnchor(
+    const txId = await addLiquidity(
       connection,
       wallet,
       TEST_POOL,
