@@ -105,27 +105,28 @@ pub mod vault {
     //     Ok(())
     // }
 
-    pub fn farm(ctx: Context<Farm>, amount: u64) -> ProgramResult {
-        let cpi_accounts = RaydiumDeposit {
-            raydium_pool_id: ctx.accounts.raydium_pool_id.to_account_info(),
-            raydium_authority: ctx.accounts.raydium_authority.to_account_info(),
-            user_info_account: ctx.accounts.user_info_account.clone(),
-            user_authority: ctx.accounts.user_authority.to_account_info(),
-            user_lp_token_account: ctx.accounts.user_lp_token_account.clone(),
-            raydium_lp_token_account: ctx.accounts.raydium_lp_token_account.clone(),
-            user_reward_token_account: ctx.accounts.user_reward_token_account.clone(),
-            raydium_reward_token_account: ctx.accounts.raydium_reward_token_account.clone(),
-            token_program: ctx.accounts.token_program.to_account_info(),
-            clock: ctx.accounts.clock.clone(),
-        };
-        let cpi_program = ctx.accounts.raydium_program.clone();
-        let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
-        raydium::deposit(cpi_ctx, amount);
+    // pub fn farm(ctx: Context<Farm>, amount: u64) -> ProgramResult {
+    //     let cpi_accounts = RaydiumDeposit {
+    //         raydium_pool_id: ctx.accounts.raydium_pool_id.to_account_info(),
+    //         raydium_authority: ctx.accounts.raydium_authority.to_account_info(),
+    //         user_info_account: ctx.accounts.user_info_account.clone(),
+    //         user_authority: ctx.accounts.user_authority.to_account_info(),
+    //         user_lp_token_account: ctx.accounts.user_lp_token_account.clone(),
+    //         raydium_lp_token_account: ctx.accounts.raydium_lp_token_account.clone(),
+    //         user_reward_token_account: ctx.accounts.user_reward_token_account.clone(),
+    //         raydium_reward_token_account: ctx.accounts.raydium_reward_token_account.clone(),
+    //         token_program: ctx.accounts.token_program.to_account_info(),
+    //         clock: ctx.accounts.clock.clone(),
+    //     };
+    //     let cpi_program = ctx.accounts.raydium_program.clone();
+    //     let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
+    //     raydium::deposit(cpi_ctx, amount);
 
-        Ok(())
-    }
-    pub fn farmv4(ctx: Context<Farm>, amount: u64) -> ProgramResult {
-        let cpi_accounts = RaydiumDeposit {
+    //     Ok(())
+    // }
+    pub fn farmv4(ctx: Context<FarmV4>, amount: u64) -> ProgramResult {
+        msg!("1");
+        let cpi_accounts = RaydiumDepositV4 {
             raydium_pool_id: ctx.accounts.raydium_pool_id.to_account_info(),
             raydium_authority: ctx.accounts.raydium_authority.to_account_info(),
             user_info_account: ctx.accounts.user_info_account.clone(),
@@ -134,14 +135,18 @@ pub mod vault {
             raydium_lp_token_account: ctx.accounts.raydium_lp_token_account.clone(),
             user_reward_token_account: ctx.accounts.user_reward_token_account.clone(),
             raydium_reward_token_account: ctx.accounts.raydium_reward_token_account.clone(),
-            token_program: ctx.accounts.token_program.to_account_info(),
+            token_program: ctx.accounts.token_program.clone(),
             clock: ctx.accounts.clock.clone(),
             user_reward_token_account_b: ctx.accounts.user_reward_token_account_b.clone(),
             raydium_reward_token_account_b: ctx.accounts.raydium_reward_token_account_b.clone(),
         };
+        msg!("2");
         let cpi_program = ctx.accounts.raydium_program.clone();
+        msg!("3");
         let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
-        raydium::deposit(cpi_ctx, amount);
+        msg!("4");
+        raydium::depositv4(cpi_ctx, amount);
+        msg!("5");
 
         Ok(())
     }
@@ -149,57 +154,98 @@ pub mod vault {
 
 #[interface]
 pub trait Raydium<'info, T: Accounts<'info>> {
-    fn deposit(ctx: Context<T>, amount: u64) -> ProgramResult;
     fn depositv4(ctx: Context<T>, amount: u64) -> ProgramResult;
+    // fn deposit(ctx: Context<T>, amount: u64) -> ProgramResult;
 }
 
 #[derive(Accounts)]
-pub struct RaydiumDeposit<'info> {
+pub struct FarmV4<'info> {
+    pub raydium_program: AccountInfo<'info>,
+    #[account(mut)]
     pub raydium_pool_id: AccountInfo<'info>,
+    #[account(mut)]
     pub raydium_authority: AccountInfo<'info>,
-    pub user_info_account: CpiAccount<'info, RaydiumUserInfoAccount>,
+    #[account(init)]
+    pub user_info_account: ProgramAccount<'info, RaydiumUserInfoAccountV4>,
+    pub rent: Sysvar<'info, Rent>,
+    #[account(mut, signer)]
     pub user_authority: AccountInfo<'info>,
+    #[account(mut)]
     pub user_lp_token_account: CpiAccount<'info, TokenAccount>,
+    #[account(mut)]
     pub raydium_lp_token_account: CpiAccount<'info, TokenAccount>,
+    #[account(mut)]
     pub user_reward_token_account: CpiAccount<'info, TokenAccount>,
+    #[account(mut)]
     pub raydium_reward_token_account: CpiAccount<'info, TokenAccount>,
-    #[account("token_program.key == &token::ID")]
+    #[account(mut, "token_program.key == &token::ID")]
     pub token_program: AccountInfo<'info>,
+    #[account(mut)]
     pub clock: Sysvar<'info, Clock>,
-}
-
-#[derive(Accounts)]
-pub struct RaydiumDepositV4<'info> {
-    pub raydium_pool_id: AccountInfo<'info>,
-    pub raydium_authority: AccountInfo<'info>,
-    pub user_info_account: CpiAccount<'info, RaydiumUserInfoAccount>,
-    pub user_authority: AccountInfo<'info>,
-    pub user_lp_token_account: CpiAccount<'info, TokenAccount>,
-    pub raydium_lp_token_account: CpiAccount<'info, TokenAccount>,
-    pub user_reward_token_account: CpiAccount<'info, TokenAccount>,
-    pub raydium_reward_token_account: CpiAccount<'info, TokenAccount>,
-    #[account("token_program.key == &token::ID")]
-    pub token_program: AccountInfo<'info>,
-    pub clock: Sysvar<'info, Clock>,
+    #[account(mut)]
     pub user_reward_token_account_b: CpiAccount<'info, TokenAccount>,
+    #[account(mut)]
     pub raydium_reward_token_account_b: CpiAccount<'info, TokenAccount>,
 }
 
 #[derive(Accounts)]
-pub struct Farm<'info> {
-    pub raydium_program: AccountInfo<'info>,
+pub struct RaydiumDepositV4<'info> {
+    #[account(mut)]
     pub raydium_pool_id: AccountInfo<'info>,
+    #[account(mut)]
     pub raydium_authority: AccountInfo<'info>,
-    pub user_info_account: CpiAccount<'info, RaydiumUserInfoAccount>,
+    #[account(mut)]
+    pub user_info_account: ProgramAccount<'info, RaydiumUserInfoAccountV4>,
+    #[account(mut, signer)]
     pub user_authority: AccountInfo<'info>,
+    #[account(mut)]
     pub user_lp_token_account: CpiAccount<'info, TokenAccount>,
+    #[account(mut)]
     pub raydium_lp_token_account: CpiAccount<'info, TokenAccount>,
+    #[account(mut)]
     pub user_reward_token_account: CpiAccount<'info, TokenAccount>,
+    #[account(mut)]
     pub raydium_reward_token_account: CpiAccount<'info, TokenAccount>,
-    #[account("token_program.key == &token::ID")]
+    #[account(mut, "token_program.key == &token::ID")]
     pub token_program: AccountInfo<'info>,
+    #[account(mut)]
     pub clock: Sysvar<'info, Clock>,
+    #[account(mut)]
+    pub user_reward_token_account_b: CpiAccount<'info, TokenAccount>,
+    #[account(mut)]
+    pub raydium_reward_token_account_b: CpiAccount<'info, TokenAccount>,
 }
+
+// #[derive(Accounts)]
+// pub struct RaydiumDeposit<'info> {
+//     pub raydium_pool_id: AccountInfo<'info>,
+//     pub raydium_authority: AccountInfo<'info>,
+//     pub user_info_account: CpiAccount<'info, RaydiumUserInfoAccount>,
+//     pub user_authority: AccountInfo<'info>,
+//     pub user_lp_token_account: CpiAccount<'info, TokenAccount>,
+//     pub raydium_lp_token_account: CpiAccount<'info, TokenAccount>,
+//     pub user_reward_token_account: CpiAccount<'info, TokenAccount>,
+//     pub raydium_reward_token_account: CpiAccount<'info, TokenAccount>,
+//     #[account("token_program.key == &token::ID")]
+//     pub token_program: AccountInfo<'info>,
+//     pub clock: Sysvar<'info, Clock>,
+// }
+
+// #[derive(Accounts)]
+// pub struct Farm<'info> {
+//     pub raydium_program: AccountInfo<'info>,
+//     pub raydium_pool_id: AccountInfo<'info>,
+//     pub raydium_authority: AccountInfo<'info>,
+//     pub user_info_account: CpiAccount<'info, RaydiumUserInfoAccount>,
+//     pub user_authority: AccountInfo<'info>,
+//     pub user_lp_token_account: CpiAccount<'info, TokenAccount>,
+//     pub raydium_lp_token_account: CpiAccount<'info, TokenAccount>,
+//     pub user_reward_token_account: CpiAccount<'info, TokenAccount>,
+//     pub raydium_reward_token_account: CpiAccount<'info, TokenAccount>,
+//     #[account("token_program.key == &token::ID")]
+//     pub token_program: AccountInfo<'info>,
+//     pub clock: Sysvar<'info, Clock>,
+// }
 
 #[derive(Accounts)]
 pub struct InitializeVault<'info> {
