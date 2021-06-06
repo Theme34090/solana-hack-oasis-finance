@@ -9,11 +9,39 @@
   padding: 0 2rem;
 }
 
+.Logo {
+  list-style: none;
+}
+
+.Logo a {
+  text-decoration: none;
+  color: white;
+  font-weight: 900;
+}
+
 .MainNav {
 }
 
 .MainNavItems {
+  display: flex;
   list-style: none;
+}
+
+.MainNavItem {
+  text-decoration: none;
+}
+
+.MainNavItem a {
+  text-decoration: none;
+  color: white;
+  font-size: 0.5rem;
+  margin: 0.5rem;
+}
+
+.MainNavItem a:hover,
+.MainNavItem a:active,
+.MainNavItem a.active {
+  color: #b2b2f7;
 }
 
 .Dropdown {

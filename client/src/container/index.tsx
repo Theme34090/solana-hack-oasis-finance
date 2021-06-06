@@ -2,8 +2,9 @@ import Header from "../components/ui/header/header";
 import { useWallet } from "../store/wallet";
 import Farm from "./farm/farm";
 import Liquidity from "./liquidity/liquidity";
+import { Route } from "react-router-dom";
 
-export const LandingView = (props: {}) => {
+const LandingView = (props: {}) => {
   const { tokenAccounts } = useWallet();
 
   const tk = Object.keys(tokenAccounts).map((token) => (
@@ -34,7 +35,6 @@ export const LandingView = (props: {}) => {
     //   </main>
     // </main>
     <main>
-      <Header />
       {/* <Liquidity /> */}
 
       {/* {tk} */}
@@ -42,3 +42,5 @@ export const LandingView = (props: {}) => {
     </main>
   );
 };
+
+export default LandingView;

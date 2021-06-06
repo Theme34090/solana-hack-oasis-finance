@@ -20,6 +20,22 @@ import {
   TokenListProvider,
   TokenInfo as TInfo,
 } from "@solana/spl-token-registry";
+import styled from "styled-components";
+
+const Form = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const FormGroup = styled.div`
+  margin: 2rem;
+`;
+
+const Button = styled.button`
+  margin: 2rem;
+  width: 10%;
+`;
 
 const Liquidity: React.FC = () => {
   const connection = useConnection();
@@ -166,35 +182,30 @@ const Liquidity: React.FC = () => {
       );
     }
   }, [tokenAccounts]);
+
   return (
-    <>
-      <div>
+    <Form>
+      <FormGroup>
         <label> From : </label>
         <input
           type="number"
           value={fromAmount}
           onChange={fromAmountChangeHandler}
         />
-        <p>current balance: {fromCoin.balance ? fromCoin.balance : "0"}</p>
-        <button
-          onClick={() => {
-            setFromAmount(fromCoin.balance ? fromCoin.balance.fixed() : "");
-          }}
-        >
-          MAX
-        </button>
-      </div>
-      <div>
+        <p>BEcGFQK1T1tSu3kvHC17cyCkQ5dvXqAJ7ExB2bb5Do7a</p>
+        {/* <p>current balance: {fromCoin.balance ? fromCoin.balance : "0"}</p> */}
+      </FormGroup>
+      <FormGroup>
         <label> To : </label>
         <input
           type="number"
           value={toAmount}
           onChange={toAmountChangeHandler}
         />
-      </div>
-      <button onClick={addTokenHandler}>ADD Token Accounts</button>
-      <button onClick={addLiquidityHandler}>Add Liquidity</button>
-    </>
+        <p>FSRvxBNrQWX2Fy2qvKMLL3ryEdRtE3PUTZBcdKwASZTU</p>
+      </FormGroup>
+      <Button onClick={addLiquidityHandler}>Add Liquidity</Button>
+    </Form>
   );
 };
 

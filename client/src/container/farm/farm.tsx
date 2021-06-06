@@ -31,6 +31,11 @@ const Farm: React.FC<FarmProps> = () => {
 
   const [isStakedMode, setIsStakedMode] = useState<boolean>(false);
 
+  // TODO: clean up farm state management
+  const [showStakeModal, setShowStakeModal] = useState<boolean>(false);
+
+  const [currentFarm, setCurrentFarm] = useState<FarmInfo>();
+
   const toggleStakedModeHandler = () => {
     setIsStakedMode((prevState) => !prevState);
   };
@@ -39,39 +44,48 @@ const Farm: React.FC<FarmProps> = () => {
     const balance = get(tokenAccounts, `${mintAddress}.balance`) as TokenAmount;
     return balance ? balance.fixed() : "0.000000";
   };
+  // TODO: clean up farm state management
+  const selectFarmHandler = (farm: FarmInfo) => {
+    setCurrentFarm(farm);
+  };
 
   // };
 
   // stake lp
-  const stakeLP = async (farm: FarmInfo, amount: string) => {
+  // const stakeLP = async (farm: FarmInfo, amount: string) => {
+  const stakeLP = async (amount: string) => {
+    if (!currentFarm) {
+      return;
+    }
+
     const lpAccount = get(
       tokenAccounts,
-      `${farm.lp.mintAddress}.tokenAccountAddress`
+      `${currentFarm.lp.mintAddress}.tokenAccountAddress`
     );
     const rewardAccount = get(
       tokenAccounts,
-      `${farm.reward.mintAddress}.tokenAccountAddress`
+      `${currentFarm.reward.mintAddress}.tokenAccountAddress`
     );
     const rewardAccountB = get(
       tokenAccounts,
-      `${farm.rewardB!.mintAddress}.tokenAccountAddress`
+      `${currentFarm.rewardB!.mintAddress}.tokenAccountAddress`
     );
     // // TODO:  stake account address
     // const infoA = "ABcqFsuBWfHtMmSBrYiVKQwpngMg7GUFaKsWViEKFiup";
     // const infoB = "4Mk9DtUksdhgb7vt3g5ssoUSM76vs36BfagNKC7NdG8i";
     // const infoC = "Q3euXfw74FA9FyowwkRtPniVtqH3UQhrkeKYk9FK6KQ";
-    const tx = await depositV4(
-      connection,
-      wallet,
-      farm,
-      lpAccount,
-      rewardAccount,
-      rewardAccountB,
-      null,
-      amount
-    );
-    console.log("Tx :", tx);
-    confirmTransaction(tx, "hello", connection);
+    // const tx = await depositV4(
+    //   connection,
+    //   wallet,
+    //   farm,
+    //   lpAccount,
+    //   rewardAccount,
+    //   rewardAccountB,
+    //   null,
+    //   amount
+    // );
+    // console.log("Tx :", tx);
+    // confirmTransaction(tx, "hello", connection);
   };
 
   const withDraw = async () => {
@@ -150,7 +164,7 @@ const Farm: React.FC<FarmProps> = () => {
       mintA={farm.lp.coin.mintAddress}
       mintB={farm.lp.pc.mintAddress}
       walletBalance={getBalance(farm.lp.mintAddress)}
-      deposit={stakeLP.bind(this, farm)}
+      deposit={stakeLP}
     />
   ));
 

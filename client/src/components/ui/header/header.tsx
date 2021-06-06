@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { NavLink, RouteComponentProps } from "react-router-dom";
 
 import Button from "../button/button";
 import classes from "./header.module.css";
@@ -43,12 +44,24 @@ const Header: React.FC<HeaderProps> = (): JSX.Element => {
 
   return (
     <header className={classes.MainHeader}>
-      <div className="logo">
-        {/* <img src="" alt="" className="logo-img" /> */}
-        SOL HACK
-      </div>
-      <nav className="main-nav">
+      <nav className={classes.Logo}>
+        <NavLink to="/">
+          {/* <img src="" alt="" className="logo-img" /> */}
+          SOL HACK
+        </NavLink>
+      </nav>
+      <nav className={classes.MainNav}>
         <ul className={classes.MainNavItems}>
+          <li className={classes.MainNavItem}>
+            <NavLink activeClassName={classes.active} to="/lp">
+              Provide LP
+            </NavLink>
+          </li>
+          <li className={classes.MainNavItem}>
+            <NavLink activeClassName={classes.active} to="/token">
+              VIEW TOKEN ACCOUNT
+            </NavLink>
+          </li>
           <li className={classes.Dropdown}>
             <Button clicked={toggleDropDown} disabled={false}>
               {displayKey === "" ? "Connect to Wallet" : displayKey}
