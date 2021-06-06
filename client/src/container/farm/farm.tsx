@@ -102,6 +102,7 @@ const Farm: React.FC<FarmProps> = () => {
   };
 
   const withdraw = async (farm: FarmInfo, amount: string) => {
+    console.log("withdraw....");
     const lpAccount = get(
       tokenAccounts,
       `${farm.lp.mintAddress}.tokenAccountAddress`

@@ -19,7 +19,14 @@ pub struct DepositData {
     pub amount: u64,
 }
 
-pub enum EscrowInstruction {
+
+#[derive(BorshDeserialize,BorshSerialize, Debug, Serialize)]
+pub struct WithdrawData {
+    pub instruction: u8,
+    pub amount: u64,
+}
+
+pub enum RaydiumInstruction {
 
         /// Accepts a trade
     ///
@@ -45,6 +52,10 @@ pub enum EscrowInstruction {
         fixed_from_coin: u64,
     },
 
+    Withdraw {
+        instruction: u8,
+        amount: u64,
+    },
     Deposit {
         instruction: u8,
         amount: u64,
@@ -52,21 +63,32 @@ pub enum EscrowInstruction {
 
 }
 
-impl EscrowInstruction {
+impl RaydiumInstruction {
     /// Unpacks a byte buffer into a [EscrowInstruction](enum.EscrowInstruction.html).
     pub fn unpack(input: &[u8]) -> Result<Self, ProgramError> {
         let (tag, _rest) = input.split_first().ok_or(InvalidInstruction)?;
         match tag {
             1 => {
+                msg!("1. deserialize data");
                 let data = DepositData::try_from_slice(input)?;
+                msg!("2. calling...");
                 Ok(Self::Deposit {
+                    instruction: data.instruction,
+                    amount: data.amount,
+                })
+            },
+            2 => {
+                msg!("deserialize data");
+                let data = WithdrawData::try_from_slice(input)?;
+                msg!("calling...");
+                Ok(Self::Withdraw {
                     instruction: data.instruction,
                     amount: data.amount,
                 })
             },
             3 => {
                 let data = ProvideLPData::try_from_slice(input)?;
-                return Ok(Self::ProvideLP {
+                Ok(Self::ProvideLP {
                     instruction: data.instruction,
                     max_coin_amount: data.max_coin_amount,
                     max_pc_amount: data.max_pc_amount,

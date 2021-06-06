@@ -166,7 +166,7 @@ export const addLiquidityAnchor = async (
     anchor.setProvider(provider);
 
     const programId = new anchor.web3.PublicKey(
-        "tkdciwEqQ1gSG4LBxpXVHsxcQWd2WPmzfLWSDkm7RvF"
+        "CNZ8othcvHfUX42ZBNdSGdGcS2neGAN3qR3TgY21Spfm"
     );
     const program = new anchor.Program(
         idl as anchor.Idl,

