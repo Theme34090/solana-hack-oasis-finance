@@ -119,12 +119,14 @@ interface ExchangeProps {
   maxLp: string;
   symbol: string;
   deposit: (amount: string) => any;
+  withdraw: (amount: string) => any;
 }
 
 const Exchange: React.FC<ExchangeProps> = ({
   symbol,
   maxLp,
   deposit,
+  withdraw,
   show,
 }) => {
   const withdrawnHandler = (amount: string) => {
@@ -142,7 +144,7 @@ const Exchange: React.FC<ExchangeProps> = ({
       <View symbol={symbol} max={maxLp} clicked={deposit}>
         Deposit
       </View>
-      <View symbol={symbol} max={maxLp} clicked={withdrawnHandler}>
+      <View symbol={symbol} max={maxLp} clicked={withdraw}>
         Withdrawn
       </View>
     </div>

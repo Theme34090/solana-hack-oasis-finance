@@ -13,6 +13,7 @@ type PoolItemProps = {
   mintB: string;
   walletBalance: string;
   deposit: (amount: string) => any;
+  withdraw: (amount: string) => any;
 };
 
 export const PoolItem: React.FC<PoolItemProps> = ({
@@ -21,6 +22,7 @@ export const PoolItem: React.FC<PoolItemProps> = ({
   mintA,
   mintB,
   deposit,
+  withdraw,
 }) => {
   const [selected, setSelected] = useState(false);
 
@@ -53,6 +55,7 @@ export const PoolItem: React.FC<PoolItemProps> = ({
         symbol={symbol}
         maxLp={walletBalance}
         deposit={deposit}
+        withdraw={withdraw}
         show={selected}
       />
     </div>
