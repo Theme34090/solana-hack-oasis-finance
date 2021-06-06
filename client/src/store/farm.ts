@@ -48,7 +48,6 @@ export async function getStakeAccounts(
             new PublicKey("EcLzTrNg9V7qhcdyXDe2qjtPkiGzDM2UbdRaeaadU5r2"),
             stakeFilters
         );
-    console.log(stakeAccountsInfos)
 
     stakeAccountsInfos.forEach((stakeAccountInfo) => {
 

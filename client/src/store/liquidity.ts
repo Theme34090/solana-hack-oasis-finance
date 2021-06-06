@@ -49,56 +49,6 @@ export async function getLpMintListDecimals(
 
 }
 
-
-// export async function setLiquidity(
-//     connection: Connection
-// ) {
-
-//     const ammAll = await getFilterProgramAccounts(
-//         connection,
-//         new PublicKey(LIQUIDITY_POOL_PROGRAM_ID_V2),
-//         [
-//             // {
-//             //     // TODO: amm layout
-//             //     // @ts-ignore  
-//             //     dataSize: AMM_INFO_LAYOUT_V4.span
-//             // }
-//         ]
-//     );
-
-//     const marketAll = await getFilterProgramAccounts(
-//         connection,
-//         new PublicKey(SERUM_PROGRAM_ID_V3),
-//         // TODO: market layout
-//         // @ts-ignore
-//         [
-//             // { dataSize: _MARKET_STATE_LAYOUT_V2.span }
-//         ]
-//     );
-
-//     const marketToLayout: { [name: string]: any } = {}
-//     marketAll.forEach((item) => {
-//         marketToLayout[item.publicKey.toString()] = _MARKET_STATE_LAYOUT_V2.decode(item.accountInfo.data)
-//     });
-
-//     const lpMintAddressList: string[] = []
-//     ammAll.forEach((item) => {
-//         const ammLayout = AMM_INFO_LAYOUT.decode(Buffer.from(item.accountInfo.data))
-//         if (
-//             ammLayout.pcMintAddress.toString() === ammLayout.serumMarket.toString() ||
-//             ammLayout.lpMintAddress.toString() === '11111111111111111111111111111111'
-//         ) {
-//             return
-//         }
-//         lpMintAddressList.push(ammLayout.lpMintAddress.toString())
-//     });
-
-//     const lpMintListDecimls = await getLpMintListDecimals(connection, lpMintAddressList)
-//     console.log(lpMintListDecimls);
-
-
-// }
-
 export const AMM_INFO_LAYOUT = struct([
     u64('status'),
     u64('nonce'),
@@ -244,6 +194,7 @@ export async function requestInfos(
     const ammAll = await getFilterProgramAccounts(
         conn,
         new PublicKey(LIQUIDITY_POOL_PROGRAM_ID_V2),
+        // new PublicKey("9rpQHSyFVM1dkkHFQ2TtTzPEW7DVmEyPmN8wVniqJtuC"),
         [
             {
                 dataSize: AMM_INFO_LAYOUT_V4.span
@@ -255,6 +206,7 @@ export async function requestInfos(
     const marketAll = await getFilterProgramAccounts(
         conn,
         new PublicKey(SERUM_PROGRAM_ID_V3),
+        // new PublicKey("DESVgJVGajEgKGXhb6XmqDHGz3VjdgP7rEVESBgxmroY"),
         [
             {
                 dataSize: _MARKET_STATE_LAYOUT_V2.span

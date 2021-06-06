@@ -1,9 +1,10 @@
+
 import { Connection, Context, SignatureResult } from "@solana/web3.js";
-import { notify } from "../utils/notification";
+import { toast } from "react-toastify";
+import { notifySuccess, notifyError } from "../components/ui/notification/notification";
 
 export const confirmTransaction = (
     txid: string,
-    description: string,
     connection: Connection,
 ) => {
 
@@ -14,11 +15,10 @@ export const confirmTransaction = (
 
             if (!signatureResult.err) {
                 // success
-                alert("Transaction has been confirmed")
-
+                notifySuccess(txid);
             } else {
                 // failed
-                alert(`Transaction failed : ${signatureResult.err}`)
+                notifyError(txid);
                 console.error(signatureResult.err)
             }
 

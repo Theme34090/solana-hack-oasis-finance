@@ -99,7 +99,7 @@ const Liquidity: React.FC = () => {
       })
       .then((result) => {
         console.log("txid: ", result);
-        confirmTransaction(result, "hello", connection);
+        // confirmTransaction(result, "hello", connection);
       });
   };
 
@@ -165,7 +165,7 @@ const Liquidity: React.FC = () => {
     )
       .then((txid) => {
         console.log("txid :", txid);
-        confirmTransaction(txid, "Hello", connection);
+        // confirmTransaction(txid, "Hello", connection);
       })
       .catch((error) => {
         console.error(error);

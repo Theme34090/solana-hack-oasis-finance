@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { cloneDeep, get } from "lodash-es";
 
 import classes from "./farm.module.css";
@@ -22,6 +22,9 @@ import { depositV4, withdrawV4 } from "../../utils/stake";
 import { confirmTransaction } from "../../utils/transaction";
 import { StakeAccounts } from "../../store/farm";
 import LoadingSpinner from "../../components/ui/loading-spinner/loading-spinner";
+import { toast } from "react-toastify";
+
+import { notifyInfo } from "../../components/ui/notification/notification";
 
 interface FarmProps {}
 
@@ -81,7 +84,7 @@ const Farm: React.FC<FarmProps> = () => {
     console.log("rewardAccountB", rewardAccountB);
     console.log("infoAccount", infoAccount);
 
-    const tx = await depositV4(
+    const txId = await depositV4(
       connection,
       wallet,
       currentFarm,
@@ -92,8 +95,10 @@ const Farm: React.FC<FarmProps> = () => {
       infoAccount,
       amount
     );
-    console.log("Tx :", tx);
-    confirmTransaction(tx, "hello", connection);
+    // console.log("Tx :", tx);
+
+    notifyInfo(txId);
+    confirmTransaction(txId, connection);
   };
 
   const withdraw = async (farm: FarmInfo, amount: string) => {
@@ -115,7 +120,7 @@ const Farm: React.FC<FarmProps> = () => {
       `${farm.poolId}.stakeAccountAddress`
     );
 
-    const tx = await withdrawV4(
+    const txId = await withdrawV4(
       connection,
       wallet,
       farm,
@@ -127,16 +132,17 @@ const Farm: React.FC<FarmProps> = () => {
       amount
     );
 
-    console.log("Tx :", tx);
-    confirmTransaction(tx, "hello", connection);
+    notifyInfo(txId);
+    confirmTransaction(txId, connection);
   };
 
   const updateFarm = async () => {
+    console.log("update farm");
     setIsLoading(true);
     const farm = FARMS[0];
     // getFarmRewardAccount(connection);
-    // const liquidity = await requestInfos(connection);
-    // console.log("liquidity", liquidity);
+    const liquidity = await requestInfos(connection);
+    console.log("liquidity", liquidity);
 
     // const farms = await getFarmRewardAccount(connection);
     // console.log("farm ", farms);
@@ -147,7 +153,7 @@ const Farm: React.FC<FarmProps> = () => {
     // const price = await getPrices();
     // console.log("price", price);
 
-    // const results = await updateFarms(farms, stakeAcc, liquidity, price);
+    // const results = await updateFarms(farms, stakeAccounts, liquidity, price);
     // console.log(results);
     // for (const res of results) {
     //   console.log(res.farmInfo.name);
@@ -207,7 +213,6 @@ const Farm: React.FC<FarmProps> = () => {
       {isLoading ? <LoadingSpinner /> : null}
       {/* <button onClick={stakeLP}>STAKE LP</button> */}
       {/* <button onClick={withDraw}>WITHDRAW LP</button> */}
-      {/* <button onClick={updateFarm}>UPDATE FARM</button> */}
     </div>
   );
 };

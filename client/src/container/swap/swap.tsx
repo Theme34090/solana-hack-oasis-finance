@@ -64,7 +64,7 @@ const Swap: React.FC = () => {
     );
 
     console.log("txid : ", txid);
-    confirmTransaction(txid, "hello", connection);
+    // confirmTransaction(txid, "hello", connection);
   };
 
   return (

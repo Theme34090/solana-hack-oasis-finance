@@ -1,8 +1,8 @@
-import Header from "../components/ui/header/header";
 import { useWallet } from "../store/wallet";
 import Farm from "./farm/farm";
-import Liquidity from "./liquidity/liquidity";
-import { Route } from "react-router-dom";
+
+import Notification from "../components/ui/notification/notification";
+import "react-toastify/dist/ReactToastify.css";
 
 const LandingView = (props: {}) => {
   const { tokenAccounts } = useWallet();
@@ -36,9 +36,10 @@ const LandingView = (props: {}) => {
     // </main>
     <main>
       {/* <Liquidity /> */}
-
+      {/* <button onClick={notify}>Notify!</button> */}
       {/* {tk} */}
       <Farm />
+      <Notification />
     </main>
   );
 };
