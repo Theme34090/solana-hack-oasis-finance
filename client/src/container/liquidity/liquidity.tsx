@@ -8,7 +8,7 @@ import {
   createTokenAccountIfNotExist,
   sendTransaction,
 } from "../../utils/web3";
-import { addLiquidity } from "../../utils/liquidity";
+import { addLiquidity, addLiquidityAnchor } from "../../utils/liquidity";
 import { TEST_POOL, TEST_LPTOKEN } from "../../utils/pools";
 import { confirmTransaction } from "../../utils/transaction";
 import { get } from "lodash-es";
@@ -150,7 +150,7 @@ const Liquidity: React.FC = () => {
     // const signers: any = [];
     // let account;
 
-    addLiquidity(
+    addLiquidityAnchor(
       connection,
       wallet,
       TEST_POOL,

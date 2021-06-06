@@ -139,125 +139,128 @@ export const addLiquidity = async (
     return await sendTransaction(connection, wallet, transaction, signers)
 }
 
-// export const addLiquidity = async (
-//     connection: Connection | undefined | null,
-//     wallet: any | undefined | null,
-//     poolInfo: LiquidityPoolInfo | undefined | null,
-//     fromCoinAccount: string | undefined | null,
-//     toCoinAccount: string | undefined | null,
-//     lpAccount: string | undefined | null,
-//     fromCoin: TokenInfo | undefined | null,
-//     toCoin: TokenInfo | undefined | null,
-//     fromAmount: string | undefined | null,
-//     toAmount: string | undefined | null,
-//     fixedCoin: string
-// ) => {
-//     if (!connection || !wallet) throw new Error('Miss connection')
-//     if (!poolInfo || !fromCoin || !toCoin) {
-//         throw new Error('Miss pool information')
-//     }
-//     if (!fromCoinAccount || !toCoinAccount) {
-//         throw new Error('Miss account information')
-//     }
-//     if (!fromAmount || !toAmount) {
-//         throw new Error('Miss amount information')
-//     }
-//     const provider = new anchor.Provider(connection, wallet, { commitment: commitment })
-//     anchor.setProvider(provider);
+export const addLiquidityAnchor = async (
+    connection: Connection | undefined | null,
+    wallet: any | undefined | null,
+    poolInfo: LiquidityPoolInfo | undefined | null,
+    fromCoinAccount: string | undefined | null,
+    toCoinAccount: string | undefined | null,
+    lpAccount: string | undefined | null,
+    fromCoin: TokenInfo | undefined | null,
+    toCoin: TokenInfo | undefined | null,
+    fromAmount: string | undefined | null,
+    toAmount: string | undefined | null,
+    fixedCoin: string
+) => {
+    if (!connection || !wallet) throw new Error('Miss connection')
+    if (!poolInfo || !fromCoin || !toCoin) {
+        throw new Error('Miss pool information')
+    }
+    if (!fromCoinAccount || !toCoinAccount) {
+        throw new Error('Miss account information')
+    }
+    if (!fromAmount || !toAmount) {
+        throw new Error('Miss amount information')
+    }
+    const provider = new anchor.Provider(connection, wallet, { commitment: commitment })
+    anchor.setProvider(provider);
 
-//     const programId = new anchor.web3.PublicKey(
-//         "FbU5zSx2oHeZ2azWnsLMZT9JnsGUdtetQT3qBC5UPRiu"
-//     );
-//     const program = new anchor.Program(
-//         idl as anchor.Idl,
-//         programId,
-//         provider
-//     );
-
-
-//     const userAccounts = [
-//         new anchor.web3.PublicKey(fromCoinAccount),
-//         new anchor.web3.PublicKey(toCoinAccount),
-//     ];
-
-//     const owner = program.provider.wallet.publicKey;
-//     const userAmounts = [fromAmount, toAmount];
-
-//     if (poolInfo.coin.mintAddress === toCoin.mintAddress && poolInfo.pc.mintAddress === fromCoin.mintAddress) {
-//         userAccounts.reverse()
-//         userAmounts.reverse()
-//     }
-
-//     const userCoinTokenAccount = userAccounts[0];
-//     const userPcTokenAccount = userAccounts[1];
-
-//     const coinAmount = new TokenAmount(userAmounts[0], poolInfo.coin.decimals, false).wei.toNumber();
-//     const pcAmount = new TokenAmount(userAmounts[1], poolInfo.pc.decimals, false).wei.toNumber();
-
-//     let wrappedCoinSolAccount
-//     if (poolInfo.coin.mintAddress === NATIVE_SOL.mintAddress) {
-//         // wrappedCoinSolAccount = await createTokenAccountIfNotExist(
-//         //     connection,
-//         //     wrappedCoinSolAccount,
-//         //     owner,
-//         //     TOKENS.WSOL.mintAddress,
-//         //     coinAmount + 1e7,
-//         //     transaction,
-//         //     signers
-//         // )
-//     }
-
-//     let wrappedSolAccount
-//     if (poolInfo.pc.mintAddress === NATIVE_SOL.mintAddress) {
-
-//     }
-
-//     if (!lpAccount) {
-//         throw new Error("miss lp account")
-//     }
-//     const userLpTokenAccount = new anchor.web3.PublicKey(lpAccount);
+    const programId = new anchor.web3.PublicKey(
+        "CKsD4Wj8579z3spGLqAbVLpcFENUhRicKbwHke3KrS81"
+    );
+    const program = new anchor.Program(
+        idl as anchor.Idl,
+        programId,
+        provider
+    );
 
 
-//     //     let userLpTokenAccount = await createTokenAccountIfNotExist(
-//     //     connection,
-//     //     lpAccount,
-//     //     owner,
-//     //     poolInfo.lp.mintAddress,
-//     //     null,
-//     //     transaction,
-//     //     signers
-//     // )
-//     const token = anchor.web3.Keypair.generate();
+    const userAccounts = [
+        new anchor.web3.PublicKey(fromCoinAccount),
+        new anchor.web3.PublicKey(toCoinAccount),
+    ];
+
+    const owner = program.provider.wallet.publicKey;
+    const userAmounts = [fromAmount, toAmount];
+
+    if (poolInfo.coin.mintAddress === toCoin.mintAddress && poolInfo.pc.mintAddress === fromCoin.mintAddress) {
+        userAccounts.reverse()
+        userAmounts.reverse()
+    }
+
+    const userCoinTokenAccount = userAccounts[0];
+    const userPcTokenAccount = userAccounts[1];
+
+    const coinAmount = new TokenAmount(userAmounts[0], poolInfo.coin.decimals, false).wei.toNumber();
+    const pcAmount = new TokenAmount(userAmounts[1], poolInfo.pc.decimals, false).wei.toNumber();
+
+    let wrappedCoinSolAccount
+    if (poolInfo.coin.mintAddress === NATIVE_SOL.mintAddress) {
+        // wrappedCoinSolAccount = await createTokenAccountIfNotExist(
+        //     connection,
+        //     wrappedCoinSolAccount,
+        //     owner,
+        //     TOKENS.WSOL.mintAddress,
+        //     coinAmount + 1e7,
+        //     transaction,
+        //     signers
+        // )
+    }
+
+    let wrappedSolAccount
+    if (poolInfo.pc.mintAddress === NATIVE_SOL.mintAddress) {
+
+    }
+
+    if (!lpAccount) {
+        throw new Error("miss lp account")
+    }
+    const userLpTokenAccount = new anchor.web3.PublicKey(lpAccount);
+
+
+    //     let userLpTokenAccount = await createTokenAccountIfNotExist(
+    //     connection,
+    //     lpAccount,
+    //     owner,
+    //     poolInfo.lp.mintAddress,
+    //     null,
+    //     transaction,
+    //     signers
+    // )
+    const token = anchor.web3.Keypair.generate();
 
 
 
-//     const tx = await program.rpc.provideLp(
-//         3,
-//         new anchor.BN(coinAmount),
-//         new anchor.BN(pcAmount),
-//         new anchor.BN(1),
-//         {
-//             accounts: {
-//                 tokenProgram: new anchor.web3.PublicKey(TOKEN_PROGRAM_ID),
-//                 ammProgram: new anchor.web3.PublicKey(poolInfo.ammId),
-//                 ammAuthority: new anchor.web3.PublicKey(poolInfo.ammAuthority),
-//                 ammOpenOrders: new anchor.web3.PublicKey(poolInfo.ammOpenOrders),
-//                 ammTargetOrders: new anchor.web3.PublicKey(poolInfo.ammAuthority),
-//                 lpMintAddress: new anchor.web3.PublicKey(poolInfo.lp.mintAddress),
-//                 poolCoinTokenAccount: new anchor.web3.PublicKey(poolInfo.poolCoinTokenAccount),
-//                 poolPcTokenAccount: new anchor.web3.PublicKey(poolInfo.poolPcTokenAccount),
-//                 serumMarket: new anchor.web3.PublicKey(poolInfo.serumMarket),
-//                 userCoinTokenAccount: userCoinTokenAccount,
-//                 userPcTokenAccount: userPcTokenAccount,
-//                 userLpTokenAccount: new anchor.web3.PublicKey(userLpTokenAccount),
-//                 owner: owner,
-//                 rayProgram: new anchor.web3.PublicKey(poolInfo.programId),
-//             },
-//             // signers: [owner],
-//             // instructions: userLpTokenAccount ? [await program.account.userLpTokenAccount.createInstruction(token)] : undefined,
-//         });
-//     return tx;
-// }
+    const tx = await program.rpc.provideLp(
+        3,
+        new anchor.BN(coinAmount),
+        new anchor.BN(pcAmount),
+        new anchor.BN(1),
+        {
+            accounts: {
+                tokenProgram: new anchor.web3.PublicKey(TOKEN_PROGRAM_ID),
+                ammProgram: new anchor.web3.PublicKey(poolInfo.ammId),
+                ammAuthority: new anchor.web3.PublicKey(poolInfo.ammAuthority),
+                ammOpenOrders: new anchor.web3.PublicKey(poolInfo.ammOpenOrders),
+                ammTargetOrders: new anchor.web3.PublicKey(poolInfo.ammAuthority),
+                lpMintAddress: new anchor.web3.PublicKey(poolInfo.lp.mintAddress),
+                poolCoinTokenAccount: new anchor.web3.PublicKey(poolInfo.poolCoinTokenAccount),
+                poolPcTokenAccount: new anchor.web3.PublicKey(poolInfo.poolPcTokenAccount),
+                serumMarket: new anchor.web3.PublicKey(poolInfo.serumMarket),
+                userCoinTokenAccount: userCoinTokenAccount,
+                userPcTokenAccount: userPcTokenAccount,
+                userLpTokenAccount: new anchor.web3.PublicKey(userLpTokenAccount),
+                owner: owner,
+                rayProgram: new anchor.web3.PublicKey(poolInfo.programId),
+            },
+            // signers: [owner],
+            // instructions: userLpTokenAccount ? [await program.account.userLpTokenAccount.createInstruction(token)] : undefined,
+        });
+    return tx;
+}
+
+
+
 
 
 export function addLiquidityInstructionV4(
