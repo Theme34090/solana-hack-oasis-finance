@@ -1,0 +1,20 @@
+[package]
+name = "new-vault"
+version = "0.1.0"
+description = "Created with Anchor"
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "new_vault"
+
+[features]
+no-entrypoint = []
+no-idl = []
+cpi = ["no-entrypoint"]
+default = []
+
+[dependencies]
+anchor-lang = "0.7.0"
+anchor-spl = "0.7.0"
+borsh = "0.7.1"
