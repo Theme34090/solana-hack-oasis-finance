@@ -54,6 +54,7 @@ export const PoolItem: React.FC<PoolItemProps> = ({
       <Exchange
         symbol={symbol}
         maxLp={walletBalance}
+        maxDeposit={depositBalance}
         deposit={deposit}
         withdraw={withdraw}
         show={selected}
@@ -74,64 +75,3 @@ export const PoolHeader: React.FC = () => {
     </div>
   );
 };
-
-// interface PoolProps {
-//   select: () => any;
-// }
-
-// const Pool: React.FC = () => {
-//   const [switchView, setSwitchView] = useState<boolean>(false);
-
-//   const switchHandler = () => {
-//     setSwitchView((prevState) => !prevState);
-//   };
-
-//   // TODO: remove dummy data
-//   let dummyPool: JSX.Element[] = [];
-
-//   if (!switchView) {
-//     // for (let i = 0; i < 10; i++) {
-//     //   dummyPool.push(
-//     //     <PoolItem
-//     //       mintA="So11111111111111111111111111111111111111112"
-//     //       mintB="D4fdoY5d2Bn1Cmjqy6J6shRHjcs7QNuBPzwEzTLrf7jm"
-//     //     />
-//     //   );
-//     // }
-//     dummyPool = FARMS.map((farm) => {
-//       console.log(farm.lp.coin.mintAddress, farm.lp.pc.mintAddress);
-//       return (
-//         <PoolItem
-//           symbol={farm.name}
-//           mintA={farm.lp.coin.mintAddress}
-//           mintB={farm.lp.pc.mintAddress}
-//         />
-//       );
-//     });
-//   } else {
-//     for (let i = 0; i < 5; i++) {
-//       dummyPool.push(
-//         <PoolItem
-//           symbol="RAY-SOL"
-//           mintA="So11111111111111111111111111111111111111112"
-//           mintB="D4fdoY5d2Bn1Cmjqy6J6shRHjcs7QNuBPzwEzTLrf7jm"
-//         />
-//       );
-//     }
-//   }
-
-//   return (
-//     <div className={classes.Pool}>
-//       <div className={classes.SwitchWrapper}>
-//         <Switch clicked={switchHandler} />
-//         <span className={classes.Text}>Show Staked</span>
-//       </div>
-//       <div className={classes.Table}>
-//         <PoolHeader />
-//         {dummyPool}
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Pool;

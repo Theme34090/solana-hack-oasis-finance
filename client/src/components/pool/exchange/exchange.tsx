@@ -118,6 +118,7 @@ interface ExchangeProps {
   show: boolean;
   maxLp: string;
   symbol: string;
+  maxDeposit: string;
   deposit: (amount: string) => any;
   withdraw: (amount: string) => any;
 }
@@ -125,6 +126,7 @@ interface ExchangeProps {
 const Exchange: React.FC<ExchangeProps> = ({
   symbol,
   maxLp,
+  maxDeposit,
   deposit,
   withdraw,
   show,
@@ -140,7 +142,7 @@ const Exchange: React.FC<ExchangeProps> = ({
       <View symbol={symbol} max={maxLp} clicked={deposit}>
         Deposit
       </View>
-      <View symbol={symbol} max={maxLp} clicked={withdraw}>
+      <View symbol={symbol} max={maxDeposit} clicked={withdraw}>
         Withdrawn
       </View>
     </div>
