@@ -31,6 +31,8 @@ import { getPrices } from "../../store/price";
 import { LIQUIDITY_POOLS } from "../../utils/pools";
 import { updateFarmV2 } from "./user";
 
+import { deposit as depositAnchor } from "../../utils/raydium";
+
 interface FarmProps {}
 
 // const DEFAULT_FARM = cloneDeep(FARMS[0])
@@ -91,7 +93,7 @@ const Farm: React.FC<FarmProps> = () => {
 
     try {
       notifyInfo();
-      const txId = await depositV4(
+      const txId = await depositAnchor(
         connection,
         wallet,
         currentFarm,
