@@ -1,0 +1,25 @@
+[package]
+name = "autocompound"
+version = "0.1.0"
+authors = ["Chompakorn CChaichot <tan_epacsp@hotmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[features]
+no-entrypoint = []
+cpi = ["no-entrypoint"]
+
+[dependencies]
+solana-program = "1.6.9"
+thiserror = "1.0.24"
+spl-token = {version = "3.1.1", features = ["no-entrypoint"]}
+arrayref = "0.3.6"
+anchor-lang = "0.7.0"
+anchor-spl = "0.7.0"
+# raydium-test = { path = "../raydium-test", features = ["cpi"] }
+swap = { path = "../swap", features = ["cpi"] }
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "autocompound"
