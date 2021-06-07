@@ -7,7 +7,7 @@ const assert = require("assert");
 const { mintToAccount, getTokenAccount, createTokenAccount } = require("./utils");
 const idl = require("../target/idl/new_vault.json");
 
-describe("test new vault", () => {
+describe("test initialize deposit withdraw without added lp", () => {
     const url = "https://api.devnet.solana.com";
     const preflightCommitment = "recent";
     const connection = new anchor.web3.Connection(url, preflightCommitment);
@@ -72,7 +72,7 @@ describe("test new vault", () => {
     let userVaultTokenAccount;
     let userSigner = provider.wallet.publicKey;
 
-    it("initialize vault", async () => {
+    it("should initialize vault", async () => {
         vaultAccount = anchor.web3.Keypair.generate();
         const [_vaultSigner, nonce] = await anchor.web3.PublicKey.findProgramAddress(
             [vaultAccount.publicKey.toBuffer()],
@@ -128,11 +128,40 @@ describe("test new vault", () => {
         assert.strictEqual(acc.nonce, nonce, "nonce not equal");
     });
 
-    it("deposit", async () => {
+    it("should deposit", async () => {
         userVaultTokenAccount = await vaultTokenMintAddress.createAccount(userSigner);
 
         const amount = new anchor.BN(10000);
         const txSig = await program.rpc.deposit(amount, {
+            accounts: {
+                vaultAccount: vaultAccount.publicKey,
+                vaultSigner,
+                vaultTokenMintAddress: vaultTokenMintAddress.publicKey,
+                vaultUserInfoAccount: vaultUserInfoAccount.publicKey,
+                vaultLpTokenAccount,
+                vaultRewardTokenAccount,
+                vaultRewardTokenAccountB,
+                // user
+                userLpTokenAccount: USER_LP_TOKEN_ACC,
+                userVaultTokenAccount,
+                userSigner,
+                // raydium
+                raydiumProgram: RAYDIUM_PROGRAM_ID,
+                raydiumPoolId: POOL_ID,
+                raydiumPoolAuthority: POOL_AUTHORITY,
+                raydiumLpTokenAccount: RAYDIUM_LP_VAULT_ADDRESS,
+                raydiumRewardTokenAccount: RAYDIUM_REWARD_A,
+                raydiumRewardTokenAccountB: RAYDIUM_REWARD_B,
+                tokenProgram: spl.TOKEN_PROGRAM_ID,
+                clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
+            },
+        });
+        console.log(txSig);
+    });
+
+    it("should withdraw", async () => {
+        const amount = new anchor.BN(10000);
+        const txSig = await program.rpc.withdraw(amount, {
             accounts: {
                 vaultAccount: vaultAccount.publicKey,
                 vaultSigner,
