@@ -1,0 +1,3 @@
+[provider]
+cluster = "devnet"
+wallet = "/Users/theme/.config/solana/id.json"

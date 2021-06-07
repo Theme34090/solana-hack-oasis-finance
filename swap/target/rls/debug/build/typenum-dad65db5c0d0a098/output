@@ -1,0 +1,2 @@
+cargo:rustc-env=TYPENUM_BUILD_CONSTS=/Users/chompk/WORK/others/solana/solana-hack-contract/target/rls/debug/build/typenum-dad65db5c0d0a098/out/consts.rs
+cargo:rustc-env=TYPENUM_BUILD_OP=/Users/chompk/WORK/others/solana/solana-hack-contract/target/rls/debug/build/typenum-dad65db5c0d0a098/out/op.rs
