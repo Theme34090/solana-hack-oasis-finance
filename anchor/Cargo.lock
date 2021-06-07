@@ -666,6 +666,7 @@ version = "0.1.0"
 dependencies = [
  "anchor-lang",
  "anchor-spl",
+ "arrayref",
  "borsh 0.7.2",
 ]
 
