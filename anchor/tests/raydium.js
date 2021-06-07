@@ -64,7 +64,7 @@ describe("test new vault", () => {
             ),
             programId: new anchor.web3.PublicKey(RAYDIUM_PROGRAM_ID),
         });
-        const txSig = await program.rpc.deposit(new anchor.BN(1), {
+        const txSig = await program.rpc.deposit(new anchor.BN(1000), {
             accounts: {
                 userInfoAccount: userInfoAccount.publicKey,
                 userOwner: provider.wallet.publicKey,
@@ -82,6 +82,27 @@ describe("test new vault", () => {
             },
             signers: [userInfoAccount],
             instructions: [createUserInfoAccountIx],
+        });
+        console.log(txSig);
+    });
+
+    it("withdraw", async () => {
+        const txSig = await program.rpc.withdraw(new anchor.BN(1000), {
+            accounts: {
+                userInfoAccount: userInfoAccount.publicKey,
+                userOwner: provider.wallet.publicKey,
+                userLpTokenAccount: USER_LP_TOKEN_ACC,
+                userRewardTokenAccount: USER_TOKEN_A_ACC,
+                userRewardTokenAccountB: USER_TOKEN_B_ACC,
+                raydiumProgram: RAYDIUM_PROGRAM_ID,
+                raydiumPoolId: POOL_ID,
+                raydiumPoolAuthority: POOL_AUTHORITY,
+                raydiumLpTokenAccount: RAYDIUM_LP_VAULT_ADDRESS,
+                raydiumRewardTokenAccount: RAYDIUM_REWARD_A,
+                raydiumRewardTokenAccountB: RAYDIUM_REWARD_B,
+                tokenProgram: spl.TOKEN_PROGRAM_ID,
+                clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
+            },
         });
         console.log(txSig);
     });
