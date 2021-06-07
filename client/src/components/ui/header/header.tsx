@@ -7,6 +7,8 @@ import classes from "./header.module.css";
 import { useWallet, WALLET_PROVIDERS } from "../../../store/wallet";
 import DropdownItem from "../dropdown/dropdown-item/dropdown-item";
 
+import AppLogo from "../../../assets/logo.png";
+
 interface HeaderProps {}
 
 const Header: React.FC<HeaderProps> = (): JSX.Element => {
@@ -47,7 +49,7 @@ const Header: React.FC<HeaderProps> = (): JSX.Element => {
       <nav className={classes.Logo}>
         <NavLink to="/">
           {/* <img src="" alt="" className="logo-img" /> */}
-          SOL HACK
+          <img src={AppLogo} />
         </NavLink>
       </nav>
       <nav className={classes.MainNav}>

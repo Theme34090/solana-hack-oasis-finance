@@ -64,6 +64,9 @@ describe("test new vault", () => {
   let vaultRewardTokenAccount;
   let vaultRewardTokenAccountB;
 
+  let userVaultTokenAccount;
+  let userSigner = provider.wallet.publicKey;
+
   it("initialize vault", async () => {
     vaultAccount = anchor.web3.Keypair.generate();
     const [_vaultSigner, nonce] =
@@ -77,7 +80,7 @@ describe("test new vault", () => {
       provider.wallet.payer,
       vaultSigner,
       provider.wallet.publicKey,
-      8,
+      6,
       spl.TOKEN_PROGRAM_ID
     );
     vaultUserInfoAccount = anchor.web3.Keypair.generate();
@@ -124,5 +127,38 @@ describe("test new vault", () => {
       vaultAccount.publicKey
     );
     assert.strictEqual(acc.nonce, nonce, "nonce not equal");
+  });
+
+  it("deposit", async () => {
+    userVaultTokenAccount = await vaultTokenMintAddress.createAccount(
+      userSigner
+    );
+
+    const amount = new anchor.BN(10000);
+    const txSig = await program.rpc.deposit(amount, {
+      accounts: {
+        vaultAccount: vaultAccount.publicKey,
+        vaultSigner,
+        vaultTokenMintAddress: vaultTokenMintAddress.publicKey,
+        vaultUserInfoAccount: vaultUserInfoAccount.publicKey,
+        vaultLpTokenAccount,
+        vaultRewardTokenAccount,
+        vaultRewardTokenAccountB,
+        // user
+        userLpTokenAccount: USER_LP_TOKEN_ACC,
+        userVaultTokenAccount,
+        userSigner,
+        // raydium
+        raydiumProgram: RAYDIUM_PROGRAM_ID,
+        raydiumPoolId: POOL_ID,
+        raydiumPoolAuthority: POOL_AUTHORITY,
+        raydiumLpTokenAccount: RAYDIUM_LP_VAULT_ADDRESS,
+        raydiumRewardTokenAccount: RAYDIUM_REWARD_A,
+        raydiumRewardTokenAccountB: RAYDIUM_REWARD_B,
+        tokenProgram: spl.TOKEN_PROGRAM_ID,
+        clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
+      },
+    });
+    console.log(txSig);
   });
 });

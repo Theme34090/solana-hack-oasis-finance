@@ -65,6 +65,7 @@ export async function createTokenAccountIfNotExists(
 }
 
 
+
 export async function createProgramAccountIfNotExists(
     provider: anchor.Provider,
     account: string | undefined | null,
@@ -101,44 +102,126 @@ export async function createProgramAccountIfNotExists(
     return publicKey;
 }
 
-
-
-export async function initializeValut(
-    connection: Connection | undefined | null,
-    wallet: any | undefined | null,
+export async function InitializeVault(
+    connection: Connection | null | undefined,
+    wallet: any | null | undefined,
+    farmInfo: FarmInfo,
 
 ) {
-    if (!connection || !wallet) throw new Error('Miss connection');
+    if (!connection || !wallet) {
+        console.log("no connection..");
+        return;
+    }
+    let vaultAccount = anchor.web3.Keypair.generate();
+    const RAYDIUM_PROGRAM_ID = farmInfo.programId;
 
     const provider = new anchor.Provider(connection, wallet, { commitment: commitment })
     anchor.setProvider(provider);
 
+    console.log("provider : ", wallet)
     const programId = new anchor.web3.PublicKey(
         SOL_HACK_PROGRAM_ID
     );
+
+
     const program = new anchor.Program(
         idl as anchor.Idl,
         programId,
         provider
     );
 
-    let vaultAccount = anchor.web3.Keypair.generate();
-    const [vaultSigner, nonce] = await anchor.web3.PublicKey.findProgramAddress(
-        [vaultAccount.publicKey.toBuffer()],
-        program.programId
+    const [vaultSigner, nonce] =
+        await anchor.web3.PublicKey.findProgramAddress(
+            [vaultAccount.publicKey.toBuffer()],
+            program.programId
+        );
+    const lpTokenInstance = new spl.Token(
+        provider.connection,
+        new anchor.web3.PublicKey(farmInfo.lp.mintAddress),
+        spl.TOKEN_PROGRAM_ID,
+        // @ts-ignore
+        program.provider.wallet.payer
     );
 
-    const vaultTokenMintAddress = await spl.Token.createMint(
+    const tokenAInstance = new spl.Token(
         provider.connection,
-        provider.wallet.payer,
+        new anchor.web3.PublicKey(farmInfo.lp.coin.mintAddress),
+        spl.TOKEN_PROGRAM_ID,
+        // @ts-ignore
+        program.provider.wallet.payer
+    );
+
+    const tokenBInstance = new spl.Token(
+        provider.connection,
+        new anchor.web3.PublicKey(farmInfo.lp.pc.mintAddress),
+        spl.TOKEN_PROGRAM_ID,
+        // @ts-ignore
+        program.provider.wallet.payer
+    );
+
+
+    let vaultTokenMintAddress = await spl.Token.createMint(
+        provider.connection,
+        // @ts-ignore
+        program.provider.wallet.payer,
         vaultSigner,
-        provider.wallet.publicKey,
+        program.provider.wallet.publicKey,
         6,
         spl.TOKEN_PROGRAM_ID
     );
 
+    let vaultUserInfoAccount = anchor.web3.Keypair.generate();
+    let vaultLpTokenAccount = await lpTokenInstance.createAccount(vaultSigner);
+    let vaultRewardTokenAccount = await tokenAInstance.createAccount(vaultSigner);
+    let vaultRewardTokenAccountB = await tokenBInstance.createAccount(vaultSigner);
+
+    const createUserInfoAccountIx = anchor.web3.SystemProgram.createAccount({
+        fromPubkey: program.provider.wallet.publicKey,
+        newAccountPubkey: vaultUserInfoAccount.publicKey,
+        space: USER_STAKE_INFO_ACCOUNT_LAYOUT_V4.span,
+        lamports: await provider.connection.getMinimumBalanceForRentExemption(
+            USER_STAKE_INFO_ACCOUNT_LAYOUT_V4.span
+        ),
+        programId: new anchor.web3.PublicKey(RAYDIUM_PROGRAM_ID),
+    });
+
+
+    console.log("vaultAccount: ", vaultAccount.publicKey.toString());
+    console.log("vaultSigner: ", vaultSigner.toString());
+    console.log("vaultTokenMintAddress: ", vaultTokenMintAddress.publicKey.toString());
+    console.log("vaultUserInfoAccount: ", vaultUserInfoAccount.publicKey.toString());
+    console.log("vaultLpTokenAccount: ", vaultLpTokenAccount.toString());
+    console.log("vaultRewardTokenAccount: ", vaultRewardTokenAccount.toString());
+    console.log("vaultRewardTokenAccountB: ", vaultRewardTokenAccountB.toString());
+    return program.rpc.initializeVault(nonce, {
+        accounts: {
+            vaultAccount: vaultAccount.publicKey,
+            vaultSigner,
+            vaultTokenMintAddress: vaultTokenMintAddress.publicKey,
+            vaultUserInfoAccount: vaultUserInfoAccount.publicKey,
+            vaultLpTokenAccount,
+            vaultRewardTokenAccount,
+            vaultRewardTokenAccountB,
+            raydiumProgram: RAYDIUM_PROGRAM_ID,
+            raydiumPoolId: new anchor.web3.PublicKey(farmInfo.poolId),
+            raydiumPoolAuthority: new anchor.web3.PublicKey(farmInfo.poolAuthority),
+            raydiumLpTokenAccount: new anchor.web3.PublicKey(farmInfo.poolLpTokenAccount),
+            raydiumRewardTokenAccount: new anchor.web3.PublicKey(farmInfo.poolRewardTokenAccount),
+            // @ts-ignore
+            raydiumRewardTokenAccountB: new anchor.web3.PublicKey(farmInfo.poolRewardTokenAccountB),
+            tokenProgram: spl.TOKEN_PROGRAM_ID,
+            clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
+            rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+        },
+        signers: [vaultAccount, vaultUserInfoAccount],
+        instructions: [
+            await program.account.vaultAccount.createInstruction(vaultAccount),
+            createUserInfoAccountIx,
+        ],
+    });
 
 }
+
 
 
 export async function deposit(
@@ -234,6 +317,8 @@ export async function deposit(
         USER_STAKE_INFO_ACCOUNT_LAYOUT_V4,
         instructions,
     )
+
+
     // if (infoAccount) {
     //     userInfoAccount = new anchor.web3.PublicKey(infoAccount);
     // } else {
@@ -253,7 +338,14 @@ export async function deposit(
 
     const value = new TokenAmount(amount, farmInfo.lp.decimals, false).wei.toNumber()
 
+    const vaultAccount = new anchor.web3.PublicKey("");
+    const vaultTokenMintAddress = new anchor.web3.PublicKey("");
 
+    const [vaultSigner, nonce] =
+        await anchor.web3.PublicKey.findProgramAddress(
+            [vaultAccount.toBuffer()],
+            program.programId
+        );
 
     return program.rpc.deposit(new anchor.BN(value), {
         accounts: {
@@ -272,13 +364,15 @@ export async function deposit(
             // raydiumRewardTokenAccountB: new anchor.web3.PublicKey(farmInfo.poolRewardTokenAccountB),
             // tokenProgram: spl.TOKEN_PROGRAM_ID,
             // clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
-            vaultAccount: vaultAccount.publicKey,
-            vaultSigner: owner,
-            vaultTokenMintAddress: vaultTokenMintAddress.publicKey,
+            vaultAccount: vaultAccount,
+            vaultSigner: vaultSigner,
+            vaultTokenMintAddress: vaultTokenMintAddress,
             vaultUserInfoAccount: userInfoAccount,
             vaultLpTokenAccount: new anchor.web3.PublicKey(lpAccount),
             vaultRewardTokenAccount: userRewardTokenAccount,
             vaultRewardTokenAccountB: userRewardTokenAccountB,
+
+
             raydiumProgram: RAYDIUM_PROGRAM_ID,
             raydiumPoolId: new anchor.web3.PublicKey(farmInfo.poolId),
             raydiumPoolAuthority: new anchor.web3.PublicKey(farmInfo.poolAuthority),
@@ -292,6 +386,83 @@ export async function deposit(
         },
         signers: [userInfoAccount],
         instructions,
+    })
+
+}
+
+
+export async function withdraw(
+    connection: Connection | undefined | null,
+    wallet: any | undefined | null,
+    farmInfo: FarmInfo | undefined | null,
+    lpAccount: string | undefined | null,
+    rewardAccount: string | undefined | null,
+    rewardAccountB: string | undefined | null,
+    infoAccount: string | undefined | null,
+    amount: string | undefined | null
+) {
+
+    if (!connection || !wallet) throw new Error('Miss connection')
+    if (!farmInfo) throw new Error('Miss pool infomations')
+    if (!lpAccount || !infoAccount) throw new Error('Miss account infomations')
+    if (!amount) throw new Error('Miss amount infomations')
+
+    const provider = new anchor.Provider(connection, wallet, { commitment: commitment })
+    anchor.setProvider(provider);
+
+    const owner = provider.wallet.publicKey;
+    const RAYDIUM_PROGRAM_ID = new anchor.web3.PublicKey(farmInfo.programId);
+    let instructions: anchor.web3.TransactionInstruction[] = [];
+
+    const programId = new anchor.web3.PublicKey(
+        SOL_HACK_PROGRAM_ID
+    );
+    const program = new anchor.Program(
+        idl as anchor.Idl,
+        programId,
+        provider
+    );
+
+    const userRewardTokenAccount = await createTokenAccountIfNotExists(
+        provider,
+        rewardAccount,
+        owner,
+        farmInfo.reward.mintAddress,
+        null,
+        instructions
+    )
+
+    // if no account, create new one
+    const userRewardTokenAccountB = await createTokenAccountIfNotExists(
+        provider,
+        rewardAccountB,
+        owner,
+        // @ts-ignore
+        farmInfo.rewardB.mintAddress,
+        null,
+        instructions,
+    )
+
+    const value = new TokenAmount(amount, farmInfo.lp.decimals, false).wei.toNumber()
+
+    return program.rpc.withdraw(new anchor.BN(value), {
+        accounts: {
+            userInfoAccount: new anchor.web3.PublicKey(infoAccount),
+            userOwner: owner,
+            userLpTokenAccount: new anchor.web3.PublicKey(lpAccount),
+            userRewardTokenAccount: userRewardTokenAccount,
+            userRewardTokenAccountB: userRewardTokenAccountB,
+            raydiumProgram: new anchor.web3.PublicKey(farmInfo.programId),
+            raydiumPoolId: new anchor.web3.PublicKey(farmInfo.poolId),
+            raydiumPoolAuthority: new anchor.web3.PublicKey(farmInfo.poolAuthority),
+            raydiumLpTokenAccount: new anchor.web3.PublicKey(farmInfo.poolLpTokenAccount),
+            raydiumRewardTokenAccount: new anchor.web3.PublicKey(farmInfo.poolRewardTokenAccount),
+            // @ts-ignore
+            raydiumRewardTokenAccountB: new anchor.web3.PublicKey(farmInfo.poolRewardTokenAccountB),
+            tokenProgram: spl.TOKEN_PROGRAM_ID,
+            clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
+        },
+
     })
 
 

@@ -31,7 +31,7 @@ import { getPrices } from "../../store/price";
 import { LIQUIDITY_POOLS } from "../../utils/pools";
 import { updateFarmV2 } from "./user";
 
-import { deposit as depositAnchor } from "../../utils/raydium";
+import { InitializeVault } from "../../utils/raydium";
 
 interface FarmProps {}
 
@@ -93,19 +93,21 @@ const Farm: React.FC<FarmProps> = () => {
 
     try {
       notifyInfo();
-      const txId = await depositAnchor(
-        connection,
-        wallet,
-        currentFarm,
-        lpAccount,
-        rewardAccount,
-        rewardAccountB,
-        // @ts-ignore
-        infoAccount,
-        amount
-      );
-      notifySuccess(txId);
+      // const txId = await depositAnchor(
+      //   connection,
+      //   wallet,
+      //   currentFarm,
+      //   lpAccount,
+      //   rewardAccount,
+      //   rewardAccountB,
+      //   // @ts-ignore
+      //   infoAccount,
+      //   amount
+      // );
+      const txId = await InitializeVault(connection, wallet, currentFarm);
+      notifySuccess(txId ?? "");
     } catch (err) {
+      console.log(err);
       notifyError();
     }
 
