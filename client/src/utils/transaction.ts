@@ -16,7 +16,7 @@ export const confirmTransaction = (
                 notifySuccess(txid);
             } else {
                 // failed
-                notifyError(txid);
+                notifyError();
                 console.error(signatureResult.err)
             }
 

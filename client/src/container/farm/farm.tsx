@@ -16,13 +16,17 @@ import { TokenAmount } from "../../utils/safe-math";
 import { useConnection } from "../../store/connection";
 import { requestInfos } from "../../store/liquidity";
 import { getStakeAccounts, updateFarms } from "../../store/farm";
-import { depositV4, withdrawV4 } from "../../utils/stake";
+import { deposit, depositV4, withdrawV4 } from "../../utils/stake";
 import { confirmTransaction } from "../../utils/transaction";
 import { StakeAccounts } from "../../store/farm";
 import LoadingSpinner from "../../components/ui/loading-spinner/loading-spinner";
 import { getFarmRewardAccount } from "../../utils/farms";
 
-import { notifyInfo } from "../../components/ui/notification/notification";
+import {
+  notifyError,
+  notifyInfo,
+  notifySuccess,
+} from "../../components/ui/notification/notification";
 import { getPrices } from "../../store/price";
 import { LIQUIDITY_POOLS } from "../../utils/pools";
 import { updateFarmV2 } from "./user";
@@ -85,21 +89,28 @@ const Farm: React.FC<FarmProps> = () => {
     console.log("rewardAccountB", rewardAccountB);
     console.log("infoAccount", infoAccount);
 
-    const txId = await depositV4(
-      connection,
-      wallet,
-      currentFarm,
-      lpAccount,
-      rewardAccount,
-      rewardAccountB,
-      // @ts-ignore
-      infoAccount,
-      amount
-    );
-    // console.log("Tx :", tx);
-    console.log("txId : ", txId);
-    notifyInfo(txId);
-    confirmTransaction(txId, connection);
+    try {
+      notifyInfo();
+      const txId = await depositV4(
+        connection,
+        wallet,
+        currentFarm,
+        lpAccount,
+        rewardAccount,
+        rewardAccountB,
+        // @ts-ignore
+        infoAccount,
+        amount
+      );
+      notifySuccess(txId);
+    } catch (err) {
+      notifyError();
+    }
+
+    // // console.log("Tx :", tx);
+    // console.log("txId : ", txId);
+    // notifyInfo(txId);
+    // confirmTransaction(txId, connection);
   };
 
   const withdraw = async (farm: FarmInfo, amount: string) => {
@@ -122,41 +133,45 @@ const Farm: React.FC<FarmProps> = () => {
       `${farm.poolId}.stakeAccountAddress`
     );
 
-    const txId = await withdrawV4(
-      connection,
-      wallet,
-      farm,
-      lpAccount,
-      rewardAccount,
-      rewardAccountB,
-      //@ts-ignore
-      infoAccount,
-      amount
-    );
-    console.log("txId : ", txId);
-    notifyInfo(txId);
-    confirmTransaction(txId, connection);
+    try {
+      notifyInfo();
+      const txId = await withdrawV4(
+        connection,
+        wallet,
+        farm,
+        lpAccount,
+        rewardAccount,
+        rewardAccountB,
+        //@ts-ignore
+        infoAccount,
+        amount
+      );
+      notifySuccess(txId);
+    } catch (err) {
+      notifyError();
+    }
+    // console.log("txId : ", txId);
   };
 
   const updateFarm = async () => {
     console.log("update farm");
     setIsLoading(true);
 
-    const liquidity = await requestInfos(connection);
+    // const liquidity = await requestInfos(connection);
     // console.log("liquidity", liquidity);
     // lp mint address: 14Wp3dxYTQpRMMz3AW7f2XGBTdaBrf1qb2NKjAN3Tb13
 
-    const farms = await getFarmRewardAccount(connection);
+    // const farms = await getFarmRewardAccount(connection);
     // console.log("farm ", farms);
 
-    const stakeAccounts = await getStakeAccounts(connection, wallet, connected);
+    // const stakeAccounts = await getStakeAccounts(connection, wallet, connected);
     // console.log("stake account ", stakeAccounts);
 
     // const price = await getPrices();
     // console.log("price", price);
-    const price = { TEST1: 173.5, TEST2: 200.5 };
+    // const price = { TEST1: 173.5, TEST2: 200.5 };
 
-    const results = await updateFarmV2(farms, stakeAccounts, liquidity, price);
+    // const results = await updateFarmV2(farms, stakeAccounts, liquidity, price);
     // console.log(results);
     // for (const res of results) {
     //   console.log(res.farmInfo.name);

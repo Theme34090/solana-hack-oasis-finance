@@ -83,7 +83,7 @@ const Liquidity: React.FC = () => {
     );
 
     console.log("txId : ", txId);
-    notifyInfo(txId);
+    notifyInfo();
     confirmTransaction(txId, connection);
   };
 

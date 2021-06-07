@@ -188,7 +188,7 @@ export async function getFarmRewardAccount(connection: Connection) {
 }
 
 
-export const FARMS: FarmInfo[] = [{
+export const _FARMS: FarmInfo[] = [{
     name: 'TEST-TEST',
     lp: { ...LP_TOKENS['TEST_LPTOKEN'] },
     reward: { ...TOKENS.TEST1 },
@@ -208,7 +208,7 @@ export const FARMS: FarmInfo[] = [{
     poolRewardTokenAccountB: '39Ea6rMGGrsNmEsYToqQfEyNSqv7hcUJa646qBYLY4yq'
 }]
 
-export const _FARMS: FarmInfo[] = [
+export const FARMS: FarmInfo[] = [
     // {
     //     name: 'TEST-TEST',
     //     lp: { ...LP_TOKENS['TEST_LPTOKEN'] },
