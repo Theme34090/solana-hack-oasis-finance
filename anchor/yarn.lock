@@ -318,7 +318,7 @@ bs58@^4.0.0, bs58@^4.0.1:
   dependencies:
     base-x "^3.0.2"
 
-buffer-layout@^1.2.0:
+buffer-layout@^1.2.0, buffer-layout@^1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/buffer-layout/-/buffer-layout-1.2.1.tgz#17b6db7abea303cab35eebd77919b89de026297d"
   integrity sha512-RUTGEYG1vX0Zp1dStQFl8yeU/LEBPXVtHwzzDbPWkE5zq+Prt9fkFLKNiwmaeHg6BBiRMcQAgj4cynazO6eekw==
