@@ -4,16 +4,30 @@ const spl = require("@solana/spl-token");
 const { struct } = require("buffer-layout");
 const { publicKey, u64 } = require("@project-serum/borsh");
 const assert = require("assert");
-// const {
-//   mintToAccount,
-//   getTokenAccount,
-//   createTokenAccount,
-// } = require("./utils");
+const {
+  mintToAccount,
+  getTokenAccount,
+  createTokenAccount,
+} = require("./utils");
+const idl = require("../target/idl/new_vault.json");
 
 describe("test new vault", () => {
-  const provider = anchor.Provider.env();
+  const url = "https://api.devnet.solana.com";
+  const preflightCommitment = "recent";
+  const connection = new anchor.web3.Connection(url, preflightCommitment);
+  const wallet = anchor.Wallet.local();
+
+  const provider = new anchor.Provider(connection, wallet, {
+    preflightCommitment,
+    commitment: "recent",
+  });
   anchor.setProvider(provider);
-  const program = anchor.workspace.NewVault;
+  // const program = anchor.workspace.NewVault;
+  const program = new anchor.Program(
+    idl,
+    "2QGo9WwyXbFzyCnrob9XuLbEwqxmNhn4a58w4BxZBer5",
+    provider
+  );
 
   const RAYDIUM_PROGRAM_ID = "EcLzTrNg9V7qhcdyXDe2qjtPkiGzDM2UbdRaeaadU5r2";
   const POOL_ID = "2Bsexc5j6vk4r9RhBYz2ufPrRWhumXQk6efXucqUKsyr";
