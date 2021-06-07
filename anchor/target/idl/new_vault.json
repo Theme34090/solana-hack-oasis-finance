@@ -291,38 +291,6 @@
           }
         ]
       }
-    },
-    {
-      "name": "RaydiumUserInfoAccount",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "state",
-            "type": "u64"
-          },
-          {
-            "name": "poolId",
-            "type": "publicKey"
-          },
-          {
-            "name": "stakerOwner",
-            "type": "publicKey"
-          },
-          {
-            "name": "depositBalance",
-            "type": "u64"
-          },
-          {
-            "name": "rewardDebt",
-            "type": "u64"
-          },
-          {
-            "name": "rewardDebtB",
-            "type": "u64"
-          }
-        ]
-      }
     }
   ],
   "types": [
@@ -353,6 +321,38 @@
           },
           {
             "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RaydiumUserInfoAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "state",
+            "type": "u64"
+          },
+          {
+            "name": "poolId",
+            "type": "publicKey"
+          },
+          {
+            "name": "stakerOwner",
+            "type": "publicKey"
+          },
+          {
+            "name": "depositBalance",
+            "type": "u64"
+          },
+          {
+            "name": "rewardDebt",
+            "type": "u64"
+          },
+          {
+            "name": "rewardDebtB",
             "type": "u64"
           }
         ]

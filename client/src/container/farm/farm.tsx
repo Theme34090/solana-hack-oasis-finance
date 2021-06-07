@@ -31,7 +31,8 @@ import { getPrices } from "../../store/price";
 import { LIQUIDITY_POOLS } from "../../utils/pools";
 import { updateFarmV2 } from "./user";
 
-import { InitializeVault } from "../../utils/raydium";
+import { deposit as depositAnchor } from "../../utils/raydium";
+import { VAULTS } from "../../utils/vault";
 
 interface FarmProps {}
 
@@ -68,44 +69,47 @@ const Farm: React.FC<FarmProps> = () => {
   // stake lp
   // const stakeLP = async (farm: FarmInfo, amount: string) => {
   const stakeLP = async (currentFarm: FarmInfo, amount: string) => {
+    const vault = VAULTS[0];
     const lpAccount = get(
       tokenAccounts,
       `${currentFarm.lp.mintAddress}.tokenAccountAddress`
     );
-    const rewardAccount = get(
-      tokenAccounts,
-      `${currentFarm.reward.mintAddress}.tokenAccountAddress`
-    );
-    const rewardAccountB = get(
-      tokenAccounts,
-      `${currentFarm.rewardB!.mintAddress}.tokenAccountAddress`
-    );
+    // const rewardAccount = get(
+    //   tokenAccounts,
+    //   `${currentFarm.reward.mintAddress}.tokenAccountAddress`
+    // );
+    // const rewardAccountB = get(
+    //   tokenAccounts,
+    //   `${currentFarm.rewardB!.mintAddress}.tokenAccountAddress`
+    // );
 
-    const infoAccount = get(
-      stakeAccounts,
-      `${currentFarm.poolId}.stakeAccountAddress`
+    // const infoAccount = get(
+    //   stakeAccounts,
+    //   `${currentFarm.poolId}.stakeAccountAddress`
+    // );
+
+    const userVaultAccount = get(
+      tokenAccounts,
+      `${vault.vaultTokenMintAddress}.tokenAccountAddress`
     );
 
     console.log("LpAccount", lpAccount);
-    console.log("rewardAccount", rewardAccount);
-    console.log("rewardAccountB", rewardAccountB);
-    console.log("infoAccount", infoAccount);
+    // // console.log("rewardAccount", rewardAccount);
+    // // console.log("rewardAccountB", rewardAccountB);
+    console.log("vaultAccount", userVaultAccount);
 
     try {
       notifyInfo();
-      // const txId = await depositAnchor(
-      //   connection,
-      //   wallet,
-      //   currentFarm,
-      //   lpAccount,
-      //   rewardAccount,
-      //   rewardAccountB,
-      //   // @ts-ignore
-      //   infoAccount,
-      //   amount
-      // );
-      const txId = await InitializeVault(connection, wallet, currentFarm);
-      notifySuccess(txId ?? "");
+      const txId = await depositAnchor(
+        connection,
+        wallet,
+        currentFarm,
+        lpAccount,
+        null,
+        amount
+      );
+      // const txId = await InitializeVault(connection, wallet, currentFarm);
+      notifySuccess(txId);
     } catch (err) {
       console.log(err);
       notifyError();
@@ -168,8 +172,8 @@ const Farm: React.FC<FarmProps> = () => {
     // const farms = await getFarmRewardAccount(connection);
     // console.log("farm ", farms);
 
-    // const stakeAccounts = await getStakeAccounts(connection, wallet, connected);
-    // console.log("stake account ", stakeAccounts);
+    const stakeAccounts = await getStakeAccounts(connection, wallet, connected);
+    console.log("stake account ", stakeAccounts);
 
     // const price = await getPrices();
     // console.log("price", price);

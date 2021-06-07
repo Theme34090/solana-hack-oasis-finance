@@ -1719,9 +1719,9 @@
     ws "^7.0.0"
 
 "@solana/web3.js@^1.11.0":
-  version "1.16.1"
-  resolved "https://registry.yarnpkg.com/@solana/web3.js/-/web3.js-1.16.1.tgz#951909ad8e3dd7781ae96d5c6c666895acba0ff0"
-  integrity sha512-Dh6usnN9AkXzHGbN7II/gLJoG0OslzCy6pzcZiesJY9fh5Z6D532opClptNiIoz0ZGU7RRt41wgbzUo/zyohvg==
+  version "1.17.0"
+  resolved "https://registry.yarnpkg.com/@solana/web3.js/-/web3.js-1.17.0.tgz#51775bd17af77132450c22ac175870d4a9721b9b"
+  integrity sha512-PBOHY260CudciLwBgwt1U8upwCS1Jq0BbS6EVyX0tz6Tj14Dp4i87dQNyntentNiGQQ+yWBIk4vJEm+PMCSd/A==
   dependencies:
     "@babel/runtime" "^7.12.5"
     bn.js "^5.0.0"

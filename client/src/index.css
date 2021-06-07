@@ -14,7 +14,8 @@ body {
   -moz-osx-font-smoothing: grayscale; */
   width: 100%;
   height: 100vh;
-  background: linear-gradient(-45deg, #f0d1c1, #b17c59, #faae7c, #f36303);
+  /* background: linear-gradient(-45deg, #db8b28, #db8b28, #db8b28, #db8b28); */
+  background: linear-gradient(-45deg, #fbb039, #db8b28);
   /* background-color: #eb9c6b; */
   background-size: 400% 400%;
   animation: gradient 15s ease infinite;

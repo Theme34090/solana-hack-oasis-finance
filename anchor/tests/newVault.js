@@ -11,7 +11,7 @@ const {
 } = require("./utils");
 const idl = require("../target/idl/new_vault.json");
 
-describe("test new vault", () => {
+describe("test initialize deposit withdraw without added lp", () => {
   const url = "https://api.devnet.solana.com";
   const preflightCommitment = "recent";
   const connection = new anchor.web3.Connection(url, preflightCommitment);
@@ -25,7 +25,7 @@ describe("test new vault", () => {
   // const program = anchor.workspace.NewVault;
   const program = new anchor.Program(
     idl,
-    "2QGo9WwyXbFzyCnrob9XuLbEwqxmNhn4a58w4BxZBer5",
+    "HWLDk7fhugF9KpDpXjx3oggDeGYxsEwnJJGokuGQksMc",
     provider
   );
 
@@ -43,7 +43,7 @@ describe("test new vault", () => {
     "83BEhzv7eV4HeJuuPtYmHkhTjZEpNpK83mHnHfX5Krwj";
   const RAYDIUM_REWARD_A = "HVtAJ1uRiWJ7tNU9uqAzpPv14B3fN9SVEW9G4PtM77Ci";
   const RAYDIUM_REWARD_B = "39Ea6rMGGrsNmEsYToqQfEyNSqv7hcUJa646qBYLY4yq";
-  const USER_LP_TOKEN_ACC = "8FbDqmo5icpAdUHk2rJFjMp6oMd3i8rQimtGqY1DC6tF";
+  const USER_LP_TOKEN_ACC = "3UEbdr8S2AGUVJA2E36vtL86qnKfWjhLRiQy6fKysVz2";
   const USER_TOKEN_A_ACC = "AzrCx5xaxSRRw35P7P6psqW1mB8SmuqQc5USiXAdA1eE";
   const USER_TOKEN_B_ACC = "2QxHHmuKLAGsZLqWtD995ewMtYV3ATKWXDnMMM2VGeev";
 
@@ -81,7 +81,7 @@ describe("test new vault", () => {
   let userVaultTokenAccount;
   let userSigner = provider.wallet.publicKey;
 
-  it("initialize vault", async () => {
+  it("should initialize vault", async () => {
     vaultAccount = anchor.web3.Keypair.generate();
     const [_vaultSigner, nonce] =
       await anchor.web3.PublicKey.findProgramAddress(
@@ -143,14 +143,61 @@ describe("test new vault", () => {
     assert.strictEqual(acc.nonce, nonce, "nonce not equal");
   });
 
-  it("deposit", async () => {
+  it("should deposit", async () => {
+    console.log("VAULT ACCOUNT: ", vaultAccount.publicKey.toString());
+    console.log("VAULT SIGNER: ", vaultSigner.toString());
+    console.log(
+      "VAULT TOKEN MINT ADDRESS",
+      vaultTokenMintAddress.publicKey.toString()
+    );
+    console.log(
+      "vaultUserInfoAccount: ",
+      vaultUserInfoAccount.publicKey.toString()
+    );
+    console.log("vaultLpTokenAccount: ", vaultLpTokenAccount.toString());
+    console.log(
+      "vaultRewardTokenAccount: ",
+      vaultRewardTokenAccount.toString()
+    );
+    console.log(
+      "vaultRewardTokenAccountB: ",
+      vaultRewardTokenAccountB.toString()
+    );
     userVaultTokenAccount = await vaultTokenMintAddress.createAccount(
       userSigner
     );
-    console.log("VAULT ACCOUNT: ", vaultAccount.publicKey);
-    console.log("VAULT TOKEN MINT ADDRESS", vaultTokenMintAddress.publicKey);
+
     const amount = new anchor.BN(10000);
     const txSig = await program.rpc.deposit(amount, {
+      accounts: {
+        vaultAccount: vaultAccount.publicKey,
+        vaultSigner,
+        vaultTokenMintAddress: vaultTokenMintAddress.publicKey,
+        vaultUserInfoAccount: vaultUserInfoAccount.publicKey,
+        vaultLpTokenAccount,
+        vaultRewardTokenAccount,
+        vaultRewardTokenAccountB,
+        // user
+        userLpTokenAccount: USER_LP_TOKEN_ACC,
+        userVaultTokenAccount,
+        userSigner,
+        // raydium
+        raydiumProgram: RAYDIUM_PROGRAM_ID,
+        raydiumPoolId: POOL_ID,
+        raydiumPoolAuthority: POOL_AUTHORITY,
+        raydiumLpTokenAccount: RAYDIUM_LP_VAULT_ADDRESS,
+        raydiumRewardTokenAccount: RAYDIUM_REWARD_A,
+        raydiumRewardTokenAccountB: RAYDIUM_REWARD_B,
+        tokenProgram: spl.TOKEN_PROGRAM_ID,
+        clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
+      },
+    });
+    console.log(txSig);
+  });
+
+  it("should withdraw", async () => {
+    const amount = new anchor.BN(10000);
+    const txSig = await program.rpc.withdraw(amount, {
       accounts: {
         vaultAccount: vaultAccount.publicKey,
         vaultSigner,
