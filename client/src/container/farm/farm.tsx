@@ -31,7 +31,10 @@ import { getPrices } from "../../store/price";
 import { LIQUIDITY_POOLS } from "../../utils/pools";
 import { updateFarmV2 } from "./user";
 
-import { deposit as depositAnchor } from "../../utils/raydium";
+import {
+  deposit as depositAnchor,
+  withdraw as withdrawAnchor,
+} from "../../utils/raydium";
 import { VAULTS } from "../../utils/vault";
 
 interface FarmProps {}
@@ -105,7 +108,7 @@ const Farm: React.FC<FarmProps> = () => {
         wallet,
         currentFarm,
         lpAccount,
-        null,
+        userVaultAccount,
         amount
       );
       // const txId = await InitializeVault(connection, wallet, currentFarm);
@@ -121,41 +124,44 @@ const Farm: React.FC<FarmProps> = () => {
     // confirmTransaction(txId, connection);
   };
 
-  const withdraw = async (farm: FarmInfo, amount: string) => {
+  const withdraw = async (currentFarm: FarmInfo, amount: string) => {
     console.log("withdraw....");
+    const vault = VAULTS[0];
     const lpAccount = get(
       tokenAccounts,
-      `${farm.lp.mintAddress}.tokenAccountAddress`
+      `${currentFarm.lp.mintAddress}.tokenAccountAddress`
     );
-    const rewardAccount = get(
-      tokenAccounts,
-      `${farm.reward.mintAddress}.tokenAccountAddress`
-    );
-    const rewardAccountB = get(
-      tokenAccounts,
-      `${farm.rewardB!.mintAddress}.tokenAccountAddress`
-    );
+    // const rewardAccount = get(
+    //   tokenAccounts,
+    //   `${farm.reward.mintAddress}.tokenAccountAddress`
+    // );
+    // const rewardAccountB = get(
+    //   tokenAccounts,
+    //   `${farm.rewardB!.mintAddress}.tokenAccountAddress`
+    // );
 
-    const infoAccount = get(
-      stakeAccounts,
-      `${farm.poolId}.stakeAccountAddress`
+    // const infoAccount = get(
+    //   stakeAccounts,
+    //   `${farm.poolId}.stakeAccountAddress`
+    // );
+    const userVaultAccount = get(
+      tokenAccounts,
+      `${vault.vaultTokenMintAddress}.tokenAccountAddress`
     );
 
     try {
       notifyInfo();
-      const txId = await withdrawV4(
+      const txId = await withdrawAnchor(
         connection,
         wallet,
-        farm,
+        currentFarm,
         lpAccount,
-        rewardAccount,
-        rewardAccountB,
-        //@ts-ignore
-        infoAccount,
+        userVaultAccount,
         amount
       );
       notifySuccess(txId);
     } catch (err) {
+      console.log(err);
       notifyError();
     }
     // console.log("txId : ", txId);

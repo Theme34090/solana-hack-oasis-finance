@@ -198,12 +198,42 @@
       "name": "withdraw",
       "accounts": [
         {
-          "name": "userInfoAccount",
+          "name": "vaultAccount",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "vaultSigner",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "vaultTokenMintAddress",
           "isMut": true,
           "isSigner": false
         },
         {
-          "name": "userOwner",
+          "name": "vaultUserInfoAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "vaultLpTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "vaultRewardTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "vaultRewardTokenAccountB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userSigner",
           "isMut": true,
           "isSigner": true
         },
@@ -213,12 +243,7 @@
           "isSigner": false
         },
         {
-          "name": "userRewardTokenAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userRewardTokenAccountB",
+          "name": "userVaultTokenAccount",
           "isMut": true,
           "isSigner": false
         },

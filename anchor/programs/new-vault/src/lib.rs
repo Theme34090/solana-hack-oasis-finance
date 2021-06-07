@@ -155,24 +155,45 @@ pub mod new_vault {
         );
         msg!("invoking raydium");
         invoke_signed(&ix, &accounts, signer)?;
+
         Ok(())
     }
 
-    pub fn withdraw(ctx: Context<RaydiumWithdraw>, amount: u64) -> ProgramResult {
-        msg!("withdraw");
-        let signer = &ctx.accounts.user_owner.key;
+    pub fn withdraw(ctx: Context<Withdraw>, amount: u64) -> ProgramResult {
+        msg!("deposit");
+        let vault_account = &ctx.accounts.vault_account;
+
+        // calculate LP amount that user will receive after burn
+        let user_info = RaydiumUserInfoAccount::unpack_from_slice(
+            &ctx.accounts.vault_user_info_account.data.borrow(),
+        )?;
+        let receive_amount =
+            amount * user_info.deposit_balance / ctx.accounts.vault_token_mint_address.supply;
+
+        // transfer user's LP to vault account
+        msg!("burn user's vault token");
+        let cpi_accounts = Burn {
+            mint: ctx.accounts.vault_token_mint_address.to_account_info(),
+            to: ctx.accounts.user_vault_token_account.to_account_info(),
+            authority: ctx.accounts.user_signer.to_account_info(),
+        };
+        let cpi_program = ctx.accounts.token_program.clone();
+        let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
+        token::burn(cpi_ctx, amount)?;
+
+        msg!("withdraw raydium");
         let accounts = [
             ctx.accounts.raydium_pool_id.clone(),
             ctx.accounts.raydium_pool_authority.clone(),
-            ctx.accounts.user_info_account.clone(),
-            ctx.accounts.user_owner.clone(),
-            ctx.accounts.user_lp_token_account.to_account_info(),
+            ctx.accounts.vault_user_info_account.clone(),
+            ctx.accounts.vault_signer.clone(),
+            ctx.accounts.vault_lp_token_account.to_account_info(),
             ctx.accounts.raydium_lp_token_account.to_account_info(),
-            ctx.accounts.user_reward_token_account.to_account_info(),
+            ctx.accounts.vault_reward_token_account.to_account_info(),
             ctx.accounts.raydium_reward_token_account.to_account_info(),
             ctx.accounts.clock.to_account_info(),
             ctx.accounts.token_program.to_account_info(),
-            ctx.accounts.user_reward_token_account_b.to_account_info(),
+            ctx.accounts.vault_reward_token_account_b.to_account_info(),
             ctx.accounts
                 .raydium_reward_token_account_b
                 .to_account_info(),
@@ -180,8 +201,8 @@ pub mod new_vault {
         let account_metas = accounts
             .iter()
             .map(|acc| {
-                if acc.key == *signer {
-                    AccountMeta::new(*acc.key, true)
+                if acc.key == ctx.accounts.vault_signer.key {
+                    AccountMeta::new_readonly(*acc.key, true)
                 } else if acc.key == ctx.accounts.clock.to_account_info().key {
                     AccountMeta::new_readonly(*acc.key, false)
                 } else {
@@ -189,16 +210,38 @@ pub mod new_vault {
                 }
             })
             .collect::<Vec<_>>();
+        let seeds = &[
+            ctx.accounts.vault_account.to_account_info().key.as_ref(),
+            &[ctx.accounts.vault_account.nonce],
+        ];
+        let signer = &[&seeds[..]];
         let ix = Instruction::new_with_borsh(
             *ctx.accounts.raydium_program.key,
-            &WithdrawData {
+            &DepositData {
                 instruction: 2,
-                amount,
+                amount: receive_amount,
             },
             account_metas,
         );
         msg!("invoking raydium");
-        invoke(&ix, &accounts)?;
+        let res = invoke_signed(&ix, &accounts, signer)?;
+        msg!("{:?}", res);
+
+        // transfer LP back to user
+        let seeds = &[
+            ctx.accounts.vault_account.to_account_info().key.as_ref(),
+            &[vault_account.nonce],
+        ];
+        let signer = &[&seeds[..]];
+        let cpi_accounts = Transfer {
+            from: ctx.accounts.vault_lp_token_account.to_account_info(),
+            to: ctx.accounts.user_lp_token_account.to_account_info(),
+            authority: ctx.accounts.vault_signer.to_account_info(),
+        };
+        let cpi_program = ctx.accounts.token_program.clone();
+        let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
+        token::transfer(cpi_ctx, receive_amount)?;
+
         Ok(())
     }
 }
@@ -306,18 +349,32 @@ pub struct DepositData {
 }
 
 #[derive(Accounts)]
-pub struct RaydiumWithdraw<'info> {
-    // user
+pub struct Withdraw<'info> {
+    // vault
+    pub vault_account: ProgramAccount<'info, VaultAccount>,
+    #[account(seeds = [vault_account.to_account_info().key.as_ref(), &[vault_account.nonce]])]
+    pub vault_signer: AccountInfo<'info>,
+    #[account(
+        mut,
+        "vault_token_mint_address.mint_authority == COption::Some(*vault_signer.key)",
+        "vault_account.vault_token_mint_address == *vault_token_mint_address.to_account_info().key"
+    )]
+    pub vault_token_mint_address: CpiAccount<'info, Mint>,
     #[account(mut)]
-    pub user_info_account: AccountInfo<'info>,
+    pub vault_user_info_account: AccountInfo<'info>,
+    #[account(mut)]
+    pub vault_lp_token_account: CpiAccount<'info, TokenAccount>,
+    #[account(mut)]
+    pub vault_reward_token_account: CpiAccount<'info, TokenAccount>,
+    #[account(mut)]
+    pub vault_reward_token_account_b: CpiAccount<'info, TokenAccount>,
+    //user
     #[account(mut, signer)]
-    pub user_owner: AccountInfo<'info>,
-    #[account(mut)]
+    pub user_signer: AccountInfo<'info>,
+    #[account(mut, "user_lp_token_account.owner == *user_signer.key")]
     pub user_lp_token_account: CpiAccount<'info, TokenAccount>,
-    #[account(mut)]
-    pub user_reward_token_account: CpiAccount<'info, TokenAccount>,
-    #[account(mut)]
-    pub user_reward_token_account_b: CpiAccount<'info, TokenAccount>,
+    #[account(mut, "user_vault_token_account.owner == *user_signer.key")]
+    pub user_vault_token_account: CpiAccount<'info, TokenAccount>,
     // raydium
     pub raydium_program: AccountInfo<'info>,
     #[account(mut)]
