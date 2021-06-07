@@ -6,6 +6,10 @@ import EventEmitter from "eventemitter3";
 import { useConnection, useConnectionConfig } from "./connection";
 import { Provider } from "../models";
 import { getTokenAccounts, TokenAccounts } from "../utils/wallet";
+import {
+  notifyError,
+  notifyInfo,
+} from "../components/ui/notification/notification";
 
 export interface WalletAdapter extends EventEmitter {
   publicKey: PublicKey;
@@ -56,6 +60,15 @@ export const WalletProvider = ({ children = null as any }) => {
     return keyToDisplay;
   };
 
+  const updateTokenAccount = async () => {
+    try {
+      const tokenAcc = await getTokenAccounts(connection, wallet);
+      setTokenAccounts(tokenAcc);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const connectWallet = useCallback(
     async (providerURL: string) => {
       const newWallet = new Wallet(providerURL, endpoint);
@@ -93,14 +106,9 @@ export const WalletProvider = ({ children = null as any }) => {
             )}`
           : walletPublicKey;
       setDisplayKey(keyToDisplay);
-      try {
-        const tokenAcc = await getTokenAccounts(connection, wallet);
-        setTokenAccounts(tokenAcc);
-      } catch (err) {
-        console.error(err);
-      }
+      await updateTokenAccount();
       // notification
-      alert(`Connect to wallet ${keyToDisplay}`);
+      notifyInfo(`Connect to wallet ${keyToDisplay}`);
     });
 
     wallet.on("disconnect", () => {
@@ -108,7 +116,7 @@ export const WalletProvider = ({ children = null as any }) => {
       setDisplayKey("");
       setTokenAccounts({});
       setIsWalletSelected(false);
-      alert("Disconnected from wallet");
+      notifyInfo("Disconnected from wallet");
     });
   }, [wallet]);
 

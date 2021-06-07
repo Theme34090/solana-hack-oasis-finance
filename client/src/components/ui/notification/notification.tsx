@@ -15,9 +15,12 @@ const Notification: React.FC = () => {
   );
 };
 
-export const notifyInfo = (): void => {
-  toast.info(<Message message="Transaction has been sent" />, {
-    autoClose: false, // 10s
+export const notifyInfo = (message?: string): void => {
+  if (!message) {
+    message = "Transaction has been sent";
+  }
+  toast.info(<Message message={message} />, {
+    autoClose: 5000, // 10s
     pauseOnHover: false,
     hideProgressBar: true,
   });
@@ -27,16 +30,19 @@ export const notifySuccess = (txId: string) => {
   toast.success(
     <Message message="Transaction has been confirmed" txId={txId} />,
     {
-      autoClose: false, // 10s
+      autoClose: 10000, // 10s
       pauseOnHover: false,
       hideProgressBar: true,
     }
   );
 };
 
-export const notifyError = () => {
-  toast.error(<Message message="Transaction failed" />, {
-    autoClose: false, // 10s
+export const notifyError = (message?: string) => {
+  if (!message) {
+    message = "Transaction failed";
+  }
+  toast.error(<Message message={message} />, {
+    autoClose: 5000, // 10s
     pauseOnHover: false,
     hideProgressBar: true,
   });

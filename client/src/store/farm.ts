@@ -1,9 +1,8 @@
 import { Connection, PublicKey } from "@solana/web3.js";
 import { get, cloneDeep } from "lodash-es";
 import { getFarmByPoolId } from "../utils/farms";
-import { STAKE_PROGRAM_ID } from "../utils/ids";
 import { lt, TokenAmount } from "../utils/safe-math";
-import { USER_STAKE_INFO_ACCOUNT_LAYOUT_V4 } from "../utils/stake";
+import { USER_STAKE_INFO_ACCOUNT_LAYOUT_V4 } from "../utils/layouts";
 import { getFilterProgramAccounts } from "../utils/web3";
 
 

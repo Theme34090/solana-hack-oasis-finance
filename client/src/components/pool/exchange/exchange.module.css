@@ -17,19 +17,19 @@
 }
 .InputWrapper {
   display: flex;
-  border: 1px solid white;
+  /* border: 1px solid #568b56; */
   padding: 0.25rem;
   border-radius: 0.25rem;
   align-items: center;
   justify-content: space-around;
-  background: white;
+  background: #beecbe;
 }
 
 .Expanded {
   display: flex;
   flex-direction: column;
   border-radius: 0.4rem;
-  background-color: rgb(26, 26, 26);
+  background-color: #1d791d;
   padding: 1rem 1rem;
   margin: 0 2rem;
   justify-content: space-evenly;

@@ -1,109 +1,16 @@
 import * as anchor from "@project-serum/anchor";
+import { TokenInstructions } from "@project-serum/serum";
 import * as spl from "@solana/spl-token";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
-// @ts-ignore
-import { struct } from "buffer-layout";
-import { publicKey, str, u64, u8 } from "@project-serum/borsh";
+import { Connection } from "@solana/web3.js";
+
+
 import { commitment } from "./web3";
 import { FarmInfo } from "./farms";
-import { Connection, Keypair } from "@solana/web3.js";
-
-import { initializeAccount } from '@project-serum/serum/lib/token-instructions'
-import { ACCOUNT_LAYOUT } from "./layouts";
 import { TokenAmount } from "./safe-math";
-import idl from "./ray.json";
-import { TokenInstructions } from "@project-serum/serum";
-import { min } from "superstruct";
+import idl from "./idl.json";
 
 const SOL_HACK_PROGRAM_ID = "HWLDk7fhugF9KpDpXjx3oggDeGYxsEwnJJGokuGQksMc"
-// export function createTokenAccountIfnotExists(){
-//     const a = new spl.Token()
-// }
-
-const USER_STAKE_INFO_ACCOUNT_LAYOUT_V4 = struct([
-    u64("state"),
-    publicKey("poolId"),
-    publicKey("stakerOwner"),
-    u64("depositBalance"),
-    u64("rewardDebt"),
-    u64("rewardDebtB"),
-]);
-
-
-export async function createTokenAccountIfNotExists(
-    provider: anchor.Provider,
-    account: string | undefined | null,
-    owner: anchor.web3.PublicKey,
-    mintAddress: string,
-    lamports: number | null,
-
-    instructions: anchor.web3.TransactionInstruction[]
-) {
-    let publicKey;
-
-    if (account) {
-        publicKey = new anchor.web3.PublicKey(account);
-    } else {
-        publicKey = await createProgramAccountIfNotExists(
-            provider,
-            account,
-            owner,
-            TOKEN_PROGRAM_ID,
-            lamports,
-            ACCOUNT_LAYOUT,
-            instructions,
-        );
-
-        instructions.push(
-            initializeAccount({
-                account: publicKey,
-                mint: new anchor.web3.PublicKey(mintAddress),
-                owner,
-            })
-        )
-    }
-
-    return publicKey;
-}
-
-
-
-export async function createProgramAccountIfNotExists(
-    provider: anchor.Provider,
-    account: string | undefined | null,
-    owner: anchor.web3.PublicKey,
-    programId: anchor.web3.PublicKey,
-    lamports: number | null,
-    layout: any,
-
-    instructions: anchor.web3.TransactionInstruction[]
-) {
-    let publicKey;
-
-    if (account) {
-        publicKey = new anchor.web3.PublicKey(account);
-    } else {
-        const newAccount = anchor.web3.Keypair.generate();
-        publicKey = newAccount.publicKey;
-
-
-        const ix = anchor.web3.SystemProgram.createAccount({
-            fromPubkey: provider.wallet.publicKey,
-            newAccountPubkey: publicKey,
-            space: layout.span,
-            lamports: lamports ?? (await provider.connection.getMinimumBalanceForRentExemption(
-                layout.span
-            )),
-            programId,
-        });
-
-        instructions.push(ix);
-
-    }
-
-    return publicKey;
-}
-
 
 const VAULT_ACCOUNT = "6DVVaFe94nHdRwpDtj7hcb6GBHDZE19Ru3DrD9kN9hCa"
 const VAULT_SIGNER = "AQ3MAygTd4yn85xpaP9Y6d3dA7up5JLYXoc8kYgET3Th"
@@ -172,7 +79,6 @@ export async function deposit(
 
     const RAYDIUM_PROGRAM_ID = new anchor.web3.PublicKey(farmInfo.programId);
 
-    let instructions: anchor.web3.TransactionInstruction[] = [];
 
     const programId = new anchor.web3.PublicKey(
         SOL_HACK_PROGRAM_ID
@@ -184,14 +90,6 @@ export async function deposit(
         provider
     );
 
-    // let userVaultAccount = await createTokenAccountIfNotExists(
-    //     provider,
-    //     vaultAccount,
-    //     wallet.publicKey,
-    //     VAULT_TOKEN_MINT_ADDRESS,
-    //     null,
-    //     instructions,
-    // );
     let userVaultAccount;
     if (vaultAccount) {
         userVaultAccount = new anchor.web3.PublicKey(vaultAccount);
@@ -202,9 +100,6 @@ export async function deposit(
             owner,
         )
     }
-
-
-
 
     const value = new TokenAmount(amount, farmInfo.lp.decimals, false).wei.toNumber()
 
@@ -272,9 +167,6 @@ export async function withdraw(
     );
 
 
-
-
-
     const value = new TokenAmount(amount, farmInfo.lp.decimals, false).wei.toNumber()
 
     return program.rpc.withdraw(new anchor.BN(value), {
@@ -304,6 +196,4 @@ export async function withdraw(
         },
 
     })
-
-
 }

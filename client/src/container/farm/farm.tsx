@@ -3,44 +3,27 @@ import { cloneDeep, get } from "lodash-es";
 
 import classes from "./farm.module.css";
 import { useWallet } from "../../store/wallet";
-import {
-  FarmInfo,
-  FARMS,
-  getFarmByLpMintAddress,
-  getFarmByPoolId,
-} from "../../utils/farms";
+import { FarmInfo, FARMS, getFarmByPoolId } from "../../utils/farms";
 
 import { PoolItem, PoolHeader } from "../../components/pool/pool";
 import Switch from "../../components/ui/switch/switch";
 import { TokenAmount } from "../../utils/safe-math";
 import { useConnection } from "../../store/connection";
-import { requestInfos } from "../../store/liquidity";
-import { getStakeAccounts, updateFarms } from "../../store/farm";
-import { deposit, depositV4, withdrawV4 } from "../../utils/stake";
-import { confirmTransaction } from "../../utils/transaction";
+import { getStakeAccounts } from "../../store/farm";
 import { StakeAccounts } from "../../store/farm";
 import LoadingSpinner from "../../components/ui/loading-spinner/loading-spinner";
-import { getFarmRewardAccount } from "../../utils/farms";
 
 import {
   notifyError,
   notifyInfo,
   notifySuccess,
 } from "../../components/ui/notification/notification";
-import { getPrices } from "../../store/price";
-import { LIQUIDITY_POOLS } from "../../utils/pools";
-import { updateFarmV2 } from "./user";
 
-import {
-  deposit as depositAnchor,
-  withdraw as withdrawAnchor,
-} from "../../utils/raydium";
+import * as raydium from "../../utils/raydium";
 import { VAULTS } from "../../utils/vault";
 
 interface FarmProps {}
 
-// const DEFAULT_FARM = cloneDeep(FARMS[0])
-// const DEFAULT_LP = cloneDeep(FARMS[0].lp)
 const Farm: React.FC<FarmProps> = () => {
   const connection = useConnection();
   const { tokenAccounts, wallet, connected } = useWallet();
@@ -51,9 +34,6 @@ const Farm: React.FC<FarmProps> = () => {
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  // TODO: clean up farm state management
-  const [showStakeModal, setShowStakeModal] = useState<boolean>(false);
-
   const toggleStakedModeHandler = () => {
     setIsStakedMode((prevState) => !prevState);
   };
@@ -62,34 +42,19 @@ const Farm: React.FC<FarmProps> = () => {
     const balance = get(tokenAccounts, `${mintAddress}.balance`) as TokenAmount;
     return balance ? balance.fixed() : "0.000000";
   };
-  // TODO: clean up farm state management
-  // const selectFarmHandler = (farm: FarmInfo) => {
-  //   setCurrentFarm(farm);
-  // };
 
-  // };
+  const getDepositBalance = (poolId: string) => {
+    const balance = get(stakeAccounts, `${poolId}.depositBalance`);
+    // @ts-ignore
+    return balance ? balance.fixed() : "0.000000";
+  };
 
-  // stake lp
-  // const stakeLP = async (farm: FarmInfo, amount: string) => {
   const stakeLP = async (currentFarm: FarmInfo, amount: string) => {
     const vault = VAULTS[0];
     const lpAccount = get(
       tokenAccounts,
       `${currentFarm.lp.mintAddress}.tokenAccountAddress`
     );
-    // const rewardAccount = get(
-    //   tokenAccounts,
-    //   `${currentFarm.reward.mintAddress}.tokenAccountAddress`
-    // );
-    // const rewardAccountB = get(
-    //   tokenAccounts,
-    //   `${currentFarm.rewardB!.mintAddress}.tokenAccountAddress`
-    // );
-
-    // const infoAccount = get(
-    //   stakeAccounts,
-    //   `${currentFarm.poolId}.stakeAccountAddress`
-    // );
 
     const userVaultAccount = get(
       tokenAccounts,
@@ -97,13 +62,11 @@ const Farm: React.FC<FarmProps> = () => {
     );
 
     console.log("LpAccount", lpAccount);
-    // // console.log("rewardAccount", rewardAccount);
-    // // console.log("rewardAccountB", rewardAccountB);
     console.log("vaultAccount", userVaultAccount);
 
     try {
       notifyInfo();
-      const txId = await depositAnchor(
+      const txId = await raydium.deposit(
         connection,
         wallet,
         currentFarm,
@@ -111,39 +74,19 @@ const Farm: React.FC<FarmProps> = () => {
         userVaultAccount,
         amount
       );
-      // const txId = await InitializeVault(connection, wallet, currentFarm);
       notifySuccess(txId);
     } catch (err) {
       console.log(err);
       notifyError();
     }
-
-    // // console.log("Tx :", tx);
-    // console.log("txId : ", txId);
-    // notifyInfo(txId);
-    // confirmTransaction(txId, connection);
   };
 
   const withdraw = async (currentFarm: FarmInfo, amount: string) => {
-    console.log("withdraw....");
     const vault = VAULTS[0];
     const lpAccount = get(
       tokenAccounts,
       `${currentFarm.lp.mintAddress}.tokenAccountAddress`
     );
-    // const rewardAccount = get(
-    //   tokenAccounts,
-    //   `${farm.reward.mintAddress}.tokenAccountAddress`
-    // );
-    // const rewardAccountB = get(
-    //   tokenAccounts,
-    //   `${farm.rewardB!.mintAddress}.tokenAccountAddress`
-    // );
-
-    // const infoAccount = get(
-    //   stakeAccounts,
-    //   `${farm.poolId}.stakeAccountAddress`
-    // );
     const userVaultAccount = get(
       tokenAccounts,
       `${vault.vaultTokenMintAddress}.tokenAccountAddress`
@@ -151,7 +94,7 @@ const Farm: React.FC<FarmProps> = () => {
 
     try {
       notifyInfo();
-      const txId = await withdrawAnchor(
+      const txId = await raydium.withdraw(
         connection,
         wallet,
         currentFarm,
@@ -164,7 +107,6 @@ const Farm: React.FC<FarmProps> = () => {
       console.log(err);
       notifyError();
     }
-    // console.log("txId : ", txId);
   };
 
   const updateFarm = async () => {
@@ -179,7 +121,6 @@ const Farm: React.FC<FarmProps> = () => {
     // console.log("farm ", farms);
 
     const stakeAccounts = await getStakeAccounts(connection, wallet, connected);
-    console.log("stake account ", stakeAccounts);
 
     // const price = await getPrices();
     // console.log("price", price);
@@ -226,6 +167,7 @@ const Farm: React.FC<FarmProps> = () => {
       symbol={farm.name}
       mintA={farm.lp.coin.mintAddress}
       mintB={farm.lp.pc.mintAddress}
+      depositBalance={getDepositBalance(farm.poolId)}
       walletBalance={getBalance(farm.lp.mintAddress)}
       deposit={stakeLP.bind(this, farm)}
       withdraw={withdraw.bind(this, farm)}
@@ -243,8 +185,6 @@ const Farm: React.FC<FarmProps> = () => {
         {pool}
       </div>
       {isLoading ? <LoadingSpinner /> : null}
-      {/* <button onClick={stakeLP}>STAKE LP</button> */}
-      {/* <button onClick={withDraw}>WITHDRAW LP</button> */}
     </div>
   );
 };

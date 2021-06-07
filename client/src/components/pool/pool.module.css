@@ -15,21 +15,23 @@
   height: auto;
   font-family: inherit;
   font-size: 0.6rem;
-  font-weight: bold;
+  /* font-weight: bold; */
   text-align: center;
 }
 
 .Selected {
-  background-color: black;
+  background-color: #025f02;
   border: 1px solid #ccc;
   border-radius: 0.25rem;
 }
 
 .TableRowHeader {
   border-bottom: 1px solid black;
-  font-size: 0.5rem;
+  font-size: 0.8rem;
   padding-bottom: 0.2rem;
   text-align: center;
+  font-weight: bold;
+  color: #057fd1;
 }
 
 .TableRowAsset {
@@ -39,6 +41,11 @@
 }
 
 .TableRowCell {
+  color: #057fd1;
+}
+
+.Selected .TableRowCell {
+  color: white;
 }
 
 .PoolItem {
@@ -56,10 +63,14 @@
 }
 
 .ArrowDown {
-  border: 0.2rem solid white;
+  border: 0.2rem solid #057fd1;
   border-width: 0 3px 3px 0;
   display: inline-block;
   padding: 3px;
   transform: rotate(45deg);
   -webkit-transform: rotate(45deg);
+}
+
+.Selected .ArrowDown {
+  border-color: white;
 }

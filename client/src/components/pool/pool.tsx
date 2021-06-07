@@ -10,12 +10,14 @@ type PoolItemProps = {
   mintA: string;
   mintB: string;
   walletBalance: string;
+  depositBalance: string;
   deposit: (amount: string) => any;
   withdraw: (amount: string) => any;
 };
 
 export const PoolItem: React.FC<PoolItemProps> = ({
   walletBalance,
+  depositBalance,
   symbol,
   mintA,
   mintB,
@@ -31,7 +33,7 @@ export const PoolItem: React.FC<PoolItemProps> = ({
   return (
     <div className={selected ? classes.Selected : ""}>
       <div className={classes.TableRow}>
-        <div className={classes.TableRowAsset}>
+        <div className={`${classes.TableRowAsset} ${classes.TableRowCell} `}>
           <div className={classes.PoolItem}>
             <PoolIcon mintA={mintA} mintB={mintB} />
             <h4>
@@ -40,12 +42,12 @@ export const PoolItem: React.FC<PoolItemProps> = ({
             </h4>
           </div>
         </div>
-        <div className={classes.TableRolCell}>{walletBalance}</div>
-        <div className={classes.TableRolCell}>0.000000</div>
-        <div className={classes.TableRolCell}>0.10%</div>
-        <div className={classes.TableRolCell}>0.68%</div>
-        <div className={classes.TableRolCell}>42.19%</div>
-        <div className={classes.TableRolCell} onClick={toggleDropdownHandler}>
+        <div className={classes.TableRowCell}>{walletBalance}</div>
+        <div className={classes.TableRowCell}>{depositBalance}</div>
+        <div className={classes.TableRowCell}>0.10%</div>
+        <div className={classes.TableRowCell}>0.68%</div>
+        <div className={classes.TableRowCell}>42.19%</div>
+        <div className={classes.TableRowCell} onClick={toggleDropdownHandler}>
           <i className={classes.ArrowDown}></i>
         </div>
       </div>

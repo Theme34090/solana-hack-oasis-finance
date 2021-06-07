@@ -13,7 +13,7 @@ import { publicKey, u64 } from '@project-serum/borsh';
 import { createProgramAccountIfNotExist, createTokenAccountIfNotExist, sendTransaction } from './web3';
 import { TokenAmount } from './safe-math';
 import { SOL_HACK_PROGRAM_ID, TOKEN_PROGRAM_ID } from './ids';
-import { ACCOUNT_LAYOUT } from './layouts';
+import { ACCOUNT_LAYOUT, USER_STAKE_INFO_ACCOUNT_LAYOUT, USER_STAKE_INFO_ACCOUNT_LAYOUT_V4 } from './layouts';
 
 
 
@@ -469,19 +469,3 @@ export function withdrawInstructionV4(
     })
 }
 
-export const USER_STAKE_INFO_ACCOUNT_LAYOUT = struct([
-    u64('state'),
-    publicKey('poolId'),
-    publicKey('stakerOwner'),
-    u64('depositBalance'),
-    u64('rewardDebt')
-])
-
-export const USER_STAKE_INFO_ACCOUNT_LAYOUT_V4 = struct([
-    u64('state'),
-    publicKey('poolId'),
-    publicKey('stakerOwner'),
-    u64('depositBalance'),
-    u64('rewardDebt'),
-    u64('rewardDebtB')
-])
