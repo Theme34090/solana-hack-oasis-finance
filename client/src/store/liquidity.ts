@@ -56,8 +56,8 @@ export async function requestInfos(
 
     const ammAll = await getFilterProgramAccounts(
         conn,
-        new PublicKey(LIQUIDITY_POOL_PROGRAM_ID_V2),
-        // new PublicKey("9rpQHSyFVM1dkkHFQ2TtTzPEW7DVmEyPmN8wVniqJtuC"),
+        // new PublicKey(LIQUIDITY_POOL_PROGRAM_ID_V2),
+        new PublicKey("9rpQHSyFVM1dkkHFQ2TtTzPEW7DVmEyPmN8wVniqJtuC"),
         [
             {
                 dataSize: AMM_INFO_LAYOUT_V4.span
@@ -68,8 +68,8 @@ export async function requestInfos(
 
     const marketAll = await getFilterProgramAccounts(
         conn,
-        new PublicKey(SERUM_PROGRAM_ID_V3),
-        // new PublicKey("DESVgJVGajEgKGXhb6XmqDHGz3VjdgP7rEVESBgxmroY"),
+        // new PublicKey(SERUM_PROGRAM_ID_V3),
+        new PublicKey("DESVgJVGajEgKGXhb6XmqDHGz3VjdgP7rEVESBgxmroY"),
         [
             {
                 dataSize: _MARKET_STATE_LAYOUT_V2.span

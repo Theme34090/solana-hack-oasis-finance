@@ -72,10 +72,12 @@ impl Processor {
         max_coin_amount: u64,
         max_pc_amount: u64,
         fixed_from_coin: u64,
-        _program_id: &Pubkey,
+        program_id: &Pubkey,
     ) -> ProgramResult {
         let account_info_iter = &mut accounts.iter();
 
+
+        
         let account_metas = vec![
             // token program
             AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
@@ -104,8 +106,15 @@ impl Processor {
             // user owner 
             AccountMeta::new(*next_account_info(account_info_iter)?.key, true),
         ];
-        // invoke(instruction: &Instruction, account_infos: &[AccountInfo]);
 
+        // include program id in account meta
+        // let acc = AccountMeta::new(*program_id, false);
+
+        
+        
+
+        // invoke(instruction: &Instruction, account_infos: &[AccountInfo]);
+        // let program_account = AccountInfo::from(program_id);
         let ray_program = next_account_info(account_info_iter)?;
         let ix = Instruction::new_with_bincode(
             *ray_program.key, 

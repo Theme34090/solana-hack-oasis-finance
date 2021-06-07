@@ -3,20 +3,29 @@ import { cloneDeep, get } from "lodash-es";
 
 import classes from "./farm.module.css";
 import { useWallet } from "../../store/wallet";
-import { FarmInfo, FARMS, getFarmByLpMintAddress } from "../../utils/farms";
+import {
+  FarmInfo,
+  FARMS,
+  getFarmByLpMintAddress,
+  getFarmByPoolId,
+} from "../../utils/farms";
 
 import { PoolItem, PoolHeader } from "../../components/pool/pool";
 import Switch from "../../components/ui/switch/switch";
 import { TokenAmount } from "../../utils/safe-math";
 import { useConnection } from "../../store/connection";
 import { requestInfos } from "../../store/liquidity";
-import { getStakeAccounts } from "../../store/farm";
+import { getStakeAccounts, updateFarms } from "../../store/farm";
 import { depositV4, withdrawV4 } from "../../utils/stake";
 import { confirmTransaction } from "../../utils/transaction";
 import { StakeAccounts } from "../../store/farm";
 import LoadingSpinner from "../../components/ui/loading-spinner/loading-spinner";
+import { getFarmRewardAccount } from "../../utils/farms";
 
 import { notifyInfo } from "../../components/ui/notification/notification";
+import { getPrices } from "../../store/price";
+import { LIQUIDITY_POOLS } from "../../utils/pools";
+import { updateFarmV2 } from "./user";
 
 interface FarmProps {}
 
@@ -132,21 +141,22 @@ const Farm: React.FC<FarmProps> = () => {
   const updateFarm = async () => {
     console.log("update farm");
     setIsLoading(true);
-    const farm = FARMS[0];
-    // getFarmRewardAccount(connection);
-    const liquidity = await requestInfos(connection);
-    console.log("liquidity", liquidity);
 
-    // const farms = await getFarmRewardAccount(connection);
+    const liquidity = await requestInfos(connection);
+    // console.log("liquidity", liquidity);
+    // lp mint address: 14Wp3dxYTQpRMMz3AW7f2XGBTdaBrf1qb2NKjAN3Tb13
+
+    const farms = await getFarmRewardAccount(connection);
     // console.log("farm ", farms);
 
     const stakeAccounts = await getStakeAccounts(connection, wallet, connected);
-    console.log("stake account ", stakeAccounts);
+    // console.log("stake account ", stakeAccounts);
 
     // const price = await getPrices();
     // console.log("price", price);
+    const price = { TEST1: 173.5, TEST2: 200.5 };
 
-    // const results = await updateFarms(farms, stakeAccounts, liquidity, price);
+    const results = await updateFarmV2(farms, stakeAccounts, liquidity, price);
     // console.log(results);
     // for (const res of results) {
     //   console.log(res.farmInfo.name);
@@ -172,8 +182,8 @@ const Farm: React.FC<FarmProps> = () => {
 
   if (isStakedMode) {
     let tmp: FarmInfo[] = [];
-    Object.keys(tokenAccounts).forEach((mintAddress) => {
-      const farm = getFarmByLpMintAddress(mintAddress);
+    Object.keys(stakeAccounts).forEach((poolId) => {
+      const farm = getFarmByPoolId(poolId);
       if (farm) {
         tmp.push(farm);
       }

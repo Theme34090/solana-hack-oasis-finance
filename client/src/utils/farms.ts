@@ -188,7 +188,46 @@ export async function getFarmRewardAccount(connection: Connection) {
 }
 
 
+export const FARMS: FarmInfo[] = [{
+    name: 'TEST-TEST',
+    lp: { ...LP_TOKENS['TEST_LPTOKEN'] },
+    reward: { ...TOKENS.TEST1 },
+    rewardB: { ...TOKENS.TEST2 },
+    isStake: false,
+
+    fusion: false,
+    legacy: true,
+    dual: false,
+    version: 5,
+    programId: "EcLzTrNg9V7qhcdyXDe2qjtPkiGzDM2UbdRaeaadU5r2",
+
+    poolId: '2Bsexc5j6vk4r9RhBYz2ufPrRWhumXQk6efXucqUKsyr',
+    poolAuthority: 'BxAtWJ4g6xguPsR9xNvXTK7EjuzwiKNbmKbhoXDZ3EsY',
+    poolLpTokenAccount: '83BEhzv7eV4HeJuuPtYmHkhTjZEpNpK83mHnHfX5Krwj', // lp vault
+    poolRewardTokenAccount: 'HVtAJ1uRiWJ7tNU9uqAzpPv14B3fN9SVEW9G4PtM77Ci', // reward vault B
+    poolRewardTokenAccountB: '39Ea6rMGGrsNmEsYToqQfEyNSqv7hcUJa646qBYLY4yq'
+}]
+
 export const _FARMS: FarmInfo[] = [
+    // {
+    //     name: 'TEST-TEST',
+    //     lp: { ...LP_TOKENS['TEST_LPTOKEN'] },
+    //     reward: { ...TOKENS.TEST1 },
+    //     rewardB: { ...TOKENS.TEST2 },
+    //     isStake: false,
+
+    //     fusion: false,
+    //     legacy: true,
+    //     dual: false,
+    //     version: 5,
+    //     programId: "EcLzTrNg9V7qhcdyXDe2qjtPkiGzDM2UbdRaeaadU5r2",
+
+    //     poolId: '2Bsexc5j6vk4r9RhBYz2ufPrRWhumXQk6efXucqUKsyr',
+    //     poolAuthority: 'BxAtWJ4g6xguPsR9xNvXTK7EjuzwiKNbmKbhoXDZ3EsY',
+    //     poolLpTokenAccount: '83BEhzv7eV4HeJuuPtYmHkhTjZEpNpK83mHnHfX5Krwj', // lp vault
+    //     poolRewardTokenAccount: 'HVtAJ1uRiWJ7tNU9uqAzpPv14B3fN9SVEW9G4PtM77Ci', // reward vault B
+    //     poolRewardTokenAccountB: '39Ea6rMGGrsNmEsYToqQfEyNSqv7hcUJa646qBYLY4yq'
+    // },
 
     // v3
     {
@@ -576,25 +615,6 @@ export const _FARMS: FarmInfo[] = [
         poolRewardTokenAccount: '4F9FaFewwsSF8Bsxukyj9NiEdPFQQ38dNKEDpZugYfdi', // reward vault A
         poolRewardTokenAccountB: '4tvLbnZEPZLuDf636DHEzrUxW8bDoZ5XyfVwk7ppDhbC' // reward vault B
     },
-    {
-        name: 'TEST-TEST',
-        lp: { ...LP_TOKENS['TEST_LPTOKEN'] },
-        reward: { ...TOKENS.TEST2 },
-        rewardB: { ...TOKENS.TEST2 },
-        isStake: false,
-
-        fusion: false,
-        legacy: true,
-        dual: false,
-        version: 5,
-        programId: STAKE_PROGRAM_ID,
-
-        poolId: '6d3vDYvk6VFVacEAGA1NDyxkQPRiNxXQRkeKpTPMJwe4',
-        poolAuthority: 'EcPc2KUDFMyPNAVPE6PsMkzneBFKNqRjUhfhyM2da9go',
-        poolLpTokenAccount: 'Gx4kLpTirc3Lr3GEYojYt1zUmsCcWajjBZTFVA3tzyDg', // lp vault
-        poolRewardTokenAccount: 'J144vsbPdLa9V6JpvGFH63bQw8QhQckUNe48YjPKwcZo', // reward vault B
-        poolRewardTokenAccountB: 'J144vsbPdLa9V6JpvGFH63bQw8QhQckUNe48YjPKwcZo'
-    },
     // {
     //     name: 'ALEPH-USDC',
     //     lp: { ...LP_TOKENS['ALEPH-USDC-V4'] },
@@ -617,25 +637,6 @@ export const _FARMS: FarmInfo[] = [
 ]
 
 
-export const FARMS: FarmInfo[] = [{
-    name: 'TEST-TEST',
-    lp: { ...LP_TOKENS['TEST_LPTOKEN'] },
-    reward: { ...TOKENS.TEST1 },
-    rewardB: { ...TOKENS.TEST2 },
-    isStake: false,
-
-    fusion: false,
-    legacy: true,
-    dual: false,
-    version: 5,
-    programId: "EcLzTrNg9V7qhcdyXDe2qjtPkiGzDM2UbdRaeaadU5r2",
-
-    poolId: '2Bsexc5j6vk4r9RhBYz2ufPrRWhumXQk6efXucqUKsyr',
-    poolAuthority: 'BxAtWJ4g6xguPsR9xNvXTK7EjuzwiKNbmKbhoXDZ3EsY',
-    poolLpTokenAccount: '83BEhzv7eV4HeJuuPtYmHkhTjZEpNpK83mHnHfX5Krwj', // lp vault
-    poolRewardTokenAccount: 'HVtAJ1uRiWJ7tNU9uqAzpPv14B3fN9SVEW9G4PtM77Ci', // reward vault B
-    poolRewardTokenAccountB: '39Ea6rMGGrsNmEsYToqQfEyNSqv7hcUJa646qBYLY4yq'
-}]
 
 // {
 //     name: 'ROPE-USDC',
