@@ -1,0 +1,1 @@
+/Users/palll/Documents/GitHub/solana-hack-contract/anchor/target/bpfel-unknown-unknown/release/libnew_vault.rlib: /Users/palll/Documents/GitHub/solana-hack-contract/anchor/programs/new-vault/src/lib.rs

@@ -1,0 +1,362 @@
+{
+  "version": "0.0.0",
+  "name": "new_vault",
+  "instructions": [
+    {
+      "name": "initializeVault",
+      "accounts": [
+        {
+          "name": "vaultAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "vaultSigner",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "vaultTokenMintAddress",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "vaultUserInfoAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "vaultLpTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "vaultRewardTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "vaultRewardTokenAccountB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "raydiumProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "raydiumPoolId",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "raydiumPoolAuthority",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "raydiumLpTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "raydiumRewardTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "raydiumRewardTokenAccountB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "clock",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "nonce",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "deposit",
+      "accounts": [
+        {
+          "name": "vaultAccount",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "vaultSigner",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "vaultTokenMintAddress",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "vaultUserInfoAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "vaultLpTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "vaultRewardTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "vaultRewardTokenAccountB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userSigner",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "userLpTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userVaultTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "raydiumProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "raydiumPoolId",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "raydiumPoolAuthority",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "raydiumLpTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "raydiumRewardTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "raydiumRewardTokenAccountB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "clock",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "withdraw",
+      "accounts": [
+        {
+          "name": "userInfoAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userOwner",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "userLpTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userRewardTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userRewardTokenAccountB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "raydiumProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "raydiumPoolId",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "raydiumPoolAuthority",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "raydiumLpTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "raydiumRewardTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "raydiumRewardTokenAccountB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "clock",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "VaultAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "nonce",
+            "type": "u8"
+          },
+          {
+            "name": "vaultTokenMintAddress",
+            "type": "publicKey"
+          },
+          {
+            "name": "vaultUserInfoAccount",
+            "type": "publicKey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RaydiumUserInfoAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "state",
+            "type": "u64"
+          },
+          {
+            "name": "poolId",
+            "type": "publicKey"
+          },
+          {
+            "name": "stakerOwner",
+            "type": "publicKey"
+          },
+          {
+            "name": "depositBalance",
+            "type": "u64"
+          },
+          {
+            "name": "rewardDebt",
+            "type": "u64"
+          },
+          {
+            "name": "rewardDebtB",
+            "type": "u64"
+          }
+        ]
+      }
+    }
+  ],
+  "types": [
+    {
+      "name": "DepositData",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "instruction",
+            "type": "u8"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "WithdrawData",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "instruction",
+            "type": "u8"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    }
+  ]
+}
