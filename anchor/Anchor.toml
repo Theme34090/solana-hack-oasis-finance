@@ -1,3 +1,7 @@
 [provider]
 cluster = "devnet"
-wallet = "/Users/theme/.config/solana/id.json"
+wallet = "/Users/chompk/WORK/others/solana/wallets/wallet1.json"
+
+# [[test.genesis]]
+# address = "DESVgJVGajEgKGXhb6XmqDHGz3VjdgP7rEVESBgxmroY"
+# program = "/Users/chompk/WORK/others/solana/anchor/examples/swap/deps/serum-dex/dex/target/deploy/serum_dex.so"

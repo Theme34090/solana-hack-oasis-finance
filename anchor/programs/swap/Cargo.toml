@@ -15,7 +15,9 @@ thiserror = "1.0.24"
 spl-token = {version = "3.1.1", features = ["no-entrypoint"]}
 arrayref = "0.3.6"
 anchor-lang = "0.7.0"
-anchor-spl = "0.7.0"
+serum_dex = "0.3.1"
+anchor-spl = "0.7.0" 
+# anchor-spl = { path = "../spl" }
 
 [lib]
 crate-type = ["cdylib", "lib"]

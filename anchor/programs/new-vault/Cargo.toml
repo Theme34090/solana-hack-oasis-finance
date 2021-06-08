@@ -17,3 +17,5 @@ default = []
 [dependencies]
 anchor-lang = "0.7.0"
 anchor-spl = "0.7.0"
+# anchor-spl = { path = "../spl" }
+arrayref = "0.3.6"

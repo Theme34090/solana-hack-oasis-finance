@@ -14,14 +14,15 @@ describe("test autocompound", () => {
     const provider = anchor.Provider.local("https://api.devnet.solana.com");
     anchor.setProvider(provider);
     
-    // const MARKET_ID = "3tsrPhKrWHWMB8RiPaqNxJ8GnBhZnDqL4wcu5EAMFeBe";  // COIN/X
+    const MARKET_ID = "3tsrPhKrWHWMB8RiPaqNxJ8GnBhZnDqL4wcu5EAMFeBe";  // COIN/X
     // const coinMint = "BEcGFQK1T1tSu3kvHC17cyCkQ5dvXqAJ7ExB2bb5Do7a";  // COIN
     // const pcMint = "FSRvxBNrQWX2Fy2qvKMLL3ryEdRtE3PUTZBcdKwASZTU";  // X
     const SWAP_PID = "B6URxgGFQP9dVDVEdhveLsszZrRjYKMV7VD6vEWfxmvV";
-    const SWAP_IDL = "target/idl/swap.json";
     const AUTOCOMPOUND_PID = "3uAa11DScJgik8H4HkCzbTWVJ4TUgTEcumczYR3HiMqg";
+    
+    const SWAP_IDL = "target/idl/swap.json";
     const AUTOCOMPOUND_IDL = "target/idl/autocompound.json";
-    const MARKET_ID = "9afBGdJBBCyVJcZHXjGg19d1VTej3JRQhHUr8eQBqSXE";  // COIN/X
+    // const MARKET_ID = "9afBGdJBBCyVJcZHXjGg19d1VTej3JRQhHUr8eQBqSXE";  // COIN/X, local
 
     const swap_program = new anchor.Program(
         JSON.parse(readFileSync(SWAP_IDL, "utf8")), 
@@ -44,23 +45,27 @@ describe("test autocompound", () => {
         const marketVaultSigner = vaultSigner;
         const openOrders = await generateOpenOrder(provider, market);
 
+        console.log("Account before swap:");
+        displayBalanceOnMarket(provider, market);
+
         await autocompound_program.rpc.autocompound(
             {
                 accounts: {
-                    vaultRewardTokenAccount: new PublicKey(baseTokenAddress),
+                    // vaultRewardTokenAccount: new PublicKey(quoteTokenAddress),
                     swapProgram: swap_program._programId,
                     market: market._decoded.ownAddress,
-                    openOrders: openOrders.publicKey,
                     requestQueue: market._decoded.requestQueue,
                     eventQueue: market._decoded.eventQueue,
                     bids: market._decoded.bids,
                     asks: market._decoded.asks,
-                    orderPayerTokenAccount: new PublicKey(quoteTokenAddress), //  user's token wallet holding `from` token
                     coinVault: market._decoded.baseVault,
                     pcVault: market._decoded.quoteVault,
                     vaultSigner: marketVaultSigner,
                     // user params
+                    openOrders: openOrders.publicKey,
+                    orderPayerTokenAccount: new PublicKey(baseTokenAddress), //  user's token wallet holding `from` token
                     coinWallet: new PublicKey(baseTokenAddress),  // user's token wallet holding `to` token
+                    // others
                     authority: provider.wallet.publicKey,
                     pcWallet: new PublicKey(quoteTokenAddress),
                     dexProgram: DEX_PID,
@@ -70,6 +75,9 @@ describe("test autocompound", () => {
                     
             });
         })
+
+        // console.log("Account after swap:");
+        // displayBalanceOnMarket(provider, market);
     })
 
 
@@ -181,4 +189,13 @@ const sendTransactions = async (transactionsAndSigners, wallet, connection) => {
 const sendAndConfirmRawTransaction = async (connection, raw, commitment = "recent") => {
     let tx = await connection.sendRawTransaction(raw, { skipPreflight: true });
     return await connection.confirmTransaction(tx, commitment);
+}
+
+
+//// DISPLAY ////
+const displayBalanceOnMarket = async (provider, market) => {
+    const baseVault = new PublicKey(await getVaultFromMint(provider, new PublicKey(market._decoded.baseMint)))
+    const quoteVault = new PublicKey(await getVaultFromMint(provider, new PublicKey(market._decoded.quoteMint)))
+    console.log("BASE Balance (" + market._decoded.baseMint + ") = " + (await serumCmn.getTokenAccount(provider, baseVault)).amount.toNumber())
+    console.log("QUOTE Balance (" + market._decoded.quoteMint + ") = " + (await serumCmn.getTokenAccount(provider, quoteVault)).amount.toNumber())
 }

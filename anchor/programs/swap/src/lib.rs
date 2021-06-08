@@ -14,6 +14,10 @@ use anchor_spl::dex::serum_dex::state::MarketState;
 use anchor_spl::token;
 use std::num::NonZeroU64;
 
+use solana_program::pubkey::{Pubkey};
+pub use solana_program;
+pub use serum_dex;
+
 #[program]
 pub mod swap {
     use super::*;
@@ -57,8 +61,8 @@ pub mod swap {
         let orderbook: OrderbookClient<'info> = (&*ctx.accounts).into();
         msg!("1");
         match side {
-            Side::Bid => orderbook.buy(amount, referral.clone())?,
-            Side::Ask => orderbook.sell(amount, referral.clone())?,
+            Side::Bid => orderbook.buy(amount, referral.clone(), &ctx.accounts.dex_program)?,
+            Side::Ask => orderbook.sell(amount, referral.clone(), &ctx.accounts.dex_program)?,
         };
         msg!("2");
         orderbook.settle(referral)?;
@@ -152,24 +156,30 @@ impl<'info> OrderbookClient<'info> {
     //
     // `base_amount` is the "native" amount of the base currency, i.e., token
     // amount including decimals.
-    fn sell(&self, base_amount: u64, referral: Option<AccountInfo<'info>>) -> ProgramResult {
+    fn sell(&self, base_amount: u64, referral: Option<AccountInfo<'info>>, dexPID: &AccountInfo<'info>) -> ProgramResult {
         msg!("sell");
         let limit_price = 1;
+        // msg!("Base_amount: {:?}", base_amount);
         let max_coin_qty = {
             // The loaded market must be dropped before CPI.
-            // msg!("{:?},  {:?}",&self.market.market, &dex::ID);
-            let market = MarketState::load(&self.market.market, &dex::ID)?;
-            msg!("market");
-            coin_lots(&market, base_amount)
+            let market = MarketState::load(&self.market.market, &*dexPID.key)?;
+            // msg!("Market: {:?}", market);
+            // msg!("Market coin lot size {:?}", market.coin_lot_size);
+            // let coin_lots_return = coin_lots(&market, base_amount);
+            let coin_lots_return = base_amount.checked_div(market.coin_lot_size).unwrap();
+            // msg!("Coinlots return value: {:?}", coin_lots_return);
+            coin_lots_return
         };
-        msg!("The loaded market must be dropped before CPI.");
+        // msg!("Logging max_coin_qty before: {:?}", max_coin_qty);
         let max_native_pc_qty = u64::MAX;
+        msg!("Calling order_cpi in sell");
         self.order_cpi(
             limit_price,
             max_coin_qty,
             max_native_pc_qty,
             Side::Ask,
             referral,
+            &dexPID
         )
     }
 
@@ -178,7 +188,7 @@ impl<'info> OrderbookClient<'info> {
     //
     // `quote_amount` is the "native" amount of the quote currency, i.e., token
     // amount including decimals.
-    fn buy(&self, quote_amount: u64, referral: Option<AccountInfo<'info>>) -> ProgramResult {
+    fn buy(&self, quote_amount: u64, referral: Option<AccountInfo<'info>>, dexPID: &AccountInfo<'info>) -> ProgramResult {
         msg!("buy");
         let limit_price = u64::MAX;
         let max_coin_qty = u64::MAX;
@@ -190,6 +200,7 @@ impl<'info> OrderbookClient<'info> {
             max_native_pc_qty,
             Side::Bid,
             referral,
+            &dexPID
         )
     }
 
@@ -208,6 +219,7 @@ impl<'info> OrderbookClient<'info> {
         max_native_pc_qty: u64,
         side: Side,
         referral: Option<AccountInfo<'info>>,
+        dexPID: &AccountInfo<'info>
     ) -> ProgramResult {
         // Client order id is only used for cancels. Not used here so hardcode.
         let client_order_id = 0;
@@ -230,21 +242,62 @@ impl<'info> OrderbookClient<'info> {
             token_program: self.token_program.clone(),
             rent: self.rent.clone(),
         };
-        let mut ctx = CpiContext::new(self.dex_program.clone(), dex_accs);
+        // let mut ctx = CpiContext::new(self.dex_program.clone(), dex_accs);
+        let mut ctx = CpiContext::new(dexPID.clone(), dex_accs);
         if let Some(referral) = referral {
             ctx = ctx.with_remaining_accounts(vec![referral]);
         }
-        dex::new_order_v3(
-            ctx,
-            side.into(),
+        msg!("Calling new_order_v3");
+        let use_side = match side {
+            Side::Bid => serum_dex::matching::Side::Bid,
+            Side::Ask => serum_dex::matching::Side::Bid,
+        };
+
+        let referral_accs = ctx.remaining_accounts.iter().next();
+        let ix = serum_dex::instruction::new_order(
+            ctx.accounts.market.key,
+            ctx.accounts.open_orders.key,
+            ctx.accounts.request_queue.key,
+            ctx.accounts.event_queue.key,
+            ctx.accounts.market_bids.key,
+            ctx.accounts.market_asks.key,
+            ctx.accounts.order_payer_token_account.key,
+            ctx.accounts.open_orders_authority.key,
+            ctx.accounts.coin_vault.key,
+            ctx.accounts.pc_vault.key,
+            ctx.accounts.token_program.key,
+            ctx.accounts.rent.key,
+            referral_accs.map(|r| r.key),
+            &*dexPID.key,
+            use_side,
             NonZeroU64::new(limit_price).unwrap(),
             NonZeroU64::new(max_coin_qty).unwrap(),
-            NonZeroU64::new(max_native_pc_qty).unwrap(),
-            SelfTradeBehavior::DecrementTake,
             OrderType::ImmediateOrCancel,
             client_order_id,
+            SelfTradeBehavior::DecrementTake,
             limit,
-        )
+            NonZeroU64::new(max_native_pc_qty).unwrap(),
+        )?;
+        msg!("Swap order ix created");
+        solana_program::program::invoke_signed(
+            &ix,
+            &ToAccountInfos::to_account_infos(&ctx),
+            ctx.signer_seeds,
+        )?;
+        msg!("Invoked signed!");
+        Ok(())
+
+        // dex::new_order_v3(
+        //     ctx,
+        //     side.into(),
+        //     NonZeroU64::new(limit_price).unwrap(),
+        //     NonZeroU64::new(max_coin_qty).unwrap(),
+        //     NonZeroU64::new(max_native_pc_qty).unwrap(),
+        //     SelfTradeBehavior::DecrementTake,
+        //     OrderType::ImmediateOrCancel,
+        //     client_order_id,
+        //     limit,
+        // )
     }
 
     fn settle(&self, referral: Option<AccountInfo<'info>>) -> ProgramResult {

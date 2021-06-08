@@ -16,8 +16,8 @@ pub mod autocompound {
     ) -> ProgramResult {
         msg!("init autocompound");
         // calculate before balance
-        let before_balance = ctx.accounts.vault_reward_token_account.amount;
-        msg!("before balance: {}", before_balance);
+        // let before_balance = ctx.accounts.vault_reward_token_account.amount;
+        // msg!("before balance: {}", before_balance);
         // deposit 0 to claim rewards
         
         // calculate after balance and compute diff (claimed reward)
@@ -25,8 +25,8 @@ pub mod autocompound {
         // TODO: 
         // swap half of claimed reward to another pair
         // swapAmount, minExpectedSwapAmount
-        let swapAmount = 100;
-        let minExpectedSwapAmount = 10;
+        let swapAmount = 2000000;
+        let minExpectedSwapAmount = 1000000;
         msg!("loading swap program");
         let swap_cpi_program = ctx.accounts.swap_program.clone();
         msg!("swap program do exists!");
@@ -70,8 +70,8 @@ pub mod autocompound {
 
 #[derive(Accounts)]
 pub struct AutoCompound<'info> {
-    #[account(mut)]
-    pub vault_reward_token_account: CpiAccount<'info, TokenAccount>,
+    // #[account(mut)]
+    // pub vault_reward_token_account: CpiAccount<'info, TokenAccount>,
     ////// SWAP PROGRAM //////
     #[account(mut)]
     pub swap_program: AccountInfo<'info>,
