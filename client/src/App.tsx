@@ -1,4 +1,4 @@
-import { Route } from "react-router-dom";
+import { Route, Switch, Redirect } from "react-router-dom";
 import Header from "./components/ui/header/header";
 import Liquidity from "./container/liquidity/liquidity";
 import Farm from "./container/farm/farm";
@@ -12,9 +12,12 @@ function App() {
   return (
     <div>
       <Header />
-      <Route path="/" exact component={Farm} />
-      <Route path="/lp" component={Liquidity} />
-      <Route path="/token" component={Token} />
+      <Switch>
+        <Route path="/" exact component={Farm} />
+        <Redirect to="/" />
+      </Switch>
+      {/* <Route path="/lp" component={Liquidity} />
+      <Route path="/token" component={Token} /> */}
       <Notification />
     </div>
   );

@@ -59,11 +59,11 @@ const Header: React.FC<HeaderProps> = (): JSX.Element => {
               Provide LP
             </NavLink>
           </li> */}
-          <li className={classes.MainNavItem}>
+          {/* <li className={classes.MainNavItem}>
             <NavLink activeClassName={classes.active} to="/token">
               VIEW TOKEN ACCOUNT
             </NavLink>
-          </li>
+          </li> */}
           <li className={classes.Dropdown}>
             <Button clicked={toggleDropDown} disabled={false}>
               {displayKey === "" ? "Connect to Wallet" : displayKey}
