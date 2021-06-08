@@ -245,7 +245,120 @@ export const FARMS: FarmInfo[] = [{
     vaultRewardTokenAccount: "6zzZeUVPj78U8KdoY4gFavJEJBgjqt3F4fHPHd3PLECi",
     vaultRewardTokenAccountB: "DbrG528NvAUqBnqvsCU1Trj8Ex4JqFudxtwFWQzxR1b3",
 
-}]
+},
+{
+    name: 'OAS-MK',
+    lp: { ...LP_TOKENS['TEST_LPTOKEN'] },
+    reward: { ...TOKENS.TEST1 },
+    rewardB: { ...TOKENS.TEST2 },
+    isStake: false,
+
+    fusion: false,
+    legacy: true,
+    dual: false,
+    version: 5,
+    programId: "EcLzTrNg9V7qhcdyXDe2qjtPkiGzDM2UbdRaeaadU5r2",
+
+    poolId: '2Bsexc5j6vk4r9RhBYz2ufPrRWhumXQk6efXucqUKsyr',
+    poolAuthority: 'BxAtWJ4g6xguPsR9xNvXTK7EjuzwiKNbmKbhoXDZ3EsY',
+    poolLpTokenAccount: '83BEhzv7eV4HeJuuPtYmHkhTjZEpNpK83mHnHfX5Krwj', // lp vault
+    poolRewardTokenAccount: 'HVtAJ1uRiWJ7tNU9uqAzpPv14B3fN9SVEW9G4PtM77Ci', // reward vault B
+    poolRewardTokenAccountB: '39Ea6rMGGrsNmEsYToqQfEyNSqv7hcUJa646qBYLY4yq',
+
+    vaultAccount: "6DVVaFe94nHdRwpDtj7hcb6GBHDZE19Ru3DrD9kN9hCa",
+    vaultSigner: "AQ3MAygTd4yn85xpaP9Y6d3dA7up5JLYXoc8kYgET3Th",
+    vaultTokenMintAddress: "2zNEXCccDy7231c37m92FZg63d5NYGfngG5szY7AfTyP",
+    vaultUserInfoAccount: "7Wa2qLXcnPYUxXtgHHsB2Sded9BmJXzrfovru77LuVvx",
+    vaultLpTokenAccount: "4y2jyuL8XmW61KTBQGrLLm6G4LJVkkr7RJKK6JE1KrGC",
+    vaultRewardTokenAccount: "6zzZeUVPj78U8KdoY4gFavJEJBgjqt3F4fHPHd3PLECi",
+    vaultRewardTokenAccountB: "DbrG528NvAUqBnqvsCU1Trj8Ex4JqFudxtwFWQzxR1b3",
+
+},
+{
+    name: 'OAS-MK',
+    lp: { ...LP_TOKENS['TEST_LPTOKEN'] },
+    reward: { ...TOKENS.TEST1 },
+    rewardB: { ...TOKENS.TEST2 },
+    isStake: false,
+
+    fusion: false,
+    legacy: true,
+    dual: false,
+    version: 5,
+    programId: "EcLzTrNg9V7qhcdyXDe2qjtPkiGzDM2UbdRaeaadU5r2",
+
+    poolId: '2Bsexc5j6vk4r9RhBYz2ufPrRWhumXQk6efXucqUKsyr',
+    poolAuthority: 'BxAtWJ4g6xguPsR9xNvXTK7EjuzwiKNbmKbhoXDZ3EsY',
+    poolLpTokenAccount: '83BEhzv7eV4HeJuuPtYmHkhTjZEpNpK83mHnHfX5Krwj', // lp vault
+    poolRewardTokenAccount: 'HVtAJ1uRiWJ7tNU9uqAzpPv14B3fN9SVEW9G4PtM77Ci', // reward vault B
+    poolRewardTokenAccountB: '39Ea6rMGGrsNmEsYToqQfEyNSqv7hcUJa646qBYLY4yq',
+
+    vaultAccount: "6DVVaFe94nHdRwpDtj7hcb6GBHDZE19Ru3DrD9kN9hCa",
+    vaultSigner: "AQ3MAygTd4yn85xpaP9Y6d3dA7up5JLYXoc8kYgET3Th",
+    vaultTokenMintAddress: "2zNEXCccDy7231c37m92FZg63d5NYGfngG5szY7AfTyP",
+    vaultUserInfoAccount: "7Wa2qLXcnPYUxXtgHHsB2Sded9BmJXzrfovru77LuVvx",
+    vaultLpTokenAccount: "4y2jyuL8XmW61KTBQGrLLm6G4LJVkkr7RJKK6JE1KrGC",
+    vaultRewardTokenAccount: "6zzZeUVPj78U8KdoY4gFavJEJBgjqt3F4fHPHd3PLECi",
+    vaultRewardTokenAccountB: "DbrG528NvAUqBnqvsCU1Trj8Ex4JqFudxtwFWQzxR1b3",
+
+},
+{
+    name: 'OAS-MK',
+    lp: { ...LP_TOKENS['TEST_LPTOKEN'] },
+    reward: { ...TOKENS.TEST1 },
+    rewardB: { ...TOKENS.TEST2 },
+    isStake: false,
+
+    fusion: false,
+    legacy: true,
+    dual: false,
+    version: 5,
+    programId: "EcLzTrNg9V7qhcdyXDe2qjtPkiGzDM2UbdRaeaadU5r2",
+
+    poolId: '2Bsexc5j6vk4r9RhBYz2ufPrRWhumXQk6efXucqUKsyr',
+    poolAuthority: 'BxAtWJ4g6xguPsR9xNvXTK7EjuzwiKNbmKbhoXDZ3EsY',
+    poolLpTokenAccount: '83BEhzv7eV4HeJuuPtYmHkhTjZEpNpK83mHnHfX5Krwj', // lp vault
+    poolRewardTokenAccount: 'HVtAJ1uRiWJ7tNU9uqAzpPv14B3fN9SVEW9G4PtM77Ci', // reward vault B
+    poolRewardTokenAccountB: '39Ea6rMGGrsNmEsYToqQfEyNSqv7hcUJa646qBYLY4yq',
+
+    vaultAccount: "6DVVaFe94nHdRwpDtj7hcb6GBHDZE19Ru3DrD9kN9hCa",
+    vaultSigner: "AQ3MAygTd4yn85xpaP9Y6d3dA7up5JLYXoc8kYgET3Th",
+    vaultTokenMintAddress: "2zNEXCccDy7231c37m92FZg63d5NYGfngG5szY7AfTyP",
+    vaultUserInfoAccount: "7Wa2qLXcnPYUxXtgHHsB2Sded9BmJXzrfovru77LuVvx",
+    vaultLpTokenAccount: "4y2jyuL8XmW61KTBQGrLLm6G4LJVkkr7RJKK6JE1KrGC",
+    vaultRewardTokenAccount: "6zzZeUVPj78U8KdoY4gFavJEJBgjqt3F4fHPHd3PLECi",
+    vaultRewardTokenAccountB: "DbrG528NvAUqBnqvsCU1Trj8Ex4JqFudxtwFWQzxR1b3",
+
+},
+{
+    name: 'OAS-MK',
+    lp: { ...LP_TOKENS['TEST_LPTOKEN'] },
+    reward: { ...TOKENS.TEST1 },
+    rewardB: { ...TOKENS.TEST2 },
+    isStake: false,
+
+    fusion: false,
+    legacy: true,
+    dual: false,
+    version: 5,
+    programId: "EcLzTrNg9V7qhcdyXDe2qjtPkiGzDM2UbdRaeaadU5r2",
+
+    poolId: '2Bsexc5j6vk4r9RhBYz2ufPrRWhumXQk6efXucqUKsyr',
+    poolAuthority: 'BxAtWJ4g6xguPsR9xNvXTK7EjuzwiKNbmKbhoXDZ3EsY',
+    poolLpTokenAccount: '83BEhzv7eV4HeJuuPtYmHkhTjZEpNpK83mHnHfX5Krwj', // lp vault
+    poolRewardTokenAccount: 'HVtAJ1uRiWJ7tNU9uqAzpPv14B3fN9SVEW9G4PtM77Ci', // reward vault B
+    poolRewardTokenAccountB: '39Ea6rMGGrsNmEsYToqQfEyNSqv7hcUJa646qBYLY4yq',
+
+    vaultAccount: "6DVVaFe94nHdRwpDtj7hcb6GBHDZE19Ru3DrD9kN9hCa",
+    vaultSigner: "AQ3MAygTd4yn85xpaP9Y6d3dA7up5JLYXoc8kYgET3Th",
+    vaultTokenMintAddress: "2zNEXCccDy7231c37m92FZg63d5NYGfngG5szY7AfTyP",
+    vaultUserInfoAccount: "7Wa2qLXcnPYUxXtgHHsB2Sded9BmJXzrfovru77LuVvx",
+    vaultLpTokenAccount: "4y2jyuL8XmW61KTBQGrLLm6G4LJVkkr7RJKK6JE1KrGC",
+    vaultRewardTokenAccount: "6zzZeUVPj78U8KdoY4gFavJEJBgjqt3F4fHPHd3PLECi",
+    vaultRewardTokenAccountB: "DbrG528NvAUqBnqvsCU1Trj8Ex4JqFudxtwFWQzxR1b3",
+
+},
+]
 
 export const _FARMS: _FarmInfo[] = [
     // {

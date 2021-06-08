@@ -9,7 +9,7 @@ import { PoolItem, PoolHeader } from "../../components/pool/pool";
 import Switch from "../../components/ui/switch/switch";
 import { TokenAmount } from "../../utils/safe-math";
 import { useConnection } from "../../store/connection";
-import { getStakeAccounts, updateFarms } from "../../store/farm";
+import { getStakeAccounts } from "../../store/farm";
 import { StakeAccounts } from "../../store/farm";
 import LoadingSpinner from "../../components/ui/loading-spinner/loading-spinner";
 

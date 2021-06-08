@@ -1,4 +1,5 @@
 // import { useConnectionConfig } from "../../../store/connection";
+import { useConnectionConfig } from "../../../store/connection";
 import { getTokenIcon } from "../../../utils/utils";
 
 type TokenIconProps = {
@@ -7,8 +8,8 @@ type TokenIconProps = {
 };
 
 const TokenIcon: React.FC<TokenIconProps> = ({ mintAddress, style }) => {
-  // const { env } = useConnectionConfig();
-  const icon = getTokenIcon("mainnet-beta", mintAddress);
+  const { env } = useConnectionConfig();
+  const icon = getTokenIcon(env, mintAddress);
 
   if (icon) {
     return (

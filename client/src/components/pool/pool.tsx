@@ -38,7 +38,7 @@ export const PoolItem: React.FC<PoolItemProps> = ({
             <PoolIcon mintA={mintA} mintB={mintB} />
             <h4>
               {symbol}
-              <p>TVL :</p>
+              <p>TVL : $3.67M</p>
             </h4>
           </div>
         </div>
