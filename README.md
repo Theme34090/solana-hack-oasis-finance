@@ -1,3 +1,3 @@
-# solana-escrow
+# Oasis Finance
 
-an implementation of an escrow on solana using [this guide](https://paulx.dev/2021/01/14/programming-on-solana-an-introduction)# solana-hack-contract
+Devnet program: 2QGo9WwyXbFzyCnrob9XuLbEwqxmNhn4a58w4BxZBer5

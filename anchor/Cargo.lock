@@ -22,15 +22,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6b2d54853319fd101b8dd81de382bcbf3e03410a64d8928bbee85a3e7dcde483"
 
 [[package]]
-name = "anchor"
-version = "0.1.0"
-dependencies = [
- "anchor-lang",
- "anchor-spl",
- "borsh 0.7.2",
-]
-
-[[package]]
 name = "anchor-attribute-access-control"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -799,15 +790,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ca3129af7b92a17112d59ad498c6f81eaf463253766b90396d39ea7a39d6613c"
 dependencies = [
  "rand_core",
-]
-
-[[package]]
-name = "raydium-test"
-version = "0.1.0"
-dependencies = [
- "anchor-lang",
- "anchor-spl",
- "borsh 0.7.2",
 ]
 
 [[package]]
