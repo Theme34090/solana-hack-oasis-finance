@@ -52,7 +52,7 @@ export interface Tokens {
 
 export const TOKENS: Tokens = {
     TEST1: {
-        symbol: 'TEST1',
+        symbol: 'OAS',
         name: 'TEST_TOKEN_1',
         mintAddress: 'BEcGFQK1T1tSu3kvHC17cyCkQ5dvXqAJ7ExB2bb5Do7a',
         decimals: 6,
@@ -60,7 +60,7 @@ export const TOKENS: Tokens = {
         showDefault: true
     },
     TEST2: {
-        symbol: 'TEST2',
+        symbol: 'MK',
         name: 'TEST_TOKEN_2',
         mintAddress: 'FSRvxBNrQWX2Fy2qvKMLL3ryEdRtE3PUTZBcdKwASZTU',
         decimals: 6,
@@ -492,7 +492,7 @@ export const LP_TOKENS: LPTokens = {
         pc: { ...TOKENS.TEST2 },
 
         mintAddress: '14Wp3dxYTQpRMMz3AW7f2XGBTdaBrf1qb2NKjAN3Tb13',
-        decimals: 0
+        decimals: 6
     },
     'RAY-WUSDT': {
         symbol: 'RAY-WUSDT',

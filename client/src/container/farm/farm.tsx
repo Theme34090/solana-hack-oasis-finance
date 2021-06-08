@@ -9,7 +9,7 @@ import { PoolItem, PoolHeader } from "../../components/pool/pool";
 import Switch from "../../components/ui/switch/switch";
 import { TokenAmount } from "../../utils/safe-math";
 import { useConnection } from "../../store/connection";
-import { getStakeAccounts } from "../../store/farm";
+import { getStakeAccounts, updateFarms } from "../../store/farm";
 import { StakeAccounts } from "../../store/farm";
 import LoadingSpinner from "../../components/ui/loading-spinner/loading-spinner";
 
@@ -26,7 +26,7 @@ interface FarmProps {}
 
 const Farm: React.FC<FarmProps> = () => {
   const connection = useConnection();
-  const { tokenAccounts, wallet, connected } = useWallet();
+  const { tokenAccounts, wallet, connected, updateTokenAccount } = useWallet();
 
   const [isStakedMode, setIsStakedMode] = useState<boolean>(false);
 
@@ -43,11 +43,18 @@ const Farm: React.FC<FarmProps> = () => {
     return balance ? balance.fixed() : "0.000000";
   };
 
-  const getDepositBalance = (poolId: string) => {
-    const balance = get(stakeAccounts, `${poolId}.depositBalance`);
-    // @ts-ignore
-    return balance ? balance.fixed() : "0.000000";
-  };
+  // const getMaxWithdraw = (poolId: string) => {
+  //   // @ts-ignore
+  //   const balance = get(
+  //     stakeAccounts,
+  //     `${poolId}.depositBalance`
+  //   ) as TokenAmount;
+  //   console.log(
+  //     "withdraw balance",
+  //     balance ? `${balance.fixed()}` : "0.000000"
+  //   );
+  //   return balance ? `${balance.fixed()}` : "0.000000";
+  // };
 
   const stakeLP = async (currentFarm: FarmInfo, amount: string) => {
     const vault = VAULTS[0];
@@ -75,6 +82,8 @@ const Farm: React.FC<FarmProps> = () => {
         amount
       );
       notifySuccess(txId);
+
+      await updateFarm();
     } catch (err) {
       console.log(err);
       notifyError();
@@ -82,14 +91,13 @@ const Farm: React.FC<FarmProps> = () => {
   };
 
   const withdraw = async (currentFarm: FarmInfo, amount: string) => {
-    const vault = VAULTS[0];
     const lpAccount = get(
       tokenAccounts,
       `${currentFarm.lp.mintAddress}.tokenAccountAddress`
     );
     const userVaultAccount = get(
       tokenAccounts,
-      `${vault.vaultTokenMintAddress}.tokenAccountAddress`
+      `${currentFarm.vaultTokenMintAddress}.tokenAccountAddress`
     );
 
     try {
@@ -103,6 +111,7 @@ const Farm: React.FC<FarmProps> = () => {
         amount
       );
       notifySuccess(txId);
+      await updateFarm();
     } catch (err) {
       console.log(err);
       notifyError();
@@ -121,6 +130,13 @@ const Farm: React.FC<FarmProps> = () => {
     // console.log("farm ", farms);
 
     const stakeAccounts = await getStakeAccounts(connection, wallet, connected);
+    await updateTokenAccount();
+
+    setStakeAccounts((prevState) => {
+      return { ...prevState, ...stakeAccounts };
+    });
+
+    setIsLoading(false);
 
     // const price = await getPrices();
     // console.log("price", price);
@@ -135,17 +151,10 @@ const Farm: React.FC<FarmProps> = () => {
     //   const deposit = (res.userInfo.depositBalance as TokenAmount).fixed();
     //   console.log("deposit :", deposit);
     // }
-
-    return stakeAccounts;
   };
 
   useEffect(() => {
-    updateFarm().then((stakeAccounts) => {
-      setIsLoading(false);
-      setStakeAccounts((prevState) => {
-        return { ...prevState, ...stakeAccounts };
-      });
-    });
+    updateFarm();
   }, [wallet, connected]);
 
   let farm = cloneDeep(FARMS);
@@ -167,7 +176,7 @@ const Farm: React.FC<FarmProps> = () => {
       symbol={farm.name}
       mintA={farm.lp.coin.mintAddress}
       mintB={farm.lp.pc.mintAddress}
-      depositBalance={getDepositBalance(farm.poolId)}
+      depositBalance={getBalance(farm.vaultTokenMintAddress)}
       walletBalance={getBalance(farm.lp.mintAddress)}
       deposit={stakeLP.bind(this, farm)}
       withdraw={withdraw.bind(this, farm)}
@@ -176,15 +185,20 @@ const Farm: React.FC<FarmProps> = () => {
 
   return (
     <div className={classes.Pool}>
-      <div className={classes.SwitchWrapper}>
-        <Switch clicked={toggleStakedModeHandler} />
-        <span className={classes.Text}>Show Staked</span>
-      </div>
-      <div className={classes.Table}>
-        <PoolHeader />
-        {pool}
-      </div>
-      {isLoading ? <LoadingSpinner /> : null}
+      {isLoading ? (
+        <LoadingSpinner />
+      ) : (
+        <>
+          <div className={classes.SwitchWrapper}>
+            <Switch clicked={toggleStakedModeHandler} />
+            <span className={classes.Text}>Show Staked</span>
+          </div>
+          <div className={classes.Table}>
+            <PoolHeader />
+            {pool}
+          </div>
+        </>
+      )}
     </div>
   );
 };

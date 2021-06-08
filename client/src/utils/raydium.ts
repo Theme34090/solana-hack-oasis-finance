@@ -101,7 +101,8 @@ export async function deposit(
         )
     }
 
-    const value = new TokenAmount(amount, farmInfo.lp.decimals, false).wei.toNumber()
+    const value = new TokenAmount(amount, farmInfo.lp.decimals, false).wei.toNumber();
+
 
 
     return program.rpc.deposit(new anchor.BN(value), {
@@ -167,7 +168,8 @@ export async function withdraw(
     );
 
 
-    const value = new TokenAmount(amount, farmInfo.lp.decimals, false).wei.toNumber()
+    // const value = new TokenAmount(amount, farmInfo.lp.decimals, false).wei.toNumber()
+    const value = +amount * Math.pow(10, farmInfo.lp.decimals);
 
     return program.rpc.withdraw(new anchor.BN(value), {
         accounts: {
