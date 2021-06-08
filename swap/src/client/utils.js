@@ -21,7 +21,7 @@ const DEX_PID = new PublicKey("DESVgJVGajEgKGXhb6XmqDHGz3VjdgP7rEVESBgxmroY");  
 
 // program
 // const idl = JSON.parse(require('fs').readFileSync('target/idl/swap.json', 'utf8'));
-const idl = JSON.parse(readFileSync("target/idl/swap.json", "utf8"));
+const idl = JSON.parse(readFileSync("../anchor/target/idl/swap.json", "utf8"));
 const programId = new PublicKey("2oTzdZ2xLfpKyPpGRf5hVw5VwovmWXpf6mBpt6MbYWPf");  // dev net
 // const programId = new PublicKey("2TvVLqjS3xU9aHJJ9bKJHmSnqemW5R2dSt8TY4UmUE2i");  // local net
 const program = new anchor.Program(idl, programId, provider)

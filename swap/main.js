@@ -89,17 +89,17 @@ const placeBidsAndAsks = async () => {
     console.log(asks);
 
     // place bids/asks
-    await placeBid(provider, market, 1.00, 15.1, 3000)
-    await placeBid(provider, market, 0.98, 17.4, 3000)
-    await placeBid(provider, market, 0.95, 21.2, 3000)
-    await placeBid(provider, market, 0.93, 25.4, 3000)
-    await placeBid(provider, market, 0.90, 30.0, 3000)
+    // await placeBid(provider, market, 1.00, 15.1, 3000)
+    // await placeBid(provider, market, 0.98, 17.4, 3000)
+    // await placeBid(provider, market, 0.95, 21.2, 3000)
+    // await placeBid(provider, market, 0.93, 25.4, 3000)
+    // await placeBid(provider, market, 0.90, 30.0, 3000)
 
-    await placeAsk(provider, market, 1.05, 21.1, 3000)
-    await placeAsk(provider, market, 1.10, 35.5, 3000)
-    await placeAsk(provider, market, 1.13, 45.2, 3000)
-    await placeAsk(provider, market, 1.15, 75.4, 3000)
-    await placeAsk(provider, market, 1.20, 101.2, 3000)
+    // await placeAsk(provider, market, 1.05, 21.1, 3000)
+    // await placeAsk(provider, market, 1.10, 35.5, 3000)
+    // await placeAsk(provider, market, 1.13, 45.2, 3000)
+    // await placeAsk(provider, market, 1.15, 75.4, 3000)
+    // await placeAsk(provider, market, 1.20, 101.2, 3000)
 
     console.log("BIDS");
     console.log(bids);
@@ -112,4 +112,4 @@ const main = async () => {
     displayBalanceOnMarket(provider, market);
 }
 
-executeSwap();
+placeBidsAndAsks();

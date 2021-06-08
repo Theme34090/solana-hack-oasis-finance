@@ -22,7 +22,6 @@ pub mod autocompound {
         
         // calculate after balance and compute diff (claimed reward)
 
-        // TODO: 
         // swap half of claimed reward to another pair
         // swapAmount, minExpectedSwapAmount
         let swapAmount = 2000000;
