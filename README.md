@@ -3,7 +3,7 @@
 Auto compound on Solana blockchain with Raydium staking integration
 
 **Devnet program id**: 2QGo9WwyXbFzyCnrob9XuLbEwqxmNhn4a58w4BxZBer5
-**Client url**: https://oasis-solana-hack.herokuapp.com/
+**Client url**: https://solana-hack-oasis-finance.vercel.app/
 
 ## How to run
 
