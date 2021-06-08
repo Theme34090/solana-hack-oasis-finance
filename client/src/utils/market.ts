@@ -1,47 +1,22 @@
-import { ACCOUNT_LAYOUT, MINT_LAYOUT } from './layouts'
-import { transfer } from './swap'
+import { MINT_LAYOUT } from './layouts'
 import { LIQUIDITY_POOLS } from './pools'
 import BigNumber from 'bignumber.js'
 import {
-    Account,
     Connection,
     PublicKey,
-    SystemProgram,
-    Transaction,
-    SYSVAR_RENT_PUBKEY,
-    TransactionInstruction,
     Commitment,
     AccountInfo
 } from '@solana/web3.js'
 import {
     LIQUIDITY_POOL_PROGRAM_ID_V4,
     SERUM_PROGRAM_ID_V3,
-    TOKEN_PROGRAM_ID,
-    RENT_PROGRAM_ID,
-    SYSTEM_PROGRAM_ID
 } from './ids'
-// import {
-//     commitment,
-//     getMultipleAccounts,
-//     sendTransaction,
-//     createAmmAuthority,
-//     getMintDecimals,
-//     getFilteredTokenAccountsByOwner,
-//     createAmmId
-// } from './web3'
 // @ts-ignore
-import { struct, u8 } from 'buffer-layout'
-import { publicKey } from '@project-serum/borsh'
+import { struct } from 'buffer-layout'
 
 // import { AMM_INFO_LAYOUT_V4 } from '@/utils/liquidity'
 import { Market as MarketSerum, OpenOrders } from '@project-serum/serum'
 import { Orderbook } from '@project-serum/serum/lib/market.js'
-import {
-    closeAccount,
-    initializeAccount
-    // initializeMint
-    // encodeTokenInstructionData
-} from '@project-serum/serum/lib/token-instructions'
 import { TOKENS } from './tokens'
 import { assert } from 'console'
 import { findProgramAddress } from './web3'

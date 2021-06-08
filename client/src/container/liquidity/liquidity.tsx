@@ -7,10 +7,18 @@ import { addLiquidity, addLiquidityAnchor } from "../../utils/liquidity";
 import { TEST_POOL, TEST_LPTOKEN } from "../../utils/pools";
 import { confirmTransaction } from "../../utils/transaction";
 import { get } from "lodash-es";
+import { Transaction } from "@solana/web3.js";
 
 // https://github.com/solana-labs/token-list
 import styled from "styled-components";
-import { notifyInfo } from "../../components/ui/notification/notification";
+import {
+  notifyError,
+  notifyInfo,
+  notifySuccess,
+} from "../../components/ui/notification/notification";
+import { commitment, createTokenAccountIfNotExist } from "../../utils/web3";
+import * as anchor from "@project-serum/anchor";
+import { createTokenAccount } from "../../utils/raydium";
 
 const Form = styled.div`
   display: flex;
@@ -83,8 +91,27 @@ const Liquidity: React.FC = () => {
     );
 
     console.log("txId : ", txId);
-    notifyInfo(txId);
+    notifyInfo();
     confirmTransaction(txId, connection);
+  };
+
+  const createToken = async (mintAddress: string) => {
+    const provider = new anchor.Provider(connection, wallet, {
+      commitment: commitment,
+    });
+    anchor.setProvider(provider);
+
+    try {
+      notifyInfo();
+      const tx = await createTokenAccount(
+        provider,
+        new anchor.web3.PublicKey(mintAddress),
+        wallet.publicKey
+      );
+      alert("token account created");
+    } catch (err) {
+      notifyError();
+    }
   };
 
   useEffect(() => {
@@ -108,6 +135,13 @@ const Liquidity: React.FC = () => {
         />
         <p>BEcGFQK1T1tSu3kvHC17cyCkQ5dvXqAJ7ExB2bb5Do7a</p>
         {/* <p>current balance: {fromCoin.balance ? fromCoin.balance : "0"}</p> */}
+        <button
+          onClick={() =>
+            createToken("BEcGFQK1T1tSu3kvHC17cyCkQ5dvXqAJ7ExB2bb5Do7a")
+          }
+        >
+          CREATE TOKEN ACCOUNT
+        </button>
       </FormGroup>
       <FormGroup>
         <label> To : </label>
@@ -116,7 +150,16 @@ const Liquidity: React.FC = () => {
           value={toAmount}
           onChange={toAmountChangeHandler}
         />
-        <p>FSRvxBNrQWX2Fy2qvKMLL3ryEdRtE3PUTZBcdKwASZTU</p>
+        <p>
+          FSRvxBNrQWX2Fy2qvKMLL3ryEdRtE3PUTZBcdKwASZTU
+          <button
+            onClick={() =>
+              createToken("FSRvxBNrQWX2Fy2qvKMLL3ryEdRtE3PUTZBcdKwASZTU")
+            }
+          >
+            CREATE TOKEN ACCOUNT
+          </button>
+        </p>
       </FormGroup>
       <Button onClick={addLiquidityHandler}>Add Liquidity</Button>
     </Form>

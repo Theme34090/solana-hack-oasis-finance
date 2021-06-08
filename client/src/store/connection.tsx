@@ -10,11 +10,13 @@ export const ENDPOINTS = [
     endpoint: "https://solana-api.projectserum.com/",
   },
   { name: "testnet" as ENV, endpoint: clusterApiUrl("testnet") },
-  { name: "devnet" as ENV, endpoint: clusterApiUrl("devnet") },
+  { name: "devnet" as ENV, endpoint: "https://api.devnet.solana.com" },
   { name: "localnet" as ENV, endpoint: "http://127.0.0.1:8899" },
 ];
 
-const DEFAULT = ENDPOINTS[2].endpoint;
+// const DEFAULT = ENDPOINTS[0].endpoint;
+const DEFAULT = ENDPOINTS[2].endpoint; // devnet
+
 const DEFAULT_SLIPPAGE = 0.25;
 
 interface ConnectionConfig {

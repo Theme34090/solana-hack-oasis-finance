@@ -2,7 +2,7 @@ import { Connection, PublicKey } from "@solana/web3.js";
 import { get, cloneDeep } from "lodash-es";
 import { getFarmByPoolId } from "../utils/farms";
 import { lt, TokenAmount } from "../utils/safe-math";
-import { USER_STAKE_INFO_ACCOUNT_LAYOUT_V4 } from "../utils/stake";
+import { USER_STAKE_INFO_ACCOUNT_LAYOUT_V4 } from "../utils/layouts";
 import { getFilterProgramAccounts } from "../utils/web3";
 
 
@@ -23,7 +23,6 @@ export async function getStakeAccounts(
     wallet: any,
     connected: boolean
 ): Promise<StakeAccounts> {
-    console.log("get Stake accounts...")
     if (!wallet || !connected) return {};
 
     // stake user info account 
@@ -108,17 +107,18 @@ export function updateFarms(
     const farms: any = []
 
     for (const [poolId, farmInfo] of Object.entries(farmInfos)) {
+
         if (!farmInfo.isStake && ![4, 5].includes(farmInfo.version)) {
+
             let userInfo = get(stakeAccounts, poolId)
             const { rewardPerShareNet, rewardPerBlock } = farmInfo.poolInfo
+
             const { reward, lp } = farmInfo
 
             const newFarmInfo = cloneDeep(farmInfo)
-
             if (reward && lp) {
                 const rewardPerBlockAmount = new TokenAmount(rewardPerBlock.toNumber(), reward.decimals);
                 const liquidityItem = get(liquidity, lp.mintAddress);
-
                 const rewardPerBlockAmountTotalValue =
                     rewardPerBlockAmount.toEther().toNumber() *
                     2 *

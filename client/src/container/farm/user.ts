@@ -4,6 +4,7 @@ import axios from "axios";
 
 import { FarmInfo } from "../../utils/farms"
 import { TokenAmount } from "../../utils/safe-math"
+import { TokenInfo } from "../../utils/tokens";
 
 
 
@@ -96,3 +97,67 @@ export function updateFarms(
 }
 
 
+export const updateFarmV2 = (
+    // result from getFarmRewardAccount
+    farmInfos: { [poolId: string]: any },
+
+    // result from getStakeAccounts
+    stakeAccounts: any,
+
+    // TODO : unknown variables
+    liquidity: any,
+
+    price: any,
+) => {
+    // get stake account by poolId
+    let userInfo = get(stakeAccounts, "2Bsexc5j6vk4r9RhBYz2ufPrRWhumXQk6efXucqUKsyr");
+
+    // get farm info of lp mint address
+    const farmInfo = farmInfos["2Bsexc5j6vk4r9RhBYz2ufPrRWhumXQk6efXucqUKsyr"];
+
+    const { perBlock, perBlockB, perShare, perShareB } = farmInfo.poolInfo
+
+    const { reward, rewardB, lp } = farmInfo;
+
+    const newFarmInfo = cloneDeep(farmInfo)
+
+    // const price = { "TEST1" : 0.2056 , "TEST2": 0.5607}
+    const { apr, liquidityUsdValue } = calculate(liquidity, perBlock, perShare, reward, price, lp)
+    // const { apr, liquidityUsdValue } = calculate(liquidity, perBlockB, perShareB, rewardB, price, lp)
+    console.log(apr, liquidityUsdValue);
+
+
+
+}
+
+const calculate = (liquidity: any, perBlock: any, perShare: any, reward: TokenInfo, price: any, lp: any) => {
+    const rewardPerBlockAmount = new TokenAmount(perBlock.toNumber(), reward.decimals);
+    // get liquidity of lp mint address
+    const liquidityItem = get(liquidity, "14Wp3dxYTQpRMMz3AW7f2XGBTdaBrf1qb2NKjAN3Tb13");
+    const rewardPerBlockAmountTotalValue =
+        rewardPerBlockAmount.toEther().toNumber() *
+        2 *
+        60 *
+        60 *
+        24 *
+        365 *
+        price[reward.symbol as string]
+
+    const liquidityCoinValue =
+        (liquidityItem?.coin.balance as TokenAmount).toEther().toNumber() *
+        price[liquidityItem?.coin.symbol as string]
+    const liquidityPcValue =
+        (liquidityItem?.pc.balance as TokenAmount).toEther().toNumber() *
+        price[liquidityItem?.pc.symbol as string]
+    const liquidityTotalValue = liquidityPcValue + liquidityCoinValue
+    const liquidityTotalSupply = (liquidityItem?.lp.totalSupply as TokenAmount).toEther().toNumber()
+    const liquidityItemValue = liquidityTotalValue / liquidityTotalSupply
+
+    const liquidityUsdValue = lp.balance.toEther().toNumber() * liquidityItemValue
+    const apr = ((rewardPerBlockAmountTotalValue / liquidityUsdValue) * 100).toFixed(2)
+
+    return {
+        apr,
+        liquidityUsdValue
+    }
+}

@@ -59,6 +59,11 @@ pub enum RaydiumInstruction {
     Deposit {
         instruction: u8,
         amount: u64,
+    },
+
+    DepositV4 {
+        instruction: u8,
+        amount: u64,
     }
 
 }
@@ -95,6 +100,13 @@ impl RaydiumInstruction {
                     fixed_from_coin: data.fixed_from_coin,
                 })
             },
+            4 => {
+                let data = DepositData::try_from_slice(input)?;
+                Ok(Self::DepositV4 {
+                    instruction : data.instruction,
+                    amount: data.amount
+                })
+            }
             _ => return Err(InvalidInstruction.into())
         }
     }

@@ -9,7 +9,7 @@ import { commitment, createTokenAccountIfNotExist, sendTransaction } from './web
 import { SOL_HACK_PROGRAM_ID } from './ids';
 import { serializeProvideLP } from '../models/borsh';
 import * as anchor from "@project-serum/anchor";
-import idl from "./ray.json";
+import idl from "./idl.json";
 
 
 export const addLiquidity = async (

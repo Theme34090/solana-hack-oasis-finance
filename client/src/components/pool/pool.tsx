@@ -10,12 +10,14 @@ type PoolItemProps = {
   mintA: string;
   mintB: string;
   walletBalance: string;
+  depositBalance: string;
   deposit: (amount: string) => any;
   withdraw: (amount: string) => any;
 };
 
 export const PoolItem: React.FC<PoolItemProps> = ({
   walletBalance,
+  depositBalance,
   symbol,
   mintA,
   mintB,
@@ -31,27 +33,28 @@ export const PoolItem: React.FC<PoolItemProps> = ({
   return (
     <div className={selected ? classes.Selected : ""}>
       <div className={classes.TableRow}>
-        <div className={classes.TableRowAsset}>
+        <div className={`${classes.TableRowAsset} ${classes.TableRowCell} `}>
           <div className={classes.PoolItem}>
             <PoolIcon mintA={mintA} mintB={mintB} />
             <h4>
               {symbol}
-              <p>TVL :</p>
+              <p>TVL : $3.67M</p>
             </h4>
           </div>
         </div>
-        <div className={classes.TableRolCell}>{walletBalance}</div>
-        <div className={classes.TableRolCell}>0.000000</div>
-        <div className={classes.TableRolCell}>0.10%</div>
-        <div className={classes.TableRolCell}>0.68%</div>
-        <div className={classes.TableRolCell}>42.19%</div>
-        <div className={classes.TableRolCell} onClick={toggleDropdownHandler}>
+        <div className={classes.TableRowCell}>{walletBalance}</div>
+        <div className={classes.TableRowCell}>{depositBalance}</div>
+        <div className={classes.TableRowCell}>0.10%</div>
+        <div className={classes.TableRowCell}>0.68%</div>
+        <div className={classes.TableRowCell}>42.19%</div>
+        <div className={classes.TableRowCell} onClick={toggleDropdownHandler}>
           <i className={classes.ArrowDown}></i>
         </div>
       </div>
       <Exchange
         symbol={symbol}
         maxLp={walletBalance}
+        maxDeposit={depositBalance}
         deposit={deposit}
         withdraw={withdraw}
         show={selected}
@@ -72,64 +75,3 @@ export const PoolHeader: React.FC = () => {
     </div>
   );
 };
-
-// interface PoolProps {
-//   select: () => any;
-// }
-
-// const Pool: React.FC = () => {
-//   const [switchView, setSwitchView] = useState<boolean>(false);
-
-//   const switchHandler = () => {
-//     setSwitchView((prevState) => !prevState);
-//   };
-
-//   // TODO: remove dummy data
-//   let dummyPool: JSX.Element[] = [];
-
-//   if (!switchView) {
-//     // for (let i = 0; i < 10; i++) {
-//     //   dummyPool.push(
-//     //     <PoolItem
-//     //       mintA="So11111111111111111111111111111111111111112"
-//     //       mintB="D4fdoY5d2Bn1Cmjqy6J6shRHjcs7QNuBPzwEzTLrf7jm"
-//     //     />
-//     //   );
-//     // }
-//     dummyPool = FARMS.map((farm) => {
-//       console.log(farm.lp.coin.mintAddress, farm.lp.pc.mintAddress);
-//       return (
-//         <PoolItem
-//           symbol={farm.name}
-//           mintA={farm.lp.coin.mintAddress}
-//           mintB={farm.lp.pc.mintAddress}
-//         />
-//       );
-//     });
-//   } else {
-//     for (let i = 0; i < 5; i++) {
-//       dummyPool.push(
-//         <PoolItem
-//           symbol="RAY-SOL"
-//           mintA="So11111111111111111111111111111111111111112"
-//           mintB="D4fdoY5d2Bn1Cmjqy6J6shRHjcs7QNuBPzwEzTLrf7jm"
-//         />
-//       );
-//     }
-//   }
-
-//   return (
-//     <div className={classes.Pool}>
-//       <div className={classes.SwitchWrapper}>
-//         <Switch clicked={switchHandler} />
-//         <span className={classes.Text}>Show Staked</span>
-//       </div>
-//       <div className={classes.Table}>
-//         <PoolHeader />
-//         {dummyPool}
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Pool;

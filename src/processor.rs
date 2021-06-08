@@ -5,10 +5,12 @@ use solana_program::{
     program::{invoke},
     program_error::ProgramError,
     pubkey::Pubkey,
-    instruction::{Instruction, AccountMeta},
+    instruction::{Instruction, AccountMeta}
 };
 
-use crate::{instruction::{RaydiumInstruction, ProvideLPData, DepositData}};
+use crate::{instruction::{RaydiumInstruction, ProvideLPData, DepositData}, state::{Raydium}};
+
+
 
 
 pub struct Processor;
@@ -46,6 +48,19 @@ impl Processor {
                 )
 
             },
+
+            RaydiumInstruction::DepositV4 {
+                instruction,
+                amount,
+            } => {
+                msg!("Instruction: New Deposit!!!!"); 
+                Self::deposit_v4(
+                    accounts, 
+                    instruction,
+                    amount,
+                    program_id
+                )
+            },
             RaydiumInstruction::ProvideLP {        
                 instruction,
                 max_coin_amount,
@@ -76,6 +91,8 @@ impl Processor {
     ) -> ProgramResult {
         let account_info_iter = &mut accounts.iter();
 
+        
+        
         let account_metas = vec![
             // token program
             AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
@@ -104,8 +121,15 @@ impl Processor {
             // user owner 
             AccountMeta::new(*next_account_info(account_info_iter)?.key, true),
         ];
-        // invoke(instruction: &Instruction, account_infos: &[AccountInfo]);
 
+        // include program id in account meta
+        // let acc = AccountMeta::new(*program_id, false);
+
+        // Pubkey::find_program_address(seeds, program_id);
+
+    
+        // invoke(instruction: &Instruction, account_infos: &[AccountInfo]);
+        // let program_account = AccountInfo::from(program_id);
         let ray_program = next_account_info(account_info_iter)?;
         let ix = Instruction::new_with_bincode(
             *ray_program.key, 
@@ -182,7 +206,7 @@ impl Processor {
         accounts: &[AccountInfo],
         instruction: u8,
         amount: u64,
-        _program_id: &Pubkey,
+        program_id: &Pubkey,
     ) -> ProgramResult {
 
         let account_info_iter = &mut accounts.iter();
@@ -228,6 +252,66 @@ impl Processor {
         msg!("Received all accounts......");
 
         Ok(())
+    }
+
+    pub fn deposit_v4(
+        accounts: &[AccountInfo],
+        instruction: u8,
+        amount: u64,
+        program_id: &Pubkey,
+    ) -> ProgramResult {
+
+        msg!("received {} of amount {} ", instruction , amount);
+        let account_info_iter = &mut accounts.iter();
+
+
+        let _account_metas = vec![
+            // poolId
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // pool authority
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+        ];
+
+        let _user_info_account = next_account_info(account_info_iter)?;
+
+        // if user_info_account.owner != program_id {
+        //     msg!("Unauthorized account");
+        //     return Err(ProgramError::IncorrectProgramId);
+        // }
+
+        let user_owner_account = next_account_info(account_info_iter)?;
+
+        if !user_owner_account.is_signer{
+            msg!("Invalid signer");
+            return Err(ProgramError::MissingRequiredSignature);
+        }
+
+        let _user_lp_token_account = next_account_info(account_info_iter)?;
+        let _pool_lp_token_account = next_account_info(account_info_iter)?;
+        
+        let user_reward_token_account = next_account_info(account_info_iter)?;
+        if user_reward_token_account.owner != program_id {
+            msg!("invalid user reward token account");
+            return Err(ProgramError::IncorrectProgramId);
+        }
+
+        let _pool_reward_token_account = next_account_info(account_info_iter)?;
+
+        let _sys_var_clock = next_account_info(account_info_iter)?;
+
+        let _token_program_account = next_account_info(account_info_iter)?;
+
+        let user_reward_token_account_b = next_account_info(account_info_iter)?;
+        if user_reward_token_account_b.owner != program_id {
+            msg!("invalid user reward token account b");
+            return Err(ProgramError::IncorrectProgramId);
+        }
+        
+        let _pool_reward_token_account_b = next_account_info(account_info_iter)?;
+
+    
+        Ok(())
+
     }
 
 }

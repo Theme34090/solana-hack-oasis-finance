@@ -151,6 +151,18 @@
   ],
   "devnet": [
     {
+      "tokenSymbol": "MK",
+      "mintAddress": "FSRvxBNrQWX2Fy2qvKMLL3ryEdRtE3PUTZBcdKwASZTU",
+      "tokenName": "Solana",
+      "icon": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/solana/info/logo.png"
+    },
+    {
+      "tokenSymbol": "OAS",
+      "mintAddress": "BEcGFQK1T1tSu3kvHC17cyCkQ5dvXqAJ7ExB2bb5Do7a",
+      "tokenName": "Solana",
+      "icon": "https://raw.githubusercontent.com/trustwallet/assets/08d734b5e6ec95227dc50efef3a9cdfea4c398a1/blockchains/ethereum/assets/0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984/logo.png"
+    },
+    {
       "tokenSymbol": "SOL",
       "mintAddress": "So11111111111111111111111111111111111111112",
       "tokenName": "Solana",
