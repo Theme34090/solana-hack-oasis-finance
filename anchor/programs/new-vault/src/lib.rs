@@ -1,10 +1,10 @@
 use anchor_lang::prelude::borsh::{BorshDeserialize, BorshSerialize};
 use anchor_lang::prelude::*;
-use anchor_lang::solana_program::instruction::Instruction;
-use anchor_lang::solana_program::program::{invoke, invoke_signed};
-use anchor_lang::solana_program::program_option::COption;
 use anchor_lang::solana_program::{
+    instruction::Instruction,
+    program::{invoke, invoke_signed},
     program_error::ProgramError,
+    program_option::COption,
     program_pack::{IsInitialized, Pack, Sealed},
     pubkey::Pubkey,
 };
@@ -57,7 +57,7 @@ pub mod new_vault {
             })
             .collect::<Vec<_>>();
         let ix = Instruction::new_with_borsh(
-            *ctx.accounts.raydium_program.key,
+            *ctx.accounts.raydium_stake_program.key,
             &DepositData {
                 instruction: 1,
                 amount: 0,
@@ -146,7 +146,7 @@ pub mod new_vault {
         ];
         let signer = &[&seeds[..]];
         let ix = Instruction::new_with_borsh(
-            *ctx.accounts.raydium_program.key,
+            *ctx.accounts.raydium_stake_program.key,
             &DepositData {
                 instruction: 1,
                 amount,
@@ -216,7 +216,7 @@ pub mod new_vault {
         ];
         let signer = &[&seeds[..]];
         let ix = Instruction::new_with_borsh(
-            *ctx.accounts.raydium_program.key,
+            *ctx.accounts.raydium_stake_program.key,
             &DepositData {
                 instruction: 2,
                 amount: receive_amount,
@@ -244,9 +244,106 @@ pub mod new_vault {
         Ok(())
     }
 
-    // pub fn compound(ctx: <Compound>) -> ProgramResult {
+    pub fn compound(ctx: Context<Compound>) -> ProgramResult {
+        msg!("compound");
+        // let vault_account = &ctx.accounts.vault_account;
+        msg!("harvest raydium");
+        let accounts = [
+            ctx.accounts.raydium_pool_id.clone(),
+            ctx.accounts.raydium_pool_authority.clone(),
+            ctx.accounts.vault_user_info_account.clone(),
+            ctx.accounts.vault_signer.clone(),
+            ctx.accounts.vault_lp_token_account.to_account_info(),
+            ctx.accounts.raydium_lp_token_account.to_account_info(),
+            ctx.accounts.vault_reward_token_account.to_account_info(),
+            ctx.accounts.raydium_reward_token_account.to_account_info(),
+            ctx.accounts.clock.to_account_info(),
+            ctx.accounts.token_program.to_account_info(),
+            ctx.accounts.vault_reward_token_account_b.to_account_info(),
+            ctx.accounts
+                .raydium_reward_token_account_b
+                .to_account_info(),
+        ];
+        let account_metas = accounts
+            .iter()
+            .map(|acc| {
+                if acc.key == ctx.accounts.vault_signer.key {
+                    AccountMeta::new_readonly(*acc.key, true)
+                } else if acc.key == ctx.accounts.clock.to_account_info().key {
+                    AccountMeta::new_readonly(*acc.key, false)
+                } else {
+                    AccountMeta::new(*acc.key, false)
+                }
+            })
+            .collect::<Vec<_>>();
+        let seeds = &[
+            ctx.accounts.vault_account.to_account_info().key.as_ref(),
+            &[ctx.accounts.vault_account.nonce],
+        ];
+        let signer = &[&seeds[..]];
+        let ix = Instruction::new_with_borsh(
+            *ctx.accounts.raydium_stake_program.key,
+            &DepositData {
+                instruction: 1,
+                amount: 0, // harvest by deposit amount 0
+            },
+            account_metas,
+        );
+        msg!("invoking raydium");
+        invoke_signed(&ix, &accounts, signer)?;
 
-    // }
+        // calculate provide lp amount
+        let price = ctx.accounts.raydium_amm_token_account.amount
+            / ctx.accounts.raydium_amm_token_account.amount_b;
+        let amount = ctx.accounts.vault_reward_token_account.amount;
+        let amount_b = ctx.accounts.vault_reward_token_account_b.amount;
+
+        msg!("provide liquidity raydium");
+        let accounts = [
+            ctx.accounts.token_program.to_account_info(),
+            ctx.accounts.raydium_amm_id.clone(),
+            ctx.accounts.raydium_amm_authority.clone(),
+            ctx.accounts.raydium_amm_open_orders.clone(),
+            ctx.accounts.raydium_amm_target_orders.clone(),
+            ctx.accounts.raydium_lp_token_mint_address.to_account_info(),
+            ctx.accounts.raydium_amm_token_account.to_account_info(),
+            ctx.accounts.raydium_amm_token_account_b.to_account_info(),
+            ctx.accounts.serum_market.clone(),
+            ctx.accounts.vault_reward_token_account.to_account_info(),
+            ctx.accounts.vault_reward_token_account_b.to_account_info(),
+            ctx.accounts.vault_lp_token_account.to_account_info(),
+            ctx.accounts.vault_signer.clone(),
+        ];
+        let account_metas = accounts
+            .iter()
+            .map(|acc| {
+                if acc.key == ctx.accounts.vault_signer.key {
+                    AccountMeta::new_readonly(*acc.key, true)
+                } else {
+                    AccountMeta::new(*acc.key, false)
+                }
+            })
+            .collect::<Vec<_>>();
+        let seeds = &[
+            ctx.accounts.vault_account.to_account_info().key.as_ref(),
+            &[ctx.accounts.vault_account.nonce],
+        ];
+        let signer = &[&seeds[..]];
+        let ix = Instruction::new_with_borsh(
+            *ctx.accounts.raydium_amm_program.key,
+            &ProvideLiquidityData {
+                instruction: 3,
+                max_coin_amount: amount,
+                max_pc_amount: amount_b,
+                fixed_from_coin: 1,
+            },
+            account_metas,
+        );
+        msg!("invoking raydium");
+        invoke_signed(&ix, &accounts, signer)?;
+
+        Ok(())
+    }
 
     pub fn provide_liquidity(
         ctx: Context<ProvideLiquidity>,
@@ -307,6 +404,58 @@ pub mod new_vault {
 }
 
 #[derive(Accounts)]
+pub struct Compound<'info> {
+    pub vault_account: ProgramAccount<'info, VaultAccount>,
+    #[account(seeds = [vault_account.to_account_info().key.as_ref(), &[vault_account.nonce]])]
+    pub vault_signer: AccountInfo<'info>,
+    #[account(
+        "vault_token_mint_address.mint_authority == COption::Some(*vault_signer.key)",
+        "vault_token_mint_address.supply == 0"
+    )]
+    pub vault_token_mint_address: CpiAccount<'info, Mint>,
+    #[account(mut)]
+    pub vault_user_info_account: AccountInfo<'info>,
+    #[account(mut)]
+    pub vault_lp_token_account: CpiAccount<'info, TokenAccount>,
+    #[account(mut)]
+    pub vault_reward_token_account: CpiAccount<'info, TokenAccount>,
+    #[account(mut)]
+    pub vault_reward_token_account_b: CpiAccount<'info, TokenAccount>,
+    // raydium stake
+    pub raydium_stake_program: AccountInfo<'info>,
+    #[account(mut)]
+    pub raydium_pool_id: AccountInfo<'info>,
+    #[account(mut)]
+    pub raydium_pool_authority: AccountInfo<'info>,
+    #[account(mut)]
+    pub raydium_lp_token_account: CpiAccount<'info, TokenAccount>,
+    #[account(mut)]
+    pub raydium_reward_token_account: CpiAccount<'info, TokenAccount>,
+    #[account(mut)]
+    pub raydium_reward_token_account_b: CpiAccount<'info, TokenAccount>,
+    // raydium amm
+    pub raydium_amm_program: AccountInfo<'info>,
+    #[account(mut)]
+    pub raydium_amm_id: AccountInfo<'info>,
+    #[account(mut)]
+    pub raydium_amm_authority: AccountInfo<'info>,
+    #[account(mut)]
+    pub raydium_amm_open_orders: AccountInfo<'info>,
+    #[account(mut)]
+    pub raydium_amm_target_orders: AccountInfo<'info>,
+    #[account(mut)]
+    pub raydium_lp_token_mint_address: CpiAccount<'info, Mint>,
+    #[account(mut)]
+    pub raydium_amm_token_account: CpiAccount<'info, TokenAccount>,
+    #[account(mut)]
+    pub raydium_amm_token_account_b: CpiAccount<'info, TokenAccount>,
+    #[account(mut)]
+    pub serum_market: AccountInfo<'info>,
+    #[account(mut, "token_program.key == &token::ID")]
+    pub token_program: AccountInfo<'info>,
+}
+
+#[derive(Accounts)]
 pub struct ProvideLiquidity<'info> {
     pub vault_account: ProgramAccount<'info, VaultAccount>,
     #[account(seeds = [vault_account.to_account_info().key.as_ref(), &[vault_account.nonce]])]
@@ -359,7 +508,7 @@ pub struct InitializeVault<'info> {
     #[account(mut)]
     pub vault_reward_token_account_b: CpiAccount<'info, TokenAccount>,
     // raydium
-    pub raydium_program: AccountInfo<'info>,
+    pub raydium_stake_program: AccountInfo<'info>,
     #[account(mut)]
     pub raydium_pool_id: AccountInfo<'info>,
     #[account(mut)]
@@ -391,7 +540,7 @@ pub struct VaultAccount {
     pub vault_token_mint_address: Pubkey,
     pub vault_user_info_account: Pubkey,
     // // raydium
-    // pub raydium_program: Pubkey,
+    // pub raydium_stake_program: Pubkey,
     // pub raydium_pool_id: Pubkey,
     // pub raydium_pool_authority: Pubkey,
     // pub raydium_lp_token_account: Pubkey,
@@ -427,7 +576,7 @@ pub struct Deposit<'info> {
     #[account(mut, "user_vault_token_account.owner == *user_signer.key")]
     pub user_vault_token_account: CpiAccount<'info, TokenAccount>,
     // raydium
-    pub raydium_program: AccountInfo<'info>,
+    pub raydium_stake_program: AccountInfo<'info>,
     #[account(mut)]
     pub raydium_pool_id: AccountInfo<'info>,
     #[account(mut)]
@@ -477,7 +626,7 @@ pub struct Withdraw<'info> {
     #[account(mut, "user_vault_token_account.owner == *user_signer.key")]
     pub user_vault_token_account: CpiAccount<'info, TokenAccount>,
     // raydium
-    pub raydium_program: AccountInfo<'info>,
+    pub raydium_stake_program: AccountInfo<'info>,
     #[account(mut)]
     pub raydium_pool_id: AccountInfo<'info>,
     #[account(mut)]

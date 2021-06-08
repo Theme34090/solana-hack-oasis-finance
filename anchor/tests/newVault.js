@@ -123,7 +123,7 @@ describe("test initialize deposit withdraw without added lp", () => {
                 vaultLpTokenAccount,
                 vaultRewardTokenAccount,
                 vaultRewardTokenAccountB,
-                raydiumProgram: RAYDIUM_STAKING_PROGRAM_ID,
+                raydiumStakeProgram: RAYDIUM_STAKING_PROGRAM_ID,
                 raydiumPoolId: RAYDIUM_POOL_ID,
                 raydiumPoolAuthority: RAYDIUM_POOL_AUTHORITY,
                 raydiumLpTokenAccount: RAYDIUM_LP_VAULT_ADDRESS,
@@ -160,7 +160,7 @@ describe("test initialize deposit withdraw without added lp", () => {
                 userVaultTokenAccount,
                 userSigner,
                 // raydium
-                raydiumProgram: RAYDIUM_STAKING_PROGRAM_ID,
+                raydiumStakeProgram: RAYDIUM_STAKING_PROGRAM_ID,
                 raydiumPoolId: RAYDIUM_POOL_ID,
                 raydiumPoolAuthority: RAYDIUM_POOL_AUTHORITY,
                 raydiumLpTokenAccount: RAYDIUM_LP_VAULT_ADDRESS,
@@ -189,7 +189,7 @@ describe("test initialize deposit withdraw without added lp", () => {
                 userVaultTokenAccount,
                 userSigner,
                 // raydium
-                raydiumProgram: RAYDIUM_STAKING_PROGRAM_ID,
+                raydiumStakeProgram: RAYDIUM_STAKING_PROGRAM_ID,
                 raydiumPoolId: RAYDIUM_POOL_ID,
                 raydiumPoolAuthority: RAYDIUM_POOL_AUTHORITY,
                 raydiumLpTokenAccount: RAYDIUM_LP_VAULT_ADDRESS,
