@@ -7,7 +7,8 @@ const assert = require("assert");
 const { mintToAccount, getTokenAccount, createTokenAccount } = require("./utils");
 const idl = require("../target/idl/new_vault.json");
 
-const PROGRAM_ID = "2QGo9WwyXbFzyCnrob9XuLbEwqxmNhn4a58w4BxZBer5";
+// const PROGRAM_ID = "2QGo9WwyXbFzyCnrob9XuLbEwqxmNhn4a58w4BxZBer5";
+const PROGRAM_ID = "4ZDnpWYSJ5JPdo7f5n9M73BaaxU5YwYNB5n754D472wY";
 
 const RAYDIUM_STAKING_PROGRAM_ID = "EcLzTrNg9V7qhcdyXDe2qjtPkiGzDM2UbdRaeaadU5r2";
 const RAYDIUM_POOL_ID = "2Bsexc5j6vk4r9RhBYz2ufPrRWhumXQk6efXucqUKsyr";

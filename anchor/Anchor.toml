@@ -1,5 +1,5 @@
 [provider]
-cluster = "devnet"
+cluster = "localnet"
 wallet = "/Users/chompk/WORK/others/solana/wallets/wallet1.json"
 
 # [[test.genesis]]

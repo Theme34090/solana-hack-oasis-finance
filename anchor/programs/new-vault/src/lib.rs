@@ -294,7 +294,7 @@ pub mod new_vault {
 
         // calculate provide lp amount
         let price = ctx.accounts.raydium_amm_token_account.amount
-            / ctx.accounts.raydium_amm_token_account.amount_b;
+            / ctx.accounts.raydium_amm_token_account.amount;
         let amount = ctx.accounts.vault_reward_token_account.amount;
         let amount_b = ctx.accounts.vault_reward_token_account_b.amount;
 
@@ -453,6 +453,7 @@ pub struct Compound<'info> {
     pub serum_market: AccountInfo<'info>,
     #[account(mut, "token_program.key == &token::ID")]
     pub token_program: AccountInfo<'info>,
+    pub clock: Sysvar<'info, Clock>,
 }
 
 #[derive(Accounts)]
