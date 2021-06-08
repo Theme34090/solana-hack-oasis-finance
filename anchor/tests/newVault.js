@@ -7,6 +7,41 @@ const assert = require("assert");
 const { mintToAccount, getTokenAccount, createTokenAccount } = require("./utils");
 const idl = require("../target/idl/new_vault.json");
 
+const PROGRAM_ID = "2QGo9WwyXbFzyCnrob9XuLbEwqxmNhn4a58w4BxZBer5";
+
+const RAYDIUM_STAKING_PROGRAM_ID = "EcLzTrNg9V7qhcdyXDe2qjtPkiGzDM2UbdRaeaadU5r2";
+const RAYDIUM_POOL_ID = "2Bsexc5j6vk4r9RhBYz2ufPrRWhumXQk6efXucqUKsyr";
+const RAYDIUM_POOL_AUTHORITY = "BxAtWJ4g6xguPsR9xNvXTK7EjuzwiKNbmKbhoXDZ3EsY";
+const RAYDIUM_LP_MINT_ADDRESS = "14Wp3dxYTQpRMMz3AW7f2XGBTdaBrf1qb2NKjAN3Tb13";
+
+const RAYDIUM_LP_VAULT_ADDRESS = "83BEhzv7eV4HeJuuPtYmHkhTjZEpNpK83mHnHfX5Krwj";
+const RAYDIUM_REWARD_A = "HVtAJ1uRiWJ7tNU9uqAzpPv14B3fN9SVEW9G4PtM77Ci";
+const RAYDIUM_REWARD_B = "39Ea6rMGGrsNmEsYToqQfEyNSqv7hcUJa646qBYLY4yq";
+
+const RAYDIUM_AMM_PROGRAM_ID = "9rpQHSyFVM1dkkHFQ2TtTzPEW7DVmEyPmN8wVniqJtuC";
+const RAYDIUM_AMM_ID = "HeD1cekRWUNR25dcvW8c9bAHeKbr1r7qKEhv7pEegr4f";
+const RAYDIUM_AMM_AUTHORITY = "DhVpojXMTbZMuTaCgiiaFU7U8GvEEhnYo4G9BUdiEYGh";
+const RAYDIUM_AMM_TOKEN_ACCOUNT = "3qbeXHwh9Sz4zabJxbxvYGJc57DZHrFgYMCWnaeNJENT";
+const RAYDIUM_AMM_TOKEN_ACCOUNT_B = "FrGPG5D4JZVF5ger7xSChFVFL8M9kACJckzyCz8tVowz";
+const RAYDIUM_AMM_OPEN_ORDERS = "HboQAt9BXyejnh6SzdDNTx4WELMtRRPCr7pRSLpAW7Eq";
+const RAYDIUM_AMM_TARGET_ORDERS = "6TzAjFPVZVMjbET8vUSk35J9U2dEWFCrnbHogsejRE5h";
+const SERUM_MARKET = "3tsrPhKrWHWMB8RiPaqNxJ8GnBhZnDqL4wcu5EAMFeBe";
+
+const USER_LP_TOKEN_ACC = "3zeto42npEtrmkpmpmBeUfz2ZdUN42UA2LhFHnxEHk6u";
+const USER_TOKEN_A_ACC = "AzrCx5xaxSRRw35P7P6psqW1mB8SmuqQc5USiXAdA1eE";
+const USER_TOKEN_B_ACC = "2QxHHmuKLAGsZLqWtD995ewMtYV3ATKWXDnMMM2VGeev";
+
+const TOKEN_A_MINT = "BEcGFQK1T1tSu3kvHC17cyCkQ5dvXqAJ7ExB2bb5Do7a";
+const TOKEN_B_MINT = "FSRvxBNrQWX2Fy2qvKMLL3ryEdRtE3PUTZBcdKwASZTU";
+const USER_STAKE_INFO_ACCOUNT_LAYOUT_V4 = struct([
+    u64("state"),
+    publicKey("poolId"),
+    publicKey("stakerOwner"),
+    u64("depositBalance"),
+    u64("rewardDebt"),
+    u64("rewardDebtB"),
+]);
+
 describe("test initialize deposit withdraw without added lp", () => {
     const url = "https://api.devnet.solana.com";
     const preflightCommitment = "recent";
@@ -19,47 +54,26 @@ describe("test initialize deposit withdraw without added lp", () => {
     });
     anchor.setProvider(provider);
     // const program = anchor.workspace.NewVault;
-    const program = new anchor.Program(idl, "2QGo9WwyXbFzyCnrob9XuLbEwqxmNhn4a58w4BxZBer5", provider);
+    const program = new anchor.Program(idl, PROGRAM_ID, provider);
 
-    const RAYDIUM_PROGRAM_ID = "EcLzTrNg9V7qhcdyXDe2qjtPkiGzDM2UbdRaeaadU5r2";
-    const POOL_ID = "2Bsexc5j6vk4r9RhBYz2ufPrRWhumXQk6efXucqUKsyr";
-    const POOL_AUTHORITY = "BxAtWJ4g6xguPsR9xNvXTK7EjuzwiKNbmKbhoXDZ3EsY";
-    const LP_MINT_ADDRESS = "14Wp3dxYTQpRMMz3AW7f2XGBTdaBrf1qb2NKjAN3Tb13";
     const lpTokenInstance = new spl.Token(
         provider.connection,
-        LP_MINT_ADDRESS,
+        RAYDIUM_LP_MINT_ADDRESS,
         spl.TOKEN_PROGRAM_ID,
         provider.wallet.payer
     );
-    const RAYDIUM_LP_VAULT_ADDRESS = "83BEhzv7eV4HeJuuPtYmHkhTjZEpNpK83mHnHfX5Krwj";
-    const RAYDIUM_REWARD_A = "HVtAJ1uRiWJ7tNU9uqAzpPv14B3fN9SVEW9G4PtM77Ci";
-    const RAYDIUM_REWARD_B = "39Ea6rMGGrsNmEsYToqQfEyNSqv7hcUJa646qBYLY4yq";
-    const USER_LP_TOKEN_ACC = "8FbDqmo5icpAdUHk2rJFjMp6oMd3i8rQimtGqY1DC6tF";
-    const USER_TOKEN_A_ACC = "AzrCx5xaxSRRw35P7P6psqW1mB8SmuqQc5USiXAdA1eE";
-    const USER_TOKEN_B_ACC = "2QxHHmuKLAGsZLqWtD995ewMtYV3ATKWXDnMMM2VGeev";
-
-    const TOKEN_A_MINT = "BEcGFQK1T1tSu3kvHC17cyCkQ5dvXqAJ7ExB2bb5Do7a";
     const tokenAInstance = new spl.Token(
         provider.connection,
         TOKEN_A_MINT,
         spl.TOKEN_PROGRAM_ID,
         provider.wallet.payer
     );
-    const TOKEN_B_MINT = "FSRvxBNrQWX2Fy2qvKMLL3ryEdRtE3PUTZBcdKwASZTU";
     const tokenBInstance = new spl.Token(
         provider.connection,
         TOKEN_B_MINT,
         spl.TOKEN_PROGRAM_ID,
         provider.wallet.payer
     );
-    const USER_STAKE_INFO_ACCOUNT_LAYOUT_V4 = struct([
-        u64("state"),
-        publicKey("poolId"),
-        publicKey("stakerOwner"),
-        u64("depositBalance"),
-        u64("rewardDebt"),
-        u64("rewardDebtB"),
-    ]);
 
     let vaultAccount;
     let vaultSigner;
@@ -98,7 +112,7 @@ describe("test initialize deposit withdraw without added lp", () => {
             lamports: await provider.connection.getMinimumBalanceForRentExemption(
                 USER_STAKE_INFO_ACCOUNT_LAYOUT_V4.span
             ),
-            programId: new anchor.web3.PublicKey(RAYDIUM_PROGRAM_ID),
+            programId: new anchor.web3.PublicKey(RAYDIUM_STAKING_PROGRAM_ID),
         });
         const txSig = await program.rpc.initializeVault(nonce, {
             accounts: {
@@ -109,9 +123,9 @@ describe("test initialize deposit withdraw without added lp", () => {
                 vaultLpTokenAccount,
                 vaultRewardTokenAccount,
                 vaultRewardTokenAccountB,
-                raydiumProgram: RAYDIUM_PROGRAM_ID,
-                raydiumPoolId: POOL_ID,
-                raydiumPoolAuthority: POOL_AUTHORITY,
+                raydiumProgram: RAYDIUM_STAKING_PROGRAM_ID,
+                raydiumPoolId: RAYDIUM_POOL_ID,
+                raydiumPoolAuthority: RAYDIUM_POOL_AUTHORITY,
                 raydiumLpTokenAccount: RAYDIUM_LP_VAULT_ADDRESS,
                 raydiumRewardTokenAccount: RAYDIUM_REWARD_A,
                 raydiumRewardTokenAccountB: RAYDIUM_REWARD_B,
@@ -146,9 +160,9 @@ describe("test initialize deposit withdraw without added lp", () => {
                 userVaultTokenAccount,
                 userSigner,
                 // raydium
-                raydiumProgram: RAYDIUM_PROGRAM_ID,
-                raydiumPoolId: POOL_ID,
-                raydiumPoolAuthority: POOL_AUTHORITY,
+                raydiumProgram: RAYDIUM_STAKING_PROGRAM_ID,
+                raydiumPoolId: RAYDIUM_POOL_ID,
+                raydiumPoolAuthority: RAYDIUM_POOL_AUTHORITY,
                 raydiumLpTokenAccount: RAYDIUM_LP_VAULT_ADDRESS,
                 raydiumRewardTokenAccount: RAYDIUM_REWARD_A,
                 raydiumRewardTokenAccountB: RAYDIUM_REWARD_B,
@@ -175,14 +189,40 @@ describe("test initialize deposit withdraw without added lp", () => {
                 userVaultTokenAccount,
                 userSigner,
                 // raydium
-                raydiumProgram: RAYDIUM_PROGRAM_ID,
-                raydiumPoolId: POOL_ID,
-                raydiumPoolAuthority: POOL_AUTHORITY,
+                raydiumProgram: RAYDIUM_STAKING_PROGRAM_ID,
+                raydiumPoolId: RAYDIUM_POOL_ID,
+                raydiumPoolAuthority: RAYDIUM_POOL_AUTHORITY,
                 raydiumLpTokenAccount: RAYDIUM_LP_VAULT_ADDRESS,
                 raydiumRewardTokenAccount: RAYDIUM_REWARD_A,
                 raydiumRewardTokenAccountB: RAYDIUM_REWARD_B,
                 tokenProgram: spl.TOKEN_PROGRAM_ID,
                 clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
+            },
+        });
+        console.log(txSig);
+    });
+
+    it("should provide lp", async () => {
+        await tokenAInstance.transfer(USER_TOKEN_A_ACC, vaultRewardTokenAccount, userSigner, [], 10000);
+        await tokenBInstance.transfer(USER_TOKEN_B_ACC, vaultRewardTokenAccountB, userSigner, [], 10000);
+        const txSig = await program.rpc.provideLiquidity(new anchor.BN(9000), new anchor.BN(9000), {
+            accounts: {
+                vaultAccount: vaultAccount.publicKey,
+                vaultSigner,
+                vaultLpTokenAccount,
+                vaultRewardTokenAccount,
+                vaultRewardTokenAccountB,
+                // raydium
+                raydiumAmmProgram: RAYDIUM_AMM_PROGRAM_ID,
+                raydiumAmmId: RAYDIUM_AMM_ID,
+                raydiumAmmAuthority: RAYDIUM_AMM_AUTHORITY,
+                raydiumAmmOpenOrders: RAYDIUM_AMM_OPEN_ORDERS,
+                raydiumAmmTargetOrders: RAYDIUM_AMM_TARGET_ORDERS,
+                raydiumLpTokenMintAddress: RAYDIUM_LP_MINT_ADDRESS,
+                raydiumRewardTokenAccount: RAYDIUM_AMM_TOKEN_ACCOUNT,
+                raydiumRewardTokenAccountB: RAYDIUM_AMM_TOKEN_ACCOUNT_B,
+                serumMarket: SERUM_MARKET,
+                tokenProgram: spl.TOKEN_PROGRAM_ID,
             },
         });
         console.log(txSig);
