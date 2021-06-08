@@ -54,11 +54,11 @@ const Header: React.FC<HeaderProps> = (): JSX.Element => {
       </nav>
       <nav className={classes.MainNav}>
         <ul className={classes.MainNavItems}>
-          <li className={classes.MainNavItem}>
+          {/* <li className={classes.MainNavItem}>
             <NavLink activeClassName={classes.active} to="/lp">
               Provide LP
             </NavLink>
-          </li>
+          </li> */}
           <li className={classes.MainNavItem}>
             <NavLink activeClassName={classes.active} to="/token">
               VIEW TOKEN ACCOUNT
