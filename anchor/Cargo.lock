@@ -228,6 +228,7 @@ dependencies = [
  "anchor-lang",
  "anchor-spl",
  "arrayref",
+ "new-vault",
  "solana-program",
  "spl-token",
  "swap",
