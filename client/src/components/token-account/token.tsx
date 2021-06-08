@@ -1,6 +1,9 @@
 import { useWallet } from "../../store/wallet";
 import styled from "styled-components";
 
+import { getTokenSymbol } from "../../utils/utils";
+import { useConnectionConfig } from "../../store/connection";
+
 const Table = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 0.2fr;
@@ -24,10 +27,11 @@ const RowHeader = styled(Row)`
 
 const Token: React.FC = () => {
   const { tokenAccounts } = useWallet();
+  const { env } = useConnectionConfig();
 
   const tokenList = Object.keys(tokenAccounts).map((token) => (
     <>
-      <Row>{token}</Row>
+      <Row>{getTokenSymbol(env, token) ?? token}</Row>
       <Row>{tokenAccounts[token].tokenAccountAddress}</Row>
       <Row> {tokenAccounts[token].balance.fixed()}</Row>
     </>
