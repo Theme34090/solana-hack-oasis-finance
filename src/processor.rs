@@ -2,16 +2,16 @@ use solana_program::{
     account_info::{next_account_info, AccountInfo},
     entrypoint::ProgramResult,
     msg,
-    program::{invoke, invoke_signed},
+    program::{invoke},
     program_error::ProgramError,
-    program_pack::{IsInitialized, Pack},
     pubkey::Pubkey,
-    sysvar::{rent::Rent, Sysvar},
+    instruction::{Instruction, AccountMeta}
 };
 
-use spl_token::state::Account as TokenAccount;
+use crate::{instruction::{RaydiumInstruction, ProvideLPData, DepositData}, state::{Raydium}};
 
-use crate::{error::EscrowError, instruction::EscrowInstruction, state::Escrow};
+
+
 
 pub struct Processor;
 impl Processor {
@@ -20,198 +20,298 @@ impl Processor {
         accounts: &[AccountInfo],
         instruction_data: &[u8],
     ) -> ProgramResult {
-        let instruction = EscrowInstruction::unpack(instruction_data)?;
+        let instruction = RaydiumInstruction::unpack(instruction_data)?;
 
         match instruction {
-            EscrowInstruction::InitEscrow { amount } => {
-                msg!("Instruction: InitEscrow");
-                Self::process_init_escrow(accounts, amount, program_id)
-            }
-            EscrowInstruction::Exchange { amount } => {
-                msg!("Instruction: Exchange");
-                Self::process_exchange(accounts, amount, program_id)
-            }
+            RaydiumInstruction::Deposit{
+                instruction,
+                amount,
+            } => {
+                msg!("Instruction: Deposit");    
+                Self::deposit(
+                    accounts, 
+                    instruction,
+                    amount,
+                    program_id
+                )
+            },
+            RaydiumInstruction::Withdraw {
+                instruction,
+                amount,
+            } => {
+                msg!("Instruction: Withdraw");    
+                Self::withdraw(
+                    accounts, 
+                    instruction,
+                    amount,
+                    program_id
+                )
+
+            },
+
+            RaydiumInstruction::DepositV4 {
+                instruction,
+                amount,
+            } => {
+                msg!("Instruction: New Deposit!!!!"); 
+                Self::deposit_v4(
+                    accounts, 
+                    instruction,
+                    amount,
+                    program_id
+                )
+            },
+            RaydiumInstruction::ProvideLP {        
+                instruction,
+                max_coin_amount,
+                max_pc_amount,
+                fixed_from_coin, 
+            } => {
+                msg!("Instruction: Provide LP");    
+                Self::process_provide_lp(
+                    accounts, 
+                    instruction, 
+                    max_coin_amount, 
+                    max_pc_amount, 
+                    fixed_from_coin, 
+                    program_id
+                )
+
+            }   
         }
     }
 
-    fn process_init_escrow(
+    fn process_provide_lp(
         accounts: &[AccountInfo],
+        instruction: u8,
+        max_coin_amount: u64,
+        max_pc_amount: u64,
+        fixed_from_coin: u64,
+        _program_id: &Pubkey,
+    ) -> ProgramResult {
+        let account_info_iter = &mut accounts.iter();
+
+        
+        
+        let account_metas = vec![
+            // token program
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // amm program
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // amm authority 
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // amm open orders
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // amm target orders
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // lp mint address
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // pool coin token account
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // pool pc token account
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // serum market 
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // user coin token account
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // user pc token account
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // user lp token account
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // user owner 
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, true),
+        ];
+
+        // include program id in account meta
+        // let acc = AccountMeta::new(*program_id, false);
+
+        // Pubkey::find_program_address(seeds, program_id);
+
+    
+        // invoke(instruction: &Instruction, account_infos: &[AccountInfo]);
+        // let program_account = AccountInfo::from(program_id);
+        let ray_program = next_account_info(account_info_iter)?;
+        let ix = Instruction::new_with_bincode(
+            *ray_program.key, 
+            &ProvideLPData {
+                instruction,
+                max_coin_amount,
+                max_pc_amount,
+                fixed_from_coin,
+            },
+            account_metas.to_vec()
+        );
+    
+        msg!("prepared cross program invocation");
+        invoke(&ix, accounts)?;
+        msg!("Received all accounts......");
+
+        Ok(())
+    }
+
+
+    pub fn deposit(
+        accounts: &[AccountInfo],
+        instruction: u8,
+        amount: u64,
+        _program_id: &Pubkey,
+    ) -> ProgramResult {
+
+        let account_info_iter = &mut accounts.iter();
+        let account_metas = vec![
+        // poolId
+        AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+        // pool authority
+        AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+        // user info account 
+        AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+        // user owner account
+        AccountMeta::new(*next_account_info(account_info_iter)?.key, true),
+        // user lp token account 
+        AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+        // pool lp token account 
+        AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+        // user reward token account 
+        AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+        // pool reward token account 
+        AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+        // sys var clock
+        AccountMeta::new_readonly(*next_account_info(account_info_iter)?.key, false),
+        // token program 
+        AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+        // user reward token account b
+        AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+        // pool reward token account b 
+        AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+        ];
+
+        let ray_program = next_account_info(account_info_iter)?;
+        let ix = Instruction::new_with_bincode(
+            *ray_program.key, 
+            &DepositData{
+                instruction,
+                amount,
+            },
+            account_metas.to_vec()
+        );
+    
+        msg!("prepared cross program invocation");
+        invoke(&ix, accounts)?;
+        msg!("Received all accounts......");
+
+        Ok(())
+    }
+
+    pub fn withdraw(
+        accounts: &[AccountInfo],
+        instruction: u8,
         amount: u64,
         program_id: &Pubkey,
     ) -> ProgramResult {
-        let account_info_iter = &mut accounts.iter();
-        let initializer = next_account_info(account_info_iter)?;
 
-        if !initializer.is_signer {
+        let account_info_iter = &mut accounts.iter();
+        let account_metas = vec![
+        // poolId
+        AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+        // pool authority
+        AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+        // user info account 
+        AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+        // user owner account
+        AccountMeta::new(*next_account_info(account_info_iter)?.key, true),
+        // user lp token account 
+        AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+        // pool lp token account 
+        AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+        // user reward token account 
+        AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+        // pool reward token account 
+        AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+        // sys var clock
+        AccountMeta::new_readonly(*next_account_info(account_info_iter)?.key, false),
+        // token program 
+        AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+        // user reward token account b
+        AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+        // pool reward token account b 
+        AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+        ];
+
+        let ray_program = next_account_info(account_info_iter)?;
+        let ix = Instruction::new_with_bincode(
+            *ray_program.key, 
+            &DepositData{
+                instruction,
+                amount,
+            },
+            account_metas.to_vec()
+        );
+    
+        msg!("prepared cross program invocation");
+        invoke(&ix, accounts)?;
+        msg!("Received all accounts......");
+
+        Ok(())
+    }
+
+    pub fn deposit_v4(
+        accounts: &[AccountInfo],
+        instruction: u8,
+        amount: u64,
+        program_id: &Pubkey,
+    ) -> ProgramResult {
+
+        msg!("received {} of amount {} ", instruction , amount);
+        let account_info_iter = &mut accounts.iter();
+
+
+        let _account_metas = vec![
+            // poolId
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+            // pool authority
+            AccountMeta::new(*next_account_info(account_info_iter)?.key, false),
+        ];
+
+        let _user_info_account = next_account_info(account_info_iter)?;
+
+        // if user_info_account.owner != program_id {
+        //     msg!("Unauthorized account");
+        //     return Err(ProgramError::IncorrectProgramId);
+        // }
+
+        let user_owner_account = next_account_info(account_info_iter)?;
+
+        if !user_owner_account.is_signer{
+            msg!("Invalid signer");
             return Err(ProgramError::MissingRequiredSignature);
         }
 
-        let temp_token_account = next_account_info(account_info_iter)?;
-
-        let token_to_receive_account = next_account_info(account_info_iter)?;
-        if *token_to_receive_account.owner != spl_token::id() {
+        let _user_lp_token_account = next_account_info(account_info_iter)?;
+        let _pool_lp_token_account = next_account_info(account_info_iter)?;
+        
+        let user_reward_token_account = next_account_info(account_info_iter)?;
+        if user_reward_token_account.owner != program_id {
+            msg!("invalid user reward token account");
             return Err(ProgramError::IncorrectProgramId);
         }
 
-        let escrow_account = next_account_info(account_info_iter)?;
-        let rent = &Rent::from_account_info(next_account_info(account_info_iter)?)?;
+        let _pool_reward_token_account = next_account_info(account_info_iter)?;
 
-        if !rent.is_exempt(escrow_account.lamports(), escrow_account.data_len()) {
-            return Err(EscrowError::NotRentExempt.into());
+        let _sys_var_clock = next_account_info(account_info_iter)?;
+
+        let _token_program_account = next_account_info(account_info_iter)?;
+
+        let user_reward_token_account_b = next_account_info(account_info_iter)?;
+        if user_reward_token_account_b.owner != program_id {
+            msg!("invalid user reward token account b");
+            return Err(ProgramError::IncorrectProgramId);
         }
+        
+        let _pool_reward_token_account_b = next_account_info(account_info_iter)?;
 
-        let mut escrow_info = Escrow::unpack_unchecked(&escrow_account.data.borrow())?;
-        if escrow_info.is_initialized() {
-            return Err(ProgramError::AccountAlreadyInitialized);
-        }
-
-        escrow_info.is_initialized = true;
-        escrow_info.initializer_pubkey = *initializer.key;
-        escrow_info.temp_token_account_pubkey = *temp_token_account.key;
-        escrow_info.initializer_token_to_receive_account_pubkey = *token_to_receive_account.key;
-        escrow_info.expected_amount = amount;
-
-        Escrow::pack(escrow_info, &mut escrow_account.data.borrow_mut())?;
-        let (pda, _nonce) = Pubkey::find_program_address(&[b"escrow"], program_id);
-
-        let token_program = next_account_info(account_info_iter)?;
-        let owner_change_ix = spl_token::instruction::set_authority(
-            token_program.key,
-            temp_token_account.key,
-            Some(&pda),
-            spl_token::instruction::AuthorityType::AccountOwner,
-            initializer.key,
-            &[&initializer.key],
-        )?;
-
-        msg!("Calling the token program to transfer token account ownership...");
-        invoke(
-            &owner_change_ix,
-            &[
-                temp_token_account.clone(),
-                initializer.clone(),
-                token_program.clone(),
-            ],
-        )?;
-
+    
         Ok(())
+
     }
 
-    fn process_exchange(
-        accounts: &[AccountInfo],
-        amount_expected_by_taker: u64,
-        program_id: &Pubkey,
-    ) -> ProgramResult {
-        let account_info_iter = &mut accounts.iter();
-        let taker = next_account_info(account_info_iter)?;
-
-        if !taker.is_signer {
-            return Err(ProgramError::MissingRequiredSignature);
-        }
-
-        let takers_sending_token_account = next_account_info(account_info_iter)?;
-
-        let takers_token_to_receive_account = next_account_info(account_info_iter)?;
-
-        let pdas_temp_token_account = next_account_info(account_info_iter)?;
-        let pdas_temp_token_account_info =
-            TokenAccount::unpack(&pdas_temp_token_account.data.borrow())?;
-        let (pda, nonce) = Pubkey::find_program_address(&[b"escrow"], program_id);
-
-        if amount_expected_by_taker != pdas_temp_token_account_info.amount {
-            return Err(EscrowError::ExpectedAmountMismatch.into());
-        }
-
-        let initializers_main_account = next_account_info(account_info_iter)?;
-        let initializers_token_to_receive_account = next_account_info(account_info_iter)?;
-        let escrow_account = next_account_info(account_info_iter)?;
-
-        let escrow_info = Escrow::unpack(&escrow_account.data.borrow())?;
-
-        if escrow_info.temp_token_account_pubkey != *pdas_temp_token_account.key {
-            return Err(ProgramError::InvalidAccountData);
-        }
-
-        if escrow_info.initializer_pubkey != *initializers_main_account.key {
-            return Err(ProgramError::InvalidAccountData);
-        }
-
-        if escrow_info.initializer_token_to_receive_account_pubkey
-            != *initializers_token_to_receive_account.key
-        {
-            return Err(ProgramError::InvalidAccountData);
-        }
-
-        let token_program = next_account_info(account_info_iter)?;
-
-        let transfer_to_initializer_ix = spl_token::instruction::transfer(
-            token_program.key,
-            takers_sending_token_account.key,
-            initializers_token_to_receive_account.key,
-            taker.key,
-            &[&taker.key],
-            escrow_info.expected_amount,
-        )?;
-        msg!("Calling the token program to transfer tokens to the escrow's initializer...");
-        invoke(
-            &transfer_to_initializer_ix,
-            &[
-                takers_sending_token_account.clone(),
-                initializers_token_to_receive_account.clone(),
-                taker.clone(),
-                token_program.clone(),
-            ],
-        )?;
-
-        let pda_account = next_account_info(account_info_iter)?;
-
-        let transfer_to_taker_ix = spl_token::instruction::transfer(
-            token_program.key,
-            pdas_temp_token_account.key,
-            takers_token_to_receive_account.key,
-            &pda,
-            &[&pda],
-            pdas_temp_token_account_info.amount,
-        )?;
-        msg!("Calling the token program to transfer tokens to the taker...");
-        invoke_signed(
-            &transfer_to_taker_ix,
-            &[
-                pdas_temp_token_account.clone(),
-                takers_token_to_receive_account.clone(),
-                pda_account.clone(),
-                token_program.clone(),
-            ],
-            &[&[&b"escrow"[..], &[nonce]]],
-        )?;
-
-        let close_pdas_temp_acc_ix = spl_token::instruction::close_account(
-            token_program.key,
-            pdas_temp_token_account.key,
-            initializers_main_account.key,
-            &pda,
-            &[&pda],
-        )?;
-        msg!("Calling the token program to close pda's temp account...");
-        invoke_signed(
-            &close_pdas_temp_acc_ix,
-            &[
-                pdas_temp_token_account.clone(),
-                initializers_main_account.clone(),
-                pda_account.clone(),
-                token_program.clone(),
-            ],
-            &[&[&b"escrow"[..], &[nonce]]],
-        )?;
-
-        msg!("Closing the escrow account...");
-        **initializers_main_account.lamports.borrow_mut() = initializers_main_account
-            .lamports()
-            .checked_add(escrow_account.lamports())
-            .ok_or(EscrowError::AmountOverflow)?;
-        **escrow_account.lamports.borrow_mut() = 0;
-        *escrow_account.data.borrow_mut() = &mut [];
-
-        Ok(())
-    }
 }

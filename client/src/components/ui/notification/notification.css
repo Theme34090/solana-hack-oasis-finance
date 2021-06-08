@@ -1,0 +1,8 @@
+.Toastify__toast--info {
+  /* background-color: #1a1818; */
+  color: whitesmoke;
+}
+
+.Toastify__toast--success {
+  background-color: #287428;
+}

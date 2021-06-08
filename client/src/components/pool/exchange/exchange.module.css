@@ -1,0 +1,85 @@
+.BaseTable {
+  display: none;
+  height: auto;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-align: center;
+  height: 10rem;
+  margin-bottom: 1rem;
+}
+
+.Open {
+  display: flex;
+}
+.Fee {
+  flex: 2 1;
+}
+.InputWrapper {
+  display: flex;
+  /* border: 1px solid #568b56; */
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  align-items: center;
+  justify-content: space-around;
+  background: #beecbe;
+}
+
+.Expanded {
+  display: flex;
+  flex-direction: column;
+  border-radius: 0.4rem;
+  background-color: #1d791d;
+  padding: 1rem 1rem;
+  margin: 0 2rem;
+  justify-content: space-evenly;
+  height: auto;
+  flex: 3 1;
+}
+
+.MaxBtn {
+  font: inherit;
+  color: black;
+  font-weight: bold;
+  font-size: 0.6rem;
+  opacity: 0.75;
+  width: 2rem;
+}
+
+.MaxBtn:hover {
+  opacity: 1;
+}
+
+.TokenSymbol {
+  font: inherit;
+  color: black;
+  font-size: 0.5rem;
+  width: 50px;
+}
+
+.Expanded input {
+  padding: 0.25rem;
+  /* border: 1px solid #ccc; */
+  border: none;
+  border-width: 0;
+  border-style: none;
+  font: inherit;
+  font-size: 0.6rem;
+  background: transparent;
+}
+
+.Expanded input::-webkit-outer-spin-button,
+.Expanded input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.Expanded input:focus {
+  outline: none;
+}
+
+.Expanded button {
+  cursor: pointer;
+  font: inherit;
+  font-weight: bold;
+}

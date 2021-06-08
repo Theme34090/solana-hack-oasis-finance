@@ -1,0 +1,20 @@
+.Btn {
+  width: 100%;
+  cursor: pointer;
+  padding: 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 0.2rem;
+  background-color: #025f02;
+  color: inherit;
+}
+
+.Btn:hover {
+  background-color: #057fd1;
+}
+
+.Btn:disabled,
+.Btn:disabled:hover {
+  cursor: not-allowed;
+  background-color: gray;
+  opacity: 0.2;
+}

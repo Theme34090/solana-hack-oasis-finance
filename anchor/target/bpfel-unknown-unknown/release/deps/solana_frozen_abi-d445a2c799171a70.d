@@ -1,0 +1,10 @@
+/Users/palll/Documents/GitHub/solana-hack-contract/anchor/target/bpfel-unknown-unknown/release/deps/solana_frozen_abi-d445a2c799171a70.rmeta: /Users/palll/.cargo/registry/src/github.com-1ecc6299db9ec823/solana-frozen-abi-1.6.10/src/lib.rs /Users/palll/.cargo/registry/src/github.com-1ecc6299db9ec823/solana-frozen-abi-1.6.10/src/abi_digester.rs /Users/palll/.cargo/registry/src/github.com-1ecc6299db9ec823/solana-frozen-abi-1.6.10/src/abi_example.rs /Users/palll/.cargo/registry/src/github.com-1ecc6299db9ec823/solana-frozen-abi-1.6.10/src/hash.rs
+
+/Users/palll/Documents/GitHub/solana-hack-contract/anchor/target/bpfel-unknown-unknown/release/deps/libsolana_frozen_abi-d445a2c799171a70.rlib: /Users/palll/.cargo/registry/src/github.com-1ecc6299db9ec823/solana-frozen-abi-1.6.10/src/lib.rs /Users/palll/.cargo/registry/src/github.com-1ecc6299db9ec823/solana-frozen-abi-1.6.10/src/abi_digester.rs /Users/palll/.cargo/registry/src/github.com-1ecc6299db9ec823/solana-frozen-abi-1.6.10/src/abi_example.rs /Users/palll/.cargo/registry/src/github.com-1ecc6299db9ec823/solana-frozen-abi-1.6.10/src/hash.rs
+
+/Users/palll/Documents/GitHub/solana-hack-contract/anchor/target/bpfel-unknown-unknown/release/deps/solana_frozen_abi-d445a2c799171a70.d: /Users/palll/.cargo/registry/src/github.com-1ecc6299db9ec823/solana-frozen-abi-1.6.10/src/lib.rs /Users/palll/.cargo/registry/src/github.com-1ecc6299db9ec823/solana-frozen-abi-1.6.10/src/abi_digester.rs /Users/palll/.cargo/registry/src/github.com-1ecc6299db9ec823/solana-frozen-abi-1.6.10/src/abi_example.rs /Users/palll/.cargo/registry/src/github.com-1ecc6299db9ec823/solana-frozen-abi-1.6.10/src/hash.rs
+
+/Users/palll/.cargo/registry/src/github.com-1ecc6299db9ec823/solana-frozen-abi-1.6.10/src/lib.rs:
+/Users/palll/.cargo/registry/src/github.com-1ecc6299db9ec823/solana-frozen-abi-1.6.10/src/abi_digester.rs:
+/Users/palll/.cargo/registry/src/github.com-1ecc6299db9ec823/solana-frozen-abi-1.6.10/src/abi_example.rs:
+/Users/palll/.cargo/registry/src/github.com-1ecc6299db9ec823/solana-frozen-abi-1.6.10/src/hash.rs:

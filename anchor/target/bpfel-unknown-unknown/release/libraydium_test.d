@@ -1,0 +1,1 @@
+/Users/palll/Documents/GitHub/solana-hack-contract/anchor/target/bpfel-unknown-unknown/release/libraydium_test.rlib: /Users/palll/Documents/GitHub/solana-hack-contract/anchor/programs/raydium-test/src/lib.rs

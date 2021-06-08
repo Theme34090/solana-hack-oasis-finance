@@ -1,0 +1,2 @@
+cargo:rustc-env=TYPENUM_BUILD_CONSTS=/Users/palll/Documents/GitHub/solana-hack-contract/anchor/target/release/build/typenum-272cd481e4945eaa/out/consts.rs
+cargo:rustc-env=TYPENUM_BUILD_OP=/Users/palll/Documents/GitHub/solana-hack-contract/anchor/target/release/build/typenum-272cd481e4945eaa/out/op.rs
