@@ -1,25 +1,22 @@
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { cloneDeep, get } from "lodash-es";
 
 import classes from "./farm.module.css";
 import { useWallet } from "../../store/wallet";
-import {
-  FarmInfo,
-  FARMS,
-  getFarmByLpMintAddress,
-  getFarmRewardAccount,
-} from "../../utils/farms";
+import { FarmInfo, FARMS, getFarmByLpMintAddress } from "../../utils/farms";
 
 import { PoolItem, PoolHeader } from "../../components/pool/pool";
 import Switch from "../../components/ui/switch/switch";
 import { TokenAmount } from "../../utils/safe-math";
 import { useConnection } from "../../store/connection";
-import { getPrices } from "../../store/price";
 import { requestInfos } from "../../store/liquidity";
-import { updateFarms } from "./user";
 import { getStakeAccounts } from "../../store/farm";
 import { depositV4, withdrawV4 } from "../../utils/stake";
 import { confirmTransaction } from "../../utils/transaction";
+import { StakeAccounts } from "../../store/farm";
+import LoadingSpinner from "../../components/ui/loading-spinner/loading-spinner";
+
+import { notifyInfo } from "../../components/ui/notification/notification";
 
 interface FarmProps {}
 
@@ -31,59 +28,73 @@ const Farm: React.FC<FarmProps> = () => {
 
   const [isStakedMode, setIsStakedMode] = useState<boolean>(false);
 
+  const [stakeAccounts, setStakeAccounts] = useState<StakeAccounts>({});
+
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  // TODO: clean up farm state management
+  const [showStakeModal, setShowStakeModal] = useState<boolean>(false);
+
   const toggleStakedModeHandler = () => {
     setIsStakedMode((prevState) => !prevState);
   };
 
   const getBalance = (mintAddress: string) => {
     const balance = get(tokenAccounts, `${mintAddress}.balance`) as TokenAmount;
-    return balance ? balance.fixed() : "dummy balance";
+    return balance ? balance.fixed() : "0.000000";
   };
+  // TODO: clean up farm state management
+  // const selectFarmHandler = (farm: FarmInfo) => {
+  //   setCurrentFarm(farm);
+  // };
 
   // };
 
   // stake lp
-  // const stakeLP = (coinAddress: string, pcAddress: string, amount: string) => {
-  const stakeLP = async () => {
-    const farm = FARMS[0];
+  // const stakeLP = async (farm: FarmInfo, amount: string) => {
+  const stakeLP = async (currentFarm: FarmInfo, amount: string) => {
     const lpAccount = get(
       tokenAccounts,
-      `${farm.lp.mintAddress}.tokenAccountAddress`
+      `${currentFarm.lp.mintAddress}.tokenAccountAddress`
     );
     const rewardAccount = get(
       tokenAccounts,
-      `${farm.reward.mintAddress}.tokenAccountAddress`
+      `${currentFarm.reward.mintAddress}.tokenAccountAddress`
     );
     const rewardAccountB = get(
       tokenAccounts,
-      `${farm.rewardB!.mintAddress}.tokenAccountAddress`
+      `${currentFarm.rewardB!.mintAddress}.tokenAccountAddress`
     );
-    // // TODO:  stake account address
-    // const infoAccount = "";
-    console.log(">> lpAccount : ", lpAccount);
-    console.log(">> reward account :", rewardAccount);
-    console.log(">> reward b account :", rewardAccountB);
-    const infoA = "ABcqFsuBWfHtMmSBrYiVKQwpngMg7GUFaKsWViEKFiup";
-    const infoB = "4Mk9DtUksdhgb7vt3g5ssoUSM76vs36BfagNKC7NdG8i";
-    const infoC = "Q3euXfw74FA9FyowwkRtPniVtqH3UQhrkeKYk9FK6KQ";
-    const tx = await depositV4(
+
+    const infoAccount = get(
+      stakeAccounts,
+      `${currentFarm.poolId}.stakeAccountAddress`
+    );
+
+    console.log("LpAccount", lpAccount);
+    console.log("rewardAccount", rewardAccount);
+    console.log("rewardAccountB", rewardAccountB);
+    console.log("infoAccount", infoAccount);
+
+    const txId = await depositV4(
       connection,
       wallet,
-      farm,
+      currentFarm,
       lpAccount,
       rewardAccount,
       rewardAccountB,
-      infoA,
-      "1"
+      // @ts-ignore
+      infoAccount,
+      amount
     );
-    console.log("Tx :", tx);
-    confirmTransaction(tx, "hello", connection);
+    // console.log("Tx :", tx);
+    console.log("txId : ", txId);
+    notifyInfo(txId);
+    confirmTransaction(txId, connection);
   };
 
-  const withDraw = async () => {
-    const infoA = "ABcqFsuBWfHtMmSBrYiVKQwpngMg7GUFaKsWViEKFiup";
-    const farm = FARMS[0];
-
+  const withdraw = async (farm: FarmInfo, amount: string) => {
+    console.log("withdraw....");
     const lpAccount = get(
       tokenAccounts,
       `${farm.lp.mintAddress}.tokenAccountAddress`
@@ -97,35 +108,45 @@ const Farm: React.FC<FarmProps> = () => {
       `${farm.rewardB!.mintAddress}.tokenAccountAddress`
     );
 
-    const tx = await withdrawV4(
+    const infoAccount = get(
+      stakeAccounts,
+      `${farm.poolId}.stakeAccountAddress`
+    );
+
+    const txId = await withdrawV4(
       connection,
       wallet,
       farm,
       lpAccount,
       rewardAccount,
       rewardAccountB,
-      infoA,
-      "1"
+      //@ts-ignore
+      infoAccount,
+      amount
     );
-
-    console.log("Tx :", tx);
-    confirmTransaction(tx, "hello", connection);
+    console.log("txId : ", txId);
+    notifyInfo(txId);
+    confirmTransaction(txId, connection);
   };
 
   const updateFarm = async () => {
+    console.log("update farm");
+    setIsLoading(true);
+    const farm = FARMS[0];
     // getFarmRewardAccount(connection);
-    // const liquidity = await requestInfos(connection);
-    // console.log("liquidity", liquidity);
+    const liquidity = await requestInfos(connection);
+    console.log("liquidity", liquidity);
 
     // const farms = await getFarmRewardAccount(connection);
     // console.log("farm ", farms);
 
-    const stakeAcc = await getStakeAccounts(connection, wallet, connected);
-    console.log("stake acc: ", stakeAcc);
+    const stakeAccounts = await getStakeAccounts(connection, wallet, connected);
+    console.log("stake account ", stakeAccounts);
 
     // const price = await getPrices();
+    // console.log("price", price);
 
-    // const results = await updateFarms(farms, stakeAcc, liquidity, price);
+    // const results = await updateFarms(farms, stakeAccounts, liquidity, price);
     // console.log(results);
     // for (const res of results) {
     //   console.log(res.farmInfo.name);
@@ -134,7 +155,18 @@ const Farm: React.FC<FarmProps> = () => {
     //   const deposit = (res.userInfo.depositBalance as TokenAmount).fixed();
     //   console.log("deposit :", deposit);
     // }
+
+    return stakeAccounts;
   };
+
+  useEffect(() => {
+    updateFarm().then((stakeAccounts) => {
+      setIsLoading(false);
+      setStakeAccounts((prevState) => {
+        return { ...prevState, ...stakeAccounts };
+      });
+    });
+  }, [wallet, connected]);
 
   let farm = cloneDeep(FARMS);
 
@@ -156,11 +188,8 @@ const Farm: React.FC<FarmProps> = () => {
       mintA={farm.lp.coin.mintAddress}
       mintB={farm.lp.pc.mintAddress}
       walletBalance={getBalance(farm.lp.mintAddress)}
-      deposit={stakeLP.bind(
-        this,
-        farm.lp.coin.mintAddress,
-        farm.lp.pc.mintAddress
-      )}
+      deposit={stakeLP.bind(this, farm)}
+      withdraw={withdraw.bind(this, farm)}
     />
   ));
 
@@ -174,9 +203,9 @@ const Farm: React.FC<FarmProps> = () => {
         <PoolHeader />
         {pool}
       </div>
-      <button onClick={stakeLP}>STAKE LP</button>
-      <button onClick={withDraw}>WITHDRAW LP</button>
-      <button onClick={updateFarm}>UPDATE FARM</button>
+      {isLoading ? <LoadingSpinner /> : null}
+      {/* <button onClick={stakeLP}>STAKE LP</button> */}
+      {/* <button onClick={withDraw}>WITHDRAW LP</button> */}
     </div>
   );
 };

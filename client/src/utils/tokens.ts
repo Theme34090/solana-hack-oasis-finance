@@ -2,7 +2,6 @@
 
 import { TokenAmount } from './safe-math';
 import { cloneDeep } from 'lodash-es';
-import { Token } from '@solana/spl-token';
 
 export interface TokenInfo {
     symbol: string

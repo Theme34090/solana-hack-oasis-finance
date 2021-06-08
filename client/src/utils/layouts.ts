@@ -24,3 +24,4 @@ export const MINT_LAYOUT = struct([
     u32('freezeAuthorityOption'),
     publicKey('freezeAuthority')
 ])
+

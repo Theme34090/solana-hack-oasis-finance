@@ -1,8 +1,7 @@
 use solana_program::program_error::{ProgramError};
 use solana_program::{ msg };
-use std::convert::TryInto;
 use borsh::{BorshDeserialize,BorshSerialize};
-use serde::{Serialize,Deserialize};
+use serde::{Serialize};
 
 use crate::error::EscrowError::InvalidInstruction;
 
@@ -14,40 +13,21 @@ pub struct ProvideLPData  {
     pub fixed_from_coin: u64,
 }
 
-pub enum EscrowInstruction {
-    /// Starts the trade by creating and populating an escrow account and transferring ownership of the given temp token account to the PDA
-    ///
-    ///
-    /// Accounts expected:
-    ///
-    /// 0. `[signer]` The account of the person initializing the escrow
-    /// 1. `[writable]` Temporary token account that should be created prior to this instruction and owned by the initializer
-    /// 2. `[]` The initializer's token account for the token they will receive should the trade go through
-    /// 3. `[writable]` The escrow account, it will hold all necessary info about the trade.
-    /// 4. `[]` The rent sysvar
-    /// 5. `[]` The token program
-    InitEscrow {
-        /// The amount party A expects to receive of token Y
-        amount: u64,
-    },
-    /// Accepts a trade
-    ///
-    ///
-    /// Accounts expected:
-    ///
-    /// 0. `[signer]` The account of the person taking the trade
-    /// 1. `[writable]` The taker's token account for the token they send
-    /// 2. `[writable]` The taker's token account for the token they will receive should the trade go through
-    /// 3. `[writable]` The PDA's temp token account to get tokens from and eventually close
-    /// 4. `[writable]` The initializer's main account to send their rent fees to
-    /// 5. `[writable]` The initializer's token account that will receive tokens
-    /// 6. `[writable]` The escrow account holding the escrow info
-    /// 7. `[]` The token program
-    /// 8. `[]` The PDA account
-    Exchange {
-        /// the amount the taker expects to be paid in the other token, as a u64 because that's the max possible supply of a token
-        amount: u64,
-    },
+#[derive(BorshDeserialize,BorshSerialize, Debug, Serialize)]
+pub struct DepositData {
+    pub instruction: u8,
+    pub amount: u64,
+}
+
+
+#[derive(BorshDeserialize,BorshSerialize, Debug, Serialize)]
+pub struct WithdrawData {
+    pub instruction: u8,
+    pub amount: u64,
+}
+
+pub enum RaydiumInstruction {
+
         /// Accepts a trade
     ///
     ///
@@ -72,33 +52,43 @@ pub enum EscrowInstruction {
         fixed_from_coin: u64,
     },
 
-    MockRaydium {
+    Withdraw {
         instruction: u8,
-        max_coin_amount: u64,
-        max_pc_amount: u64,
-        fixed_from_coin: u64,
+        amount: u64,
+    },
+    Deposit {
+        instruction: u8,
+        amount: u64,
     }
+
 }
 
-impl EscrowInstruction {
+impl RaydiumInstruction {
     /// Unpacks a byte buffer into a [EscrowInstruction](enum.EscrowInstruction.html).
     pub fn unpack(input: &[u8]) -> Result<Self, ProgramError> {
         let (tag, _rest) = input.split_first().ok_or(InvalidInstruction)?;
-        
         match tag {
-            2 => {
-                let data = ProvideLPData::try_from_slice(input)?;
-                // TODO: remove mock invoke radium
-                return Ok(Self::MockRaydium{
+            1 => {
+                msg!("1. deserialize data");
+                let data = DepositData::try_from_slice(input)?;
+                msg!("2. calling...");
+                Ok(Self::Deposit {
                     instruction: data.instruction,
-                    max_coin_amount: data.max_coin_amount,
-                    max_pc_amount: data.max_pc_amount,
-                    fixed_from_coin: data.fixed_from_coin,
+                    amount: data.amount,
+                })
+            },
+            2 => {
+                msg!("deserialize data");
+                let data = WithdrawData::try_from_slice(input)?;
+                msg!("calling...");
+                Ok(Self::Withdraw {
+                    instruction: data.instruction,
+                    amount: data.amount,
                 })
             },
             3 => {
                 let data = ProvideLPData::try_from_slice(input)?;
-                return Ok(Self::ProvideLP {
+                Ok(Self::ProvideLP {
                     instruction: data.instruction,
                     max_coin_amount: data.max_coin_amount,
                     max_pc_amount: data.max_pc_amount,

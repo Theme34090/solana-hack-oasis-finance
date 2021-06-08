@@ -1,6 +1,4 @@
 import { useState } from "react";
-// import { useConnectionConfig } from "../../store/connection";
-// import { getTokenSymbol } from "../../utils/utils";
 
 import PoolIcon from "./pool-icon/pool-icon";
 import Exchange from "./exchange/exchange";
@@ -13,6 +11,7 @@ type PoolItemProps = {
   mintB: string;
   walletBalance: string;
   deposit: (amount: string) => any;
+  withdraw: (amount: string) => any;
 };
 
 export const PoolItem: React.FC<PoolItemProps> = ({
@@ -21,6 +20,7 @@ export const PoolItem: React.FC<PoolItemProps> = ({
   mintA,
   mintB,
   deposit,
+  withdraw,
 }) => {
   const [selected, setSelected] = useState(false);
 
@@ -49,7 +49,13 @@ export const PoolItem: React.FC<PoolItemProps> = ({
           <i className={classes.ArrowDown}></i>
         </div>
       </div>
-      <Exchange deposit={deposit} show={selected} />
+      <Exchange
+        symbol={symbol}
+        maxLp={walletBalance}
+        deposit={deposit}
+        withdraw={withdraw}
+        show={selected}
+      />
     </div>
   );
 };

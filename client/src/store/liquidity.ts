@@ -4,7 +4,7 @@ import { commitment, createAmmAuthority, getFilterProgramAccounts, getMultipleAc
 
 import { OpenOrders, _MARKET_STATE_LAYOUT_V2 } from '@project-serum/serum/lib/market';
 // @ts-ignore
-import { nu64, struct, u8 } from 'buffer-layout'
+import { struct } from 'buffer-layout'
 import { publicKey, u64, u128 } from '@project-serum/borsh'
 import { LP_TOKENS, NATIVE_SOL, TOKENS } from "../utils/tokens";
 import { ACCOUNT_LAYOUT, MINT_LAYOUT } from "../utils/layouts";
@@ -49,193 +49,6 @@ export async function getLpMintListDecimals(
 
 }
 
-
-// export async function setLiquidity(
-//     connection: Connection
-// ) {
-
-//     const ammAll = await getFilterProgramAccounts(
-//         connection,
-//         new PublicKey(LIQUIDITY_POOL_PROGRAM_ID_V2),
-//         [
-//             // {
-//             //     // TODO: amm layout
-//             //     // @ts-ignore  
-//             //     dataSize: AMM_INFO_LAYOUT_V4.span
-//             // }
-//         ]
-//     );
-
-//     const marketAll = await getFilterProgramAccounts(
-//         connection,
-//         new PublicKey(SERUM_PROGRAM_ID_V3),
-//         // TODO: market layout
-//         // @ts-ignore
-//         [
-//             // { dataSize: _MARKET_STATE_LAYOUT_V2.span }
-//         ]
-//     );
-
-//     const marketToLayout: { [name: string]: any } = {}
-//     marketAll.forEach((item) => {
-//         marketToLayout[item.publicKey.toString()] = _MARKET_STATE_LAYOUT_V2.decode(item.accountInfo.data)
-//     });
-
-//     const lpMintAddressList: string[] = []
-//     ammAll.forEach((item) => {
-//         const ammLayout = AMM_INFO_LAYOUT.decode(Buffer.from(item.accountInfo.data))
-//         if (
-//             ammLayout.pcMintAddress.toString() === ammLayout.serumMarket.toString() ||
-//             ammLayout.lpMintAddress.toString() === '11111111111111111111111111111111'
-//         ) {
-//             return
-//         }
-//         lpMintAddressList.push(ammLayout.lpMintAddress.toString())
-//     });
-
-//     const lpMintListDecimls = await getLpMintListDecimals(connection, lpMintAddressList)
-//     console.log(lpMintListDecimls);
-
-
-// }
-
-export const AMM_INFO_LAYOUT = struct([
-    u64('status'),
-    u64('nonce'),
-    u64('orderNum'),
-    u64('depth'),
-    u64('coinDecimals'),
-    u64('pcDecimals'),
-    u64('state'),
-    u64('resetFlag'),
-    u64('fee'),
-    u64('minSize'),
-    u64('volMaxCutRatio'),
-    u64('pnlRatio'),
-    u64('amountWaveRatio'),
-    u64('coinLotSize'),
-    u64('pcLotSize'),
-    u64('minPriceMultiplier'),
-    u64('maxPriceMultiplier'),
-    u64('needTakePnlCoin'),
-    u64('needTakePnlPc'),
-    u64('totalPnlX'),
-    u64('totalPnlY'),
-    u64('systemDecimalsValue'),
-    publicKey('poolCoinTokenAccount'),
-    publicKey('poolPcTokenAccount'),
-    publicKey('coinMintAddress'),
-    publicKey('pcMintAddress'),
-    publicKey('lpMintAddress'),
-    publicKey('ammOpenOrders'),
-    publicKey('serumMarket'),
-    publicKey('serumProgramId'),
-    publicKey('ammTargetOrders'),
-    publicKey('ammQuantities'),
-    publicKey('poolWithdrawQueue'),
-    publicKey('poolTempLpTokenAccount'),
-    publicKey('ammOwner'),
-    publicKey('pnlOwner')
-])
-
-
-
-export const AMM_INFO_LAYOUT_V3 = struct([
-    u64('status'),
-    u64('nonce'),
-    u64('orderNum'),
-    u64('depth'),
-    u64('coinDecimals'),
-    u64('pcDecimals'),
-    u64('state'),
-    u64('resetFlag'),
-    u64('fee'),
-    u64('min_separate'),
-    u64('minSize'),
-    u64('volMaxCutRatio'),
-    u64('pnlRatio'),
-    u64('amountWaveRatio'),
-    u64('coinLotSize'),
-    u64('pcLotSize'),
-    u64('minPriceMultiplier'),
-    u64('maxPriceMultiplier'),
-    u64('needTakePnlCoin'),
-    u64('needTakePnlPc'),
-    u64('totalPnlX'),
-    u64('totalPnlY'),
-    u64('systemDecimalsValue'),
-    publicKey('poolCoinTokenAccount'),
-    publicKey('poolPcTokenAccount'),
-    publicKey('coinMintAddress'),
-    publicKey('pcMintAddress'),
-    publicKey('lpMintAddress'),
-    publicKey('ammOpenOrders'),
-    publicKey('serumMarket'),
-    publicKey('serumProgramId'),
-    publicKey('ammTargetOrders'),
-    publicKey('ammQuantities'),
-    publicKey('poolWithdrawQueue'),
-    publicKey('poolTempLpTokenAccount'),
-    publicKey('ammOwner'),
-    publicKey('pnlOwner'),
-    publicKey('srmTokenAccount')
-])
-
-export const AMM_INFO_LAYOUT_V4 = struct([
-    u64('status'),
-    u64('nonce'),
-    u64('orderNum'),
-    u64('depth'),
-    u64('coinDecimals'),
-    u64('pcDecimals'),
-    u64('state'),
-    u64('resetFlag'),
-    u64('minSize'),
-    u64('volMaxCutRatio'),
-    u64('amountWaveRatio'),
-    u64('coinLotSize'),
-    u64('pcLotSize'),
-    u64('minPriceMultiplier'),
-    u64('maxPriceMultiplier'),
-    u64('systemDecimalsValue'),
-    // Fees
-    u64('minSeparateNumerator'),
-    u64('minSeparateDenominator'),
-    u64('tradeFeeNumerator'),
-    u64('tradeFeeDenominator'),
-    u64('pnlNumerator'),
-    u64('pnlDenominator'),
-    u64('swapFeeNumerator'),
-    u64('swapFeeDenominator'),
-    // OutPutData
-    u64('needTakePnlCoin'),
-    u64('needTakePnlPc'),
-    u64('totalPnlPc'),
-    u64('totalPnlCoin'),
-    u128('poolTotalDepositPc'),
-    u128('poolTotalDepositCoin'),
-    u128('swapCoinInAmount'),
-    u128('swapPcOutAmount'),
-    u64('swapCoin2PcFee'),
-    u128('swapPcInAmount'),
-    u128('swapCoinOutAmount'),
-    u64('swapPc2CoinFee'),
-
-    publicKey('poolCoinTokenAccount'),
-    publicKey('poolPcTokenAccount'),
-    publicKey('coinMintAddress'),
-    publicKey('pcMintAddress'),
-    publicKey('lpMintAddress'),
-    publicKey('ammOpenOrders'),
-    publicKey('serumMarket'),
-    publicKey('serumProgramId'),
-    publicKey('ammTargetOrders'),
-    publicKey('poolWithdrawQueue'),
-    publicKey('poolTempLpTokenAccount'),
-    publicKey('ammOwner'),
-    publicKey('pnlOwner')
-])
-
 export async function requestInfos(
     conn: Connection,
 
@@ -244,6 +57,7 @@ export async function requestInfos(
     const ammAll = await getFilterProgramAccounts(
         conn,
         new PublicKey(LIQUIDITY_POOL_PROGRAM_ID_V2),
+        // new PublicKey("9rpQHSyFVM1dkkHFQ2TtTzPEW7DVmEyPmN8wVniqJtuC"),
         [
             {
                 dataSize: AMM_INFO_LAYOUT_V4.span
@@ -255,6 +69,7 @@ export async function requestInfos(
     const marketAll = await getFilterProgramAccounts(
         conn,
         new PublicKey(SERUM_PROGRAM_ID_V3),
+        // new PublicKey("DESVgJVGajEgKGXhb6XmqDHGz3VjdgP7rEVESBgxmroY"),
         [
             {
                 dataSize: _MARKET_STATE_LAYOUT_V2.span
@@ -513,3 +328,142 @@ export async function requestInfos(
 
     return liquidityPools;
 }
+
+
+
+export const AMM_INFO_LAYOUT = struct([
+    u64('status'),
+    u64('nonce'),
+    u64('orderNum'),
+    u64('depth'),
+    u64('coinDecimals'),
+    u64('pcDecimals'),
+    u64('state'),
+    u64('resetFlag'),
+    u64('fee'),
+    u64('minSize'),
+    u64('volMaxCutRatio'),
+    u64('pnlRatio'),
+    u64('amountWaveRatio'),
+    u64('coinLotSize'),
+    u64('pcLotSize'),
+    u64('minPriceMultiplier'),
+    u64('maxPriceMultiplier'),
+    u64('needTakePnlCoin'),
+    u64('needTakePnlPc'),
+    u64('totalPnlX'),
+    u64('totalPnlY'),
+    u64('systemDecimalsValue'),
+    publicKey('poolCoinTokenAccount'),
+    publicKey('poolPcTokenAccount'),
+    publicKey('coinMintAddress'),
+    publicKey('pcMintAddress'),
+    publicKey('lpMintAddress'),
+    publicKey('ammOpenOrders'),
+    publicKey('serumMarket'),
+    publicKey('serumProgramId'),
+    publicKey('ammTargetOrders'),
+    publicKey('ammQuantities'),
+    publicKey('poolWithdrawQueue'),
+    publicKey('poolTempLpTokenAccount'),
+    publicKey('ammOwner'),
+    publicKey('pnlOwner')
+])
+
+
+
+export const AMM_INFO_LAYOUT_V3 = struct([
+    u64('status'),
+    u64('nonce'),
+    u64('orderNum'),
+    u64('depth'),
+    u64('coinDecimals'),
+    u64('pcDecimals'),
+    u64('state'),
+    u64('resetFlag'),
+    u64('fee'),
+    u64('min_separate'),
+    u64('minSize'),
+    u64('volMaxCutRatio'),
+    u64('pnlRatio'),
+    u64('amountWaveRatio'),
+    u64('coinLotSize'),
+    u64('pcLotSize'),
+    u64('minPriceMultiplier'),
+    u64('maxPriceMultiplier'),
+    u64('needTakePnlCoin'),
+    u64('needTakePnlPc'),
+    u64('totalPnlX'),
+    u64('totalPnlY'),
+    u64('systemDecimalsValue'),
+    publicKey('poolCoinTokenAccount'),
+    publicKey('poolPcTokenAccount'),
+    publicKey('coinMintAddress'),
+    publicKey('pcMintAddress'),
+    publicKey('lpMintAddress'),
+    publicKey('ammOpenOrders'),
+    publicKey('serumMarket'),
+    publicKey('serumProgramId'),
+    publicKey('ammTargetOrders'),
+    publicKey('ammQuantities'),
+    publicKey('poolWithdrawQueue'),
+    publicKey('poolTempLpTokenAccount'),
+    publicKey('ammOwner'),
+    publicKey('pnlOwner'),
+    publicKey('srmTokenAccount')
+])
+
+export const AMM_INFO_LAYOUT_V4 = struct([
+    u64('status'),
+    u64('nonce'),
+    u64('orderNum'),
+    u64('depth'),
+    u64('coinDecimals'),
+    u64('pcDecimals'),
+    u64('state'),
+    u64('resetFlag'),
+    u64('minSize'),
+    u64('volMaxCutRatio'),
+    u64('amountWaveRatio'),
+    u64('coinLotSize'),
+    u64('pcLotSize'),
+    u64('minPriceMultiplier'),
+    u64('maxPriceMultiplier'),
+    u64('systemDecimalsValue'),
+    // Fees
+    u64('minSeparateNumerator'),
+    u64('minSeparateDenominator'),
+    u64('tradeFeeNumerator'),
+    u64('tradeFeeDenominator'),
+    u64('pnlNumerator'),
+    u64('pnlDenominator'),
+    u64('swapFeeNumerator'),
+    u64('swapFeeDenominator'),
+    // OutPutData
+    u64('needTakePnlCoin'),
+    u64('needTakePnlPc'),
+    u64('totalPnlPc'),
+    u64('totalPnlCoin'),
+    u128('poolTotalDepositPc'),
+    u128('poolTotalDepositCoin'),
+    u128('swapCoinInAmount'),
+    u128('swapPcOutAmount'),
+    u64('swapCoin2PcFee'),
+    u128('swapPcInAmount'),
+    u128('swapCoinOutAmount'),
+    u64('swapPc2CoinFee'),
+
+    publicKey('poolCoinTokenAccount'),
+    publicKey('poolPcTokenAccount'),
+    publicKey('coinMintAddress'),
+    publicKey('pcMintAddress'),
+    publicKey('lpMintAddress'),
+    publicKey('ammOpenOrders'),
+    publicKey('serumMarket'),
+    publicKey('serumProgramId'),
+    publicKey('ammTargetOrders'),
+    publicKey('poolWithdrawQueue'),
+    publicKey('poolTempLpTokenAccount'),
+    publicKey('ammOwner'),
+    publicKey('pnlOwner')
+])

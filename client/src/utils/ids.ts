@@ -5,7 +5,10 @@ export const WRAPPED_SOL_MINT = new PublicKey(
 );
 
 
-export const SOL_HACK_PROGRAM_ID = "6YigQ7cU6ubLt9sh7MG3KTguU4BrwqbxsWS5UrUuGNYy";
+// export const SOL_HACK_PROGRAM_ID = "6YigQ7cU6ubLt9sh7MG3KTguU4BrwqbxsWS5UrUuGNYy";
+export const SOL_HACK_PROGRAM_ID = "67JFgy8TD8Nek8Xq9F4RT3aYBAkSXcEW8nJUN3LN6Uj2";
+
+
 
 // export const SOL_HACK_PROGRAM_ID = "88LBeryRsS2HpywWCB3bAKZR1BVih8vQSR2ihrUtTy7B";
 

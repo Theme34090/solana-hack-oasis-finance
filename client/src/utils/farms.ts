@@ -7,10 +7,9 @@ import { TokenAmount } from './safe-math';
 import { getMultipleAccounts } from '../utils/web3';
 import { commitment } from './web3';
 //@ts-ignore
-import { nu64, struct, u8, blob } from 'buffer-layout'
+import { struct, u8, blob } from 'buffer-layout'
 import { publicKey, u128, u64 } from '@project-serum/borsh'
 import { ACCOUNT_LAYOUT } from './layouts';
-import { pool } from '../store/pool';
 
 export interface FarmInfo {
     name: string

@@ -1,25 +1,31 @@
-import React, { useReducer } from "react";
+import React, { useEffect, useReducer } from "react";
 import { useWallet } from "../../../store/wallet";
 import Button from "../../ui/button/button";
 import classes from "./exchange.module.css";
 
 type InputState = {
   value: string;
+  max: number;
   isValid: boolean;
 };
 
 enum ActionType {
   UserInput = "USER_INPUT",
   InputBlur = "INPUT_BLUR",
+  MaxChange = "MAX_CHANGE",
 }
 
 type InputAction = {
   type: ActionType;
   value?: string;
+  max?: number;
 };
 
-const isValidInput = (value: string) => {
-  return !isNaN(+value) && +value > 0;
+const isValidInput = (value: string, max: number) => {
+  const amount = +value;
+  const isNumber = !isNaN(amount);
+  if (!isNumber || amount < 0) return false;
+  return amount <= max;
 };
 
 const inputReducer = (
@@ -30,24 +36,40 @@ const inputReducer = (
     case ActionType.UserInput:
       return {
         value: action.value || "",
-        isValid: action.value ? isValidInput(action.value) : false,
+        isValid: action.value
+          ? isValidInput(action.value, prevState.max)
+          : false,
+        max: prevState.max,
       };
     case ActionType.InputBlur:
-      return { value: prevState.value, isValid: isValidInput(prevState.value) };
+      return {
+        value: prevState.value,
+        isValid: isValidInput(prevState.value, prevState.max),
+        max: prevState.max,
+      };
+    case ActionType.MaxChange:
+      return {
+        value: prevState.value,
+        isValid: isValidInput(prevState.value, prevState.max),
+        max: action.max || 0,
+      };
     default:
-      return { value: "", isValid: false };
+      return { value: "", isValid: false, max: prevState.max };
   }
 };
 
 type ViewProps = {
   clicked: (value: string) => any;
+  max: string;
+  symbol: string;
 };
 
-const View: React.FC<ViewProps> = ({ clicked, children }) => {
+const View: React.FC<ViewProps> = ({ symbol, max, clicked, children }) => {
   const { connected } = useWallet();
   const [inputState, dispatchInput] = useReducer(inputReducer, {
-    value: "",
+    value: "0.00",
     isValid: false,
+    max: !isNaN(+max) ? +max : 0,
   });
   const { isValid } = inputState;
 
@@ -59,15 +81,29 @@ const View: React.FC<ViewProps> = ({ clicked, children }) => {
     dispatchInput({ type: ActionType.InputBlur });
   };
 
+  const onMax = () => {
+    dispatchInput({ type: ActionType.UserInput, value: max });
+  };
+
+  useEffect(() => {
+    dispatchInput({ type: ActionType.MaxChange, max: !isNaN(+max) ? +max : 0 });
+  }, [max]);
+
   return (
     <div className={classes.Expanded}>
-      <input
-        type="number"
-        placeholder="Enter deposit amount..."
-        value={inputState.value}
-        onChange={inputChangeHandler}
-        onBlur={validateInputHandler}
-      />
+      <div className={classes.InputWrapper}>
+        <input
+          type="number"
+          placeholder="Enter deposit amount..."
+          value={inputState.value}
+          onChange={inputChangeHandler}
+          onBlur={validateInputHandler}
+        />
+        <div className={classes.MaxBtn} onClick={onMax}>
+          MAX
+        </div>
+        <div className={classes.TokenSymbol}>{symbol}</div>
+      </div>
       <Button
         clicked={() => clicked(inputState.value)}
         disabled={!isValid || !connected}
@@ -80,14 +116,19 @@ const View: React.FC<ViewProps> = ({ clicked, children }) => {
 
 interface ExchangeProps {
   show: boolean;
+  maxLp: string;
+  symbol: string;
   deposit: (amount: string) => any;
+  withdraw: (amount: string) => any;
 }
 
-const Exchange: React.FC<ExchangeProps> = ({ deposit, show }) => {
-  const withdrawnHandler = (amount: string) => {
-    console.log("withdrawn: ", amount);
-  };
-
+const Exchange: React.FC<ExchangeProps> = ({
+  symbol,
+  maxLp,
+  deposit,
+  withdraw,
+  show,
+}) => {
   const baseTableClasses = [classes.BaseTable];
   if (show) {
     baseTableClasses.push(classes.Open);
@@ -96,8 +137,12 @@ const Exchange: React.FC<ExchangeProps> = ({ deposit, show }) => {
   return (
     <div className={baseTableClasses.join(" ")}>
       <p className={classes.Fee}>Fees</p>
-      <View clicked={deposit}>Deposit</View>
-      <View clicked={withdrawnHandler}>Withdrawn</View>
+      <View symbol={symbol} max={maxLp} clicked={deposit}>
+        Deposit
+      </View>
+      <View symbol={symbol} max={maxLp} clicked={withdraw}>
+        Withdrawn
+      </View>
     </div>
   );
 };

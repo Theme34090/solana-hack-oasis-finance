@@ -1,24 +1,22 @@
+
 import { Connection, Context, SignatureResult } from "@solana/web3.js";
-import { notify } from "../utils/notification";
+import { notifySuccess, notifyError } from "../components/ui/notification/notification";
 
 export const confirmTransaction = (
     txid: string,
-    description: string,
     connection: Connection,
 ) => {
 
-    const listenerID = connection.onSignature(
+    connection.onSignature(
         txid,
-        (signatureResult: SignatureResult, context: Context) => {
-            const { slot } = context;
+        (signatureResult: SignatureResult, _context: Context) => {
 
             if (!signatureResult.err) {
                 // success
-                alert("Transaction has been confirmed")
-
+                notifySuccess(txid);
             } else {
                 // failed
-                alert(`Transaction failed : ${signatureResult.err}`)
+                notifyError(txid);
                 console.error(signatureResult.err)
             }
 
