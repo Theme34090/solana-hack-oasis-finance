@@ -1,5 +1,5 @@
 /node_modules
 .anchor
 .DS_Store
-target
+/target/
 **/*.rs.bk
