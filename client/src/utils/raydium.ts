@@ -22,7 +22,7 @@ const vaultRewardTokenAccountB = "DbrG528NvAUqBnqvsCU1Trj8Ex4JqFudxtwFWQzxR1b3"
 
 
 
-async function createTokenAccount(provider: anchor.Provider, mint: anchor.web3.PublicKey, owner: anchor.web3.PublicKey) {
+export async function createTokenAccount(provider: anchor.Provider, mint: anchor.web3.PublicKey, owner: anchor.web3.PublicKey) {
     const vault = anchor.web3.Keypair.generate();
     const tx = new anchor.web3.Transaction();
     tx.add(
