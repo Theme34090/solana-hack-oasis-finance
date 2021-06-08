@@ -20,6 +20,7 @@ anchor-spl = "0.7.0"
 # anchor-spl = { path = "../spl" }
 # raydium-test = { path = "../raydium-test", features = ["cpi"] }
 swap = { path = "../swap", features = ["cpi"] }
+new-vault = { path = "../new-vault", features = ["cpi"] }
 
 [lib]
 crate-type = ["cdylib", "lib"]

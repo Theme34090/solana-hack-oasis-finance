@@ -51,18 +51,10 @@ pub mod autocompound {
         };
         let swap_cpi_ctx = CpiContext::new(swap_cpi_program, swap_cpi_accounts);
         swap::cpi::swap(swap_cpi_ctx, Side::Ask, swapAmount, minExpectedSwapAmount);
-        // let swap_cpi_ctx = CpiContext::new(
-
-        //     ctx.accounts.swap.clone());
-        // swap::cpi:swap(
-        //     swap_cpi_ctx, 
-        //     Side::Ask, // use Ask for sell
-        //     swapAmount,  // FIXME:
-        //     minExpectedSwapAmount // FIXME:
-        // );
         // add to liquidity
 
         // provide liquidity
+        
         Ok(())
     }
 }
