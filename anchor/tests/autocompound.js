@@ -1,4 +1,5 @@
 const anchor = require("@project-serum/anchor");
+const serumCmn = require("@project-serum/common");
 const Market = require("@project-serum/serum").Market;
 const web3 = require("@project-serum/anchor").web3;
 const BN = require("@project-serum/anchor").BN;
@@ -19,7 +20,7 @@ describe("test autocompound", () => {
     // const pcMint = "FSRvxBNrQWX2Fy2qvKMLL3ryEdRtE3PUTZBcdKwASZTU";  // X
     const SWAP_PID = "B6URxgGFQP9dVDVEdhveLsszZrRjYKMV7VD6vEWfxmvV";
     const AUTOCOMPOUND_PID = "3uAa11DScJgik8H4HkCzbTWVJ4TUgTEcumczYR3HiMqg";
-    
+
     const SWAP_IDL = "target/idl/swap.json";
     const AUTOCOMPOUND_IDL = "target/idl/autocompound.json";
     // const MARKET_ID = "9afBGdJBBCyVJcZHXjGg19d1VTej3JRQhHUr8eQBqSXE";  // COIN/X, local
@@ -45,40 +46,40 @@ describe("test autocompound", () => {
         const marketVaultSigner = vaultSigner;
         const openOrders = await generateOpenOrder(provider, market);
 
+        const txn_accounts = {
+            // vaultRewardTokenAccount: new PublicKey(quoteTokenAddress),
+            swapProgram: swap_program._programId,
+            market: market._decoded.ownAddress,
+            requestQueue: market._decoded.requestQueue,
+            eventQueue: market._decoded.eventQueue,
+            bids: market._decoded.bids,
+            asks: market._decoded.asks,
+            coinVault: market._decoded.baseVault,
+            pcVault: market._decoded.quoteVault,
+            vaultSigner: marketVaultSigner,
+            // user params
+            openOrders: openOrders.publicKey,
+            orderPayerTokenAccount: new PublicKey(baseTokenAddress), //  user's token wallet holding `from` token
+            coinWallet: new PublicKey(baseTokenAddress),  // user's token wallet holding `to` token
+            // others
+            authority: provider.wallet.publicKey,
+            pcWallet: new PublicKey(quoteTokenAddress),
+            dexProgram: DEX_PID,
+            tokenProgram: TOKEN_PROGRAM_ID,
+            rent: anchor.web3.SYSVAR_RENT_PUBKEY
+        };
+
         console.log("Account before swap:");
-        displayBalanceOnMarket(provider, market);
+        await displayBalanceOnMarket(provider, market);
 
         await autocompound_program.rpc.autocompound(
-            {
-                accounts: {
-                    // vaultRewardTokenAccount: new PublicKey(quoteTokenAddress),
-                    swapProgram: swap_program._programId,
-                    market: market._decoded.ownAddress,
-                    requestQueue: market._decoded.requestQueue,
-                    eventQueue: market._decoded.eventQueue,
-                    bids: market._decoded.bids,
-                    asks: market._decoded.asks,
-                    coinVault: market._decoded.baseVault,
-                    pcVault: market._decoded.quoteVault,
-                    vaultSigner: marketVaultSigner,
-                    // user params
-                    openOrders: openOrders.publicKey,
-                    orderPayerTokenAccount: new PublicKey(baseTokenAddress), //  user's token wallet holding `from` token
-                    coinWallet: new PublicKey(baseTokenAddress),  // user's token wallet holding `to` token
-                    // others
-                    authority: provider.wallet.publicKey,
-                    pcWallet: new PublicKey(quoteTokenAddress),
-                    dexProgram: DEX_PID,
-                    tokenProgram: TOKEN_PROGRAM_ID,
-                    rent: anchor.web3.SYSVAR_RENT_PUBKEY
-                },
-                    
-            });
-        })
-
-        // console.log("Account after swap:");
-        // displayBalanceOnMarket(provider, market);
+        {
+            accounts: txn_accounts,
+        });
+        console.log("Account after swap:");
+        await displayBalanceOnMarket(provider, market);
     })
+})
 
 
 //// MARKET ////

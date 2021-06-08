@@ -65,7 +65,7 @@ pub mod swap {
             Side::Ask => orderbook.sell(amount, referral.clone(), &ctx.accounts.dex_program)?,
         };
         msg!("2");
-        orderbook.settle(referral)?;
+        orderbook.settle(referral, &ctx.accounts.dex_program)?;
         msg!("Execute trade.");
 
         // Token balances after the trade.
@@ -250,10 +250,11 @@ impl<'info> OrderbookClient<'info> {
         msg!("Calling new_order_v3");
         let use_side = match side {
             Side::Bid => serum_dex::matching::Side::Bid,
-            Side::Ask => serum_dex::matching::Side::Bid,
+            Side::Ask => serum_dex::matching::Side::Ask,
         };
 
         let referral_accs = ctx.remaining_accounts.iter().next();
+        
         let ix = serum_dex::instruction::new_order(
             ctx.accounts.market.key,
             ctx.accounts.open_orders.key,
@@ -300,7 +301,7 @@ impl<'info> OrderbookClient<'info> {
         // )
     }
 
-    fn settle(&self, referral: Option<AccountInfo<'info>>) -> ProgramResult {
+    fn settle(&self, referral: Option<AccountInfo<'info>>, dexPID: &AccountInfo<'info>) -> ProgramResult {
         let settle_accs = dex::SettleFunds {
             market: self.market.market.clone(),
             open_orders: self.market.open_orders.clone(),
@@ -316,7 +317,27 @@ impl<'info> OrderbookClient<'info> {
         if let Some(referral) = referral {
             ctx = ctx.with_remaining_accounts(vec![referral]);
         }
-        dex::settle_funds(ctx)
+        // dex::settle_funds(ctx)
+        let referral = ctx.remaining_accounts.iter().next();
+        let ix = serum_dex::instruction::settle_funds(
+            &*dexPID.key,
+            ctx.accounts.market.key,
+            ctx.accounts.token_program.key,
+            ctx.accounts.open_orders.key,
+            ctx.accounts.open_orders_authority.key,
+            ctx.accounts.coin_vault.key,
+            ctx.accounts.coin_wallet.key,
+            ctx.accounts.pc_vault.key,
+            ctx.accounts.pc_wallet.key,
+            referral.map(|r| r.key),
+            ctx.accounts.vault_signer.key,
+        )?;
+        solana_program::program::invoke_signed(
+            &ix,
+            &ToAccountInfos::to_account_infos(&ctx),
+            ctx.signer_seeds,
+        )?;
+        Ok(())
     }
 }
 
